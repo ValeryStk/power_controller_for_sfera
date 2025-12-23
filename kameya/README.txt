@@ -1,0 +1,1 @@
+https://cloud.yandex.ru/services/speechkit#hybrid

@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../../kameya/sounds/accuracy_fail.mp3</file>
+        <file>../../kameya/sounds/bigSphereAngle.mp3</file>
+        <file>../../kameya/sounds/calculation.mp3</file>
+        <file>../../kameya/sounds/calibration_data_ready.mp3</file>
+        <file>../../kameya/sounds/checkWarnings.mp3</file>
+        <file>../../kameya/sounds/finishCalibration.mp3</file>
+        <file>../../kameya/sounds/irSensor.mp3</file>
+        <file>../../kameya/sounds/lamps_is_switched_on.mp3</file>
+        <file>../../kameya/sounds/leftSafetyAngle.mp3</file>
+        <file>../../kameya/sounds/linearLightsAngle.mp3</file>
+        <file>../../kameya/sounds/network_error.mp3</file>
+        <file>../../kameya/sounds/notLoaded.mp3</file>
+        <file>../../kameya/sounds/preparations.mp3</file>
+        <file>../../kameya/sounds/rightSafetyAngle.mp3</file>
+        <file>../../kameya/sounds/safety.mp3</file>
+        <file>../../kameya/sounds/settings.mp3</file>
+        <file>../../kameya/sounds/smallSphereAngle.mp3</file>
+        <file>../../kameya/sounds/startCalibration.mp3</file>
+        <file>../../kameya/sounds/startTest.mp3</file>
+        <file>../../kameya/sounds/switchOnLamps.mp3</file>
+        <file>../../kameya/sounds/testOk.mp3</file>
+        <file>../../kameya/sounds/testProblem.mp3</file>
+        <file>../../kameya/sounds/timeOutCase.mp3</file>
+        <file>../../kameya/sounds/visibleSensor.mp3</file>
+        <file>../../kameya/sounds/welcome.mp3</file>
+    </qresource>
+    <qresource prefix="/."/>
+</RCC>

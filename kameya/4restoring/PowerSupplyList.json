@@ -1,0 +1,86 @@
+[
+    {
+        "IP": "192.168.1.24",
+        "MAC": "00-00-00-00-00-00",
+        "PowerSupplyName": "PS_1",
+        "isConnected": false,
+        "out1": {
+            "Current_target": 10.000,
+            "Delta_V": 0,
+            "Delta_t": 0,
+            "LimitCurrent": 10.000,
+            "LimitVoltage": 0,
+            "Power": 0,
+            "TargetName": "Lamp 1",
+            "Voltage": 0,
+            "isOn": false
+        },
+        "out2": {
+            "Current_target": 10.003,
+            "Delta_V": 0,
+            "Delta_t": 0,
+            "LimitCurrent": 10.003,
+            "LimitVoltage": 0,
+            "Power": 0,
+            "TargetName": "Lamp 2",
+            "Voltage": 0,
+            "isOn": false
+        }
+    },
+    {
+        "IP": "192.168.1.23",
+        "MAC": "00-00-00-00-00-00",
+        "PowerSupplyName": "",
+        "isConnected": false,
+        "out1": {
+            "Current_target": 10.005,
+            "Delta_V": 0,
+            "Delta_t": 0,
+            "LimitCurrent": 10.005,
+            "LimitVoltage": 0,
+            "Power": 0,
+            "TargetName": "Lamp 3",
+            "Voltage": 0,
+            "isOn": false
+        },
+        "out2": {
+            "Current_target": 10.004,
+            "Delta_V": 0,
+            "Delta_t": 0,
+            "LimitCurrent": 10.004,
+            "LimitVoltage": 0,
+            "Power": 0,
+            "TargetName": "Lamp 4",
+            "Voltage": 0,
+            "isOn": false
+        }
+    },
+    {
+        "IP": "192.168.1.22",
+        "MAC": "00-00-00-00-00-00",
+        "PowerSupplyName": "",
+        "isConnected": false,
+        "out1": {
+            "Current_target": 10.004,
+            "Delta_V": 0,
+            "Delta_t": 0,
+            "LimitCurrent": 10.004,
+            "LimitVoltage": 0,
+            "Power": 0,
+            "TargetName": "Lamp 5",
+            "Voltage": 0,
+            "isOn": false
+        },
+        "out2": {
+            "Current_target": 10.000,
+            "Delta_V": 0,
+            "Delta_t": 0,
+            "LimitCurrent": 10.000,
+            "LimitVoltage": 0,
+            "Power": 0,
+            "TargetName": "Lamp 6",
+            "Voltage": 0,
+            "isOn": false
+        }
+    }
+]
