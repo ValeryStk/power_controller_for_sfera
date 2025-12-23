@@ -1,5 +1,4 @@
 HEADERS += \
-    $$PWD/WaveShiftFinder.h \
     CommandsBuilder.h\
     MainWindow.h\
     graphics_items\OpticTable.h\
@@ -10,7 +9,6 @@ HEADERS += \
     Types.h
 
 SOURCES += \
-    $$PWD/WaveShiftFinder.cpp \
     MainWindow.cpp\
     graphics_items\OpticTable.cpp \
     PowerSupplyManager.cpp \
