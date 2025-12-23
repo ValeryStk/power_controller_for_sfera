@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>4restoring/PowerSupplyList.json</file>
-        <file>4restoring/README.txt</file>
         <file>sounds/accuracy_fail.mp3</file>
         <file>sounds/bigSphereAngle.mp3</file>
         <file>sounds/calculation.mp3</file>
