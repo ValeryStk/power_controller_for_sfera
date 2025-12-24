@@ -75,60 +75,6 @@ void MainWindow::showMessageBox(QMessageBox::Icon ico, QString titleText, QStrin
     msgBox.exec();
 }
 
-void MainWindow::createTreeFolders()
-{
-    rootDir = QDir::currentPath()+"/KAMEYA";
-    QDir dir(rootDir);
-    if(!dir.exists())dir.mkdir(rootDir);
-    rootDir.append("/");
-    rootDir.append(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
-    dir.mkdir(rootDir);
-
-    QString rootIr = rootDir;
-    QString rootVisible = rootDir;
-
-    if(m_activeSensor == INFRA_RED_SENSOR){
-        rootIr.append("/").append(sensorNames.irSensor);
-        dir.mkdir(rootIr);
-    }
-
-    if(m_activeSensor == VISIBLE_RANGE_SENSOR){
-        rootVisible.append("/").append(sensorNames.visibleSensor);
-        dir.mkdir(rootVisible);
-    }
-
-
-    for(int i = 1;i<7;++i){
-
-        QString tempIr = rootIr;
-        QString tempVis = rootVisible;
-
-        if(m_activeSensor == INFRA_RED_SENSOR){
-            tempIr.append("/").append(QString::number(i));
-            dir.mkdir(tempIr);
-            QString bS_Ir = tempIr,small_S_Ir = tempIr,Laser_Ir = tempIr;
-            bS_Ir.append("/").append(srcNames.bigSphere);
-            dir.mkdir(bS_Ir);
-            small_S_Ir.append("/").append(srcNames.smallSphere);
-            dir.mkdir(small_S_Ir);
-            Laser_Ir.append("/").append(srcNames.linearLights);
-            dir.mkdir(Laser_Ir);
-        }
-        if(m_activeSensor == VISIBLE_RANGE_SENSOR){
-            tempVis.append("/").append(QString::number(i));
-            dir.mkdir(tempVis);
-            QString bS_Vis = tempVis,small_S_Vis = tempVis,Laser_Vis = tempVis;
-            bS_Vis.append("/").append(srcNames.bigSphere);
-            dir.mkdir(bS_Vis);
-            small_S_Vis.append("/").append(srcNames.smallSphere);
-            dir.mkdir(small_S_Vis);
-            Laser_Vis.append("/").append(srcNames.linearLights);
-            dir.mkdir(Laser_Vis);
-        }
-
-    }
-
-}
 
 bool MainWindow::checkSafetyUser()
 {
@@ -138,28 +84,6 @@ bool MainWindow::checkSafetyUser()
     else return false;
 }
 
-
-void MainWindow::startMeasuringAfterGatheringExpositions()
-{
-    m_logic.calibrAction = CalibrSteps::GATHERING_DATA;
-    m_gettingSpecs       = SpectralGetting::CloseShutter;
-    expoIndex = m_expositionsList.size() - 1;
-    isStop = true;
-    if(src_expositions.big_sphere > src_expositions.small_spheare)
-       src_expositions.big_sphere = src_expositions.small_spheare;
-    if(src_expositions.big_sphere < src_expositions.small_spheare)
-       src_expositions.small_spheare = src_expositions.big_sphere;
-    qDebug()<<"+++++++++++++++++ START MEASURING +++++++++++++++++++++++";
-    qDebug()<<"Src expositions bs: " <<src_expositions.big_sphere;
-    qDebug()<<"Src expositions ss: " <<src_expositions.small_spheare;
-    qDebug()<<"Src expositions ll: " <<src_expositions.linear_lights;
-    qDebug()<<"Src expositions:    " <<src_expositions.isAllExpoGood;
-    m_gettingSpecs = SpectralGetting::CapturingBlacks;
-    setSavingPath();
-    setMetaData();
-    isStop = false;
-    getSingleSpectr4ActiveSensor();
-}
 
 void MainWindow::setSavingPath()
 {
@@ -522,18 +446,6 @@ void MainWindow::showCurrentWavelength()
 
 }
 
-void MainWindow::getSingleSpectr4ActiveSensor()
-{
-    switch(m_activeSensor){
-    case VISIBLE_RANGE_SENSOR:emit requestVisibleSpectr();
-        break;
-    case INFRA_RED_SENSOR: emit requestInfraredSpectr();
-        break;
-    case UKNOWN_SENSOR:
-        break;}
-
-}
-
 void MainWindow::openFolderInExplorer()
 {
     QString openExplorer = "c:/windows/explorer.exe";
@@ -584,7 +496,6 @@ void MainWindow::continueCalibrProcess()
         isStop = false;
         m_gettingSpecs =   SpectralGetting::CapturingReal;
         setMetaData();
-        getSingleSpectr4ActiveSensor();
         return;
     };
     if(m_gettingSpecs == SpectralGetting::CapturingReal){
@@ -639,17 +550,7 @@ void MainWindow::showElapsedHeatingTime()
 
 void MainWindow::anglePositionIsReached()
 {
-    if(m_logic.calibrAction == CalibrSteps::GET_OPTIMAL_EXPO){
 
-        m_isAngleReached = true;
-        getSingleSpectr4ActiveSensor();
-
-    };
-    if(m_logic.calibrAction == CalibrSteps::GATHERING_DATA){
-
-        startMeasuringAfterGatheringExpositions();
-
-    }
 }
 
 
@@ -730,16 +631,6 @@ void MainWindow::on_pushButton_angleSmallSphere_clicked()
 void MainWindow::on_pushButton_angleLasers_clicked()
 {
     m_sounder.playSound("linearLightsAngle.mp3");
-}
-
-void MainWindow::on_pushButton_angleRightSafety_clicked()
-{
-    double angle = ui->doubleSpinBox_angleSafetyRight->value();
-    m_sounder.playSound("rightSafetyAngle.mp3");
-}
-
-void MainWindow::on_pushButton_zero_clicked()
-{
 }
 
 void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)

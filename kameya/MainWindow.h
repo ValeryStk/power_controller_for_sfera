@@ -70,9 +70,7 @@ private:
     void setUpScene();
     void makeConnects();
     void showMessageBox  (QMessageBox::Icon ico, QString titleText, QString text);
-    void createTreeFolders();
     bool checkSafetyUser();
-    void startMeasuringAfterGatheringExpositions();
     void setSavingPath();
     void setMetaData();
     void changeWave();
@@ -123,8 +121,7 @@ private slots:
     void on_pushButton_angleBigSphere_clicked();
     void on_pushButton_angleSmallSphere_clicked();
     void on_pushButton_angleLasers_clicked();
-    void on_pushButton_angleRightSafety_clicked();
-    void on_pushButton_zero_clicked();
+
     void on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1);
 
     void showElapsedHeatingTime();
@@ -134,7 +131,6 @@ private slots:
     void showFilterState();
     void showGratingState();
     void showCurrentWavelength();
-    void getSingleSpectr4ActiveSensor();
 
     void openFolderInExplorer();
 
@@ -145,9 +141,5 @@ private slots:
     void afterLampWasSwitchedOff();
     void on_pushButton_switchOffOneLamp_clicked();
 
-
-signals:
-    void requestVisibleSpectr();
-    void requestInfraredSpectr();
 };
 #endif // MAINWINDOW_H
