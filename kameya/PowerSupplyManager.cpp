@@ -342,7 +342,7 @@ void PowerSupplyManager::recieveData()
                 else{
                     //Добавить команду выключения выхода
                     qDebug()<<"Decreasing is finished...";
-                    switchOffUnit(m_outNumber);//NOT TESTED
+                    //switchOffUnit(m_outNumber);//NOT TESTED
                 }
                 break;
             }

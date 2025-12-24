@@ -38,7 +38,6 @@ private:
     SpectralGetting     m_gettingSpecs;
     QString             rootDir;
 
-    QSettings          *m_ini;
     QTimer              m_opticalParamsChangigTimer;
     QTimer              m_afterLampsOnHeatingTimer;
 
@@ -47,11 +46,7 @@ private:
     QMovie              m_movie;
     PowerSupplyManager *m_powerManager;
 
-    QStringList m_expositionsList;
-    QMap<QString, QVector<QMap<QString,double>>> m_expositions_for_grade1200;
-    QMap<QString, QVector<QMap<QString,double>>> m_expositions_for_grade300;
-    QJsonObject expositions_for_grade_1200;
-    QJsonObject expositions_for_grade_300;
+
     bool m_isTestPassed;
     bool m_isGraphUpdate;
     bool m_isControlPressed;
@@ -66,15 +61,11 @@ private:
     void initializeVariables();
     void createObjects();
     void setUpGui();
-    void setUpGraph(QCustomPlot *widget);
     void setUpScene();
     void makeConnects();
     void showMessageBox  (QMessageBox::Icon ico, QString titleText, QString text);
     bool checkSafetyUser();
     void setSavingPath();
-    void setMetaData();
-    void changeWave();
-    double getExpositionFromJson();
 
     bool   isStop = false;
     double maxProfileValue;
@@ -94,17 +85,9 @@ private:
     QGraphicsScene *m_sceneCalibr;
     QGraphicsScene *m_scenePrepare;
     OpticTable *ot;
-    SourcesNames srcNames;
-
-    SensorNames sensorNames;
     LampsNumber m_lampsNumber;
-    QVector<double> m_angles;
-    AnglesScene m_anglesScene;
-    calibrParams m_process;
-    solarTasksResults solarResults;
-    void getProcessParams();
-    void getExpositions();
-    void showSpectralPlot(QCustomPlot* cp, SensorType st, QVector<double>* data, double max, double min);
+
+
     void getFilterIndex(int &filterIndex, const int waveLength);
     QJsonDocument readJsonDocumentFromFile(const QString &docName);
     QShortcut *repeatLastNotification;
@@ -121,23 +104,10 @@ private slots:
     void on_pushButton_angleBigSphere_clicked();
     void on_pushButton_angleSmallSphere_clicked();
     void on_pushButton_angleLasers_clicked();
-
     void on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1);
 
     void showElapsedHeatingTime();
-    void anglePositionIsReached();
-
-    void showShutterState();
-    void showFilterState();
-    void showGratingState();
-    void showCurrentWavelength();
-
     void openFolderInExplorer();
-
-    void afterDarkReady();
-    void checkShutterState();
-    void saveAnglesToJson();
-    void continueCalibrProcess();
     void afterLampWasSwitchedOff();
     void on_pushButton_switchOffOneLamp_clicked();
 

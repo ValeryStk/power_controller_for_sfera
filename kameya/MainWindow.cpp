@@ -24,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     makeConnects();
     qApp->installEventFilter(this);
     m_sounder.playSound("welcome.mp3");
-    getProcessParams();
-    getExpositions();
     connect(&m_afterLampsOnHeatingTimer,SIGNAL(timeout()),SLOT(showElapsedHeatingTime()));
 }
 
@@ -84,91 +82,6 @@ bool MainWindow::checkSafetyUser()
     else return false;
 }
 
-
-void MainWindow::setSavingPath()
-{
-    QString path = rootDir;
-    if(m_activeSensor == INFRA_RED_SENSOR){
-        path.append("/").append(sensorNames.irSensor).append("/");
-    }
-    if(m_activeSensor == VISIBLE_RANGE_SENSOR){
-        path.append("/").append(sensorNames.visibleSensor).append("/");
-    }
-
-    path.append(QString::number(m_lampsCounter)).append("/");
-
-    switch(m_logic.lightSource){
-    case BIG_SPHERE:path.append(srcNames.bigSphere);
-        break;
-    case SMALL_SPHERE:path.append(srcNames.smallSphere);
-        break;
-    case LINEAR_LIGHTS:path.append(srcNames.linearLights);
-        break;
-    case NOT_POINTED:
-        break;
-    }
-    path.append("/");
-
-
-    setMetaData();
-    qDebug()<<"Saving path: "<<path;
-}
-
-void MainWindow::setMetaData()
-{
-
-    QString metaData;
-    metaData = "_";
-    if(m_gettingSpecs == SpectralGetting::CapturingBlacks)metaData.append("_black");
-    if(m_gettingSpecs == SpectralGetting::CapturingReal)  metaData.append("_real");
-
-}
-
-void MainWindow::changeWave()
-{
-    switch(m_activeSensor){
-    case VISIBLE_RANGE_SENSOR:
-        ++ m_process.visibleSensor.currentWaveIndex;
-        if(m_process.visibleSensor.currentWaveIndex == m_process.visibleSensor.lambdas.size()){
-            m_powerManager->switchOffOneLamp();
-            return;
-        }//In this case we have to switch off one lamp
-
-        break;
-    case INFRA_RED_SENSOR:
-        ++ m_process.infraRedSensor.currentWaveIndex;
-        if(m_process.infraRedSensor.currentWaveIndex == m_process.infraRedSensor.lambdas.size()){
-            m_powerManager->switchOffOneLamp();
-            return;
-        }//In this case we have to switch off one lamp
-
-        break;
-    case UKNOWN_SENSOR:
-        break;
-    }
-}
-
-double MainWindow::getExpositionFromJson()
-{
-    QString key = QString::number(m_lampsCounter);
-    key.prepend("lamp");
-    QString waveVR = QString::number(m_process.visibleSensor.lambdas.at(m_process.visibleSensor.currentWaveIndex));
-    QString waveIR = QString::number(m_process.infraRedSensor.lambdas.at(m_process.infraRedSensor.currentWaveIndex));
-
-    switch (m_activeSensor) {
-    case VISIBLE_RANGE_SENSOR:
-        return  expositions_for_grade_1200.find(key)->toObject().value(waveVR).toDouble();
-        break;
-    case INFRA_RED_SENSOR:
-        return expositions_for_grade_300.find(key)->toObject().value(waveIR).toDouble();
-        break;
-    case UKNOWN_SENSOR:
-        break;
-    };
-    return 0;
-}
-
-
 QJsonDocument MainWindow::readJsonDocumentFromFile(const QString &docName)
 {
     QFile file(docName);
@@ -181,101 +94,6 @@ QJsonDocument MainWindow::readJsonDocumentFromFile(const QString &docName)
     }
     file.close();
     return doc;
-}
-
-void MainWindow::getProcessParams()
-{
-
-    QJsonObject m_process_params = readJsonDocumentFromFile(QDir::currentPath()+"/calibr_process.json").object();
-    QJsonObject obj =  m_process_params.find("vrs")->toObject();
-    m_process.visibleSensor.grade = obj.value("grade").toInt();
-    m_process.visibleSensor.slit =  obj.value("slit").toInt();
-    QJsonArray arr = obj.value("lambdas").toArray();
-    for(const auto &it:qAsConst(arr))m_process.visibleSensor.lambdas.push_back(it.toInt());
-
-    obj = m_process_params.find("irs")->toObject();
-    m_process.infraRedSensor.grade = obj.value("grade").toInt();
-    m_process.infraRedSensor.slit =  obj.value("slit").toInt();
-
-
-    arr = obj.value("lambdas").toArray();
-    for(const auto &it:qAsConst(arr))m_process.infraRedSensor.lambdas.push_back(it.toInt());
-
-
-    obj = m_process_params.find("angles")->toObject();
-    ui->doubleSpinBox_angleBigSphere->setValue(obj.value("bigSphere").toDouble());
-    ui->doubleSpinBox_angleSmallSphere->setValue(obj.value("smallSphere").toDouble());
-    ui->doubleSpinBox_angleSafetyLeft->setValue(obj.value("leftSafety").toDouble());
-    ui->doubleSpinBox_angleLinearLights->setValue(obj.value("linearLight").toDouble());
-    ui->doubleSpinBox_angleSafetyRight->setValue(obj.value("rightSafety").toDouble());
-
-    m_anglesScene.bigSphere = ui->doubleSpinBox_angleBigSphere->value();
-    m_anglesScene.smallSphere = ui->doubleSpinBox_angleSmallSphere->value();
-    m_anglesScene.linearLight = ui->doubleSpinBox_angleLinearLights->value();
-    m_anglesScene.leftSafety = ui->doubleSpinBox_angleSafetyLeft->value();
-    m_anglesScene.rightSafety = ui->doubleSpinBox_angleSafetyRight->value();
-    setUpScene();
-    m_sceneCalibr->update();
-    m_isResetZero = false;
-
-
-    for(auto it:qAsConst(m_process.visibleSensor.lambdas)) qDebug()<<"Lambda vs:"<<it;
-    for(auto it:qAsConst(m_process.infraRedSensor.lambdas))qDebug()<<"Lambda ir:"<<it;
-    qDebug()<<"vs grade: "<<m_process.visibleSensor.grade;
-    qDebug()<<"irs grade: "<<m_process.infraRedSensor.grade;
-
-}
-
-void MainWindow::getExpositions()
-{
-    QJsonObject expositions = readJsonDocumentFromFile(QDir::currentPath()+"/expositions.json").object();
-
-    qDebug()<<"Read expositions JSON.....";
-    expositions_for_grade_1200 =  expositions.find("1200")->toObject();
-    expositions_for_grade_300 = expositions.find("300")->toObject();
-
-    //Read expositions test
-    QStringList lamps = expositions_for_grade_1200.keys();
-    qDebug()<<"lamps size: "<<lamps.size();
-
-    for(int i=0;i<lamps.size();++i){
-        QJsonObject lamp = expositions_for_grade_1200.find(lamps[i])->toObject();
-        QStringList expositionsKeys = lamp.keys();
-        QVector<QMap<QString,double>> lampValues;
-        qDebug()<<"************** Lamp name:"<<lamps.at(i)<<"\n";
-        for(const auto &it:qAsConst(expositionsKeys)){
-            qDebug()<<it<<lamp.value(it).toDouble();
-            auto map = QMap<QString,double>();
-            map.insert(it,lamp.value(it).toDouble());
-
-        }
-        m_expositions_for_grade1200.insert(lamps[i],lampValues);
-    }
-    qDebug()<<"grade1200: "<<m_expositions_for_grade1200.size();
-    //obj.value("bigSphere").toDouble();
-    //QJsonObject m_process_params = readJsonDocumentFromFile(QDir::currentPath()+"/calibr_process.json").object();
-    //QJsonObject obj =  m_process_params.find("vrs")->toObject();
-    //qDebug()<<"Get expositions from json: "<<getExpositionFromJson();
-}
-
-void MainWindow::showSpectralPlot(QCustomPlot *cp, SensorType st, QVector<double> *data, double max, double min)
-{
-
-    Q_UNUSED(st);
-    QVector<double>spectr = *data;
-    QVector <double> channels;
-    for(int i=1;i<=spectr.size();++i){
-        channels.push_back(i);
-    }
-    cp->clearGraphs();
-    cp->addGraph();
-    cp->graph(0)->setPen(QPen(QColor("green"),2));
-    cp->graph(0)->setData(channels,spectr);
-    cp->xAxis->setTickLabelRotation(30);
-    cp->xAxis->ticker()->setTickCount(9);
-    cp->yAxis->setRange(min, max);
-    cp->xAxis->setRange(0, spectr.count());
-    cp->replot();
 }
 
 void MainWindow::openRootFolder()
@@ -322,21 +140,7 @@ void MainWindow::testSlot()
 
 void MainWindow::initializeVariables()
 {
-    m_expositionsList<<"8.352"    <<"16.704"  <<"25.056" <<"41.760"
-                    <<"58.464"   <<"75.168"  <<"83.520" <<"91.872"
-                   <<"150.336"  <<"192.096" <<"208.800" <<"217.152"
-                  <<"258.912"  <<"283.968" <<"292.320" <<"501.120"
-                 <<"601.344"  <<"701.568" <<"902.016" <<"1002.240"
-                <<"1102.464" <<"1302.912"<<"1403.136" <<"1503.360";
-    ui->comboBox_exposition->addItems(m_expositionsList);
 
-    grades = {{1200,0},{600,1},{300, 2}};
-
-
-
-    solarResults = {false,false,false,false,false};
-
-    QStringList lightSource = {"Малая сфера","Большая сфера","Лазер"};
     QStringList pages = {
         "Приветствие","Техника безопасности","Тестирование",
         "Подготовка к калибровке",
@@ -346,8 +150,6 @@ void MainWindow::initializeVariables()
 
     m_testsResults = {false,false,false,false,false,false,false};
     m_isTestPassed = false;
-
-    m_isGraphUpdate = false;
     m_isControlPressed = false;
     m_lampsCounter = 6;
 
@@ -375,7 +177,6 @@ void MainWindow::setUpGui()
     ui->label_TitlePage->setText(m_pages.value(ui->stackedWidget->currentIndex()));
     ui->centralwidget->setStyleSheet("background-color:#2E2F30;color:lightgrey");
     ui->pushButton_Backward->setVisible(false);
-    setUpGraph(ui->widget_spectrData_tuneUp);
 
     m_movie.setFileName(":/guiPictures/calculation_process.gif");
     ui->label_calculation->setMovie(&m_movie);
@@ -385,33 +186,11 @@ void MainWindow::setUpGui()
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-void MainWindow::setUpGraph(QCustomPlot *widget)
-{
-    QColor fontColor(0,128,0);
-    QColor backgroundColor(0,0,0);
-
-    widget->xAxis->setBasePen(QPen(fontColor, 1));
-    widget->yAxis->setBasePen(QPen(fontColor, 1));
-    widget->xAxis->setTickPen(QPen(fontColor, 1));
-    widget->yAxis->setTickPen(QPen(fontColor, 1));
-    widget->xAxis->setSubTickPen(QPen(fontColor, 1));
-    widget->yAxis->setSubTickPen(QPen(fontColor, 1));
-    widget->xAxis->setTickLabelColor(fontColor);
-    widget->yAxis->setTickLabelColor(fontColor);
-    widget->xAxis->grid()->setPen(QPen(fontColor, 1, Qt::DotLine));
-    widget->yAxis->grid()->setPen(QPen(fontColor, 1, Qt::DotLine));
-    widget->xAxis->setLabelColor(fontColor);
-    widget->yAxis->setLabelColor(fontColor);
-    widget->setBackground(backgroundColor);
-}
-
 void MainWindow::setUpScene()
 {
     ui->graphicsView->setScene(m_sceneCalibr);
     ot = new OpticTable;
     m_sceneCalibr->addItem(ot);
-    ot->setAngles(m_anglesScene);
-    ot->setAngle(m_anglesScene.bigSphere);
 }
 
 void MainWindow::makeConnects()
@@ -427,24 +206,6 @@ void MainWindow::makeConnects()
     connect(m_powerManager,&PowerSupplyManager::timeOutCaseWasHappened,this,&MainWindow::timeOutCaseHandler);
 }
 
-void MainWindow::showShutterState()
-{
-
-}
-
-void MainWindow::showFilterState()
-{
-
-}
-
-void MainWindow::showGratingState()
-{
-}
-
-void MainWindow::showCurrentWavelength()
-{
-
-}
 
 void MainWindow::openFolderInExplorer()
 {
@@ -454,74 +215,6 @@ void MainWindow::openFolderInExplorer()
     QProcess::startDetached(openExplorer, args);
 }
 
-void MainWindow::afterDarkReady()
-{
-
-}
-
-void MainWindow::checkShutterState()
-{
-
-}
-
-void MainWindow::saveAnglesToJson()
-{
-    QFile file(QDir::currentPath()+"\\calibr_process.json");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QJsonParseError JsonParseError;
-    QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
-    file.close();
-    QJsonObject RootObject = JsonDocument.object();
-    QJsonValueRef ref = RootObject.find("angles").value();
-    QJsonObject m_addvalue = ref.toObject();
-
-    m_addvalue.insert("leftSafety", ui->doubleSpinBox_angleSafetyLeft->value());//set the value you want to modify
-    m_addvalue.insert("bigSphere",  ui->doubleSpinBox_angleBigSphere->value());
-    m_addvalue.insert("linearLight",ui->doubleSpinBox_angleLinearLights->value());
-    m_addvalue.insert("rightSafety",ui->doubleSpinBox_angleSafetyRight->value());
-    m_addvalue.insert("smallSphere",ui->doubleSpinBox_angleSmallSphere->value());
-    ref=m_addvalue; //assign the modified object to reference
-    JsonDocument.setObject(RootObject); // set to json document
-
-    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
-    file.write(JsonDocument.toJson());
-    file.close();
-
-}
-
-void MainWindow::continueCalibrProcess()
-{
-
-    if(m_gettingSpecs == SpectralGetting::CapturingBlacks){
-        isStop = false;
-        m_gettingSpecs =   SpectralGetting::CapturingReal;
-        setMetaData();
-        return;
-    };
-    if(m_gettingSpecs == SpectralGetting::CapturingReal){
-
-        if(m_logic.lightSource == LightSource::BIG_SPHERE){
-            changeWave();//Start getting data for new lambda
-            return;
-        }
-        if(m_logic.lightSource == LightSource::SMALL_SPHERE){
-            m_logic.lightSource = LightSource::BIG_SPHERE;
-            ot->setAngle(Angles.key(srcNames.bigSphere));
-            m_sceneCalibr->update();
-            return;
-        }
-        if(m_logic.lightSource == LightSource::LINEAR_LIGHTS){
-            m_logic.lightSource = LightSource::SMALL_SPHERE;
-            ot->setAngle(Angles.key(srcNames.smallSphere));
-            m_sceneCalibr->update();
-            return;
-        }
-
-    }
-
-
-
-}
 
 void MainWindow::afterLampWasSwitchedOff()
 {
@@ -547,12 +240,6 @@ void MainWindow::showElapsedHeatingTime()
     ui->label_afterHeatingTime->setText(QDateTime::fromSecsSinceEpoch(time).toUTC().toString("hh:mm:ss"));
 
 }
-
-void MainWindow::anglePositionIsReached()
-{
-
-}
-
 
 
 // GUI handlers
