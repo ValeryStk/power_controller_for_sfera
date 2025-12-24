@@ -43,5 +43,6 @@
         <file>sounds/calibrationFinish.mp3</file>
         <file>sounds/oneLampWasSwitchedOff.mp3</file>
         <file>sounds/switchOffLamp.mp3</file>
+        <file>4restoring/ir_lamps.json</file>
     </qresource>
 </RCC>

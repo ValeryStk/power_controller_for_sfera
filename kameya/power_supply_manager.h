@@ -1,0 +1,61 @@
+#ifndef POWER_SUPPLY_MANAGER_H
+#define POWER_SUPPLY_MANAGER_H
+
+#include <QTcpSocket>
+#include <QHostAddress>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonValue>
+
+//!
+//! \brief Предназначен для управления блоками питания
+//!
+class PowerSupplyManager: public QObject {
+  Q_OBJECT
+
+ public:
+  PowerSupplyManager();
+  ~PowerSupplyManager();
+  QString getID();
+  bool getPowerStatus(const quint16 index);
+
+  double getVoltage(const quint16 index);
+  void setVoltage(const quint16 index,
+                  double value);
+
+  void setCurrentLimit(const quint16 index,
+                       double value);
+  double getCurrentLimit(const quint16 index);
+  double getCurrentValue(const quint16 index);
+
+
+  void switchOnUnit(const quint16 index);
+  void switchOffUnit(const quint16 unit);
+
+  void switchOnAllUnits();
+  void switchOffAllUnits();
+
+  bool isPowerOutConnected(const int index);
+
+ private:
+  QTcpSocket*     m_socket;
+  QHostAddress    m_hostAddress;
+  QJsonObject     m_powers;
+
+  void loadJsonConfig();
+  double getValueFromMessage(const QString& msg);
+  void getIpAndOutForIndex(const int index,
+                           QString& ip,
+                           int& out);
+  int getPowerOutsSize() const;
+  int maybeReconnectHost(const int index);
+  void checkPowersConection();
+  void setInitialParams();
+
+ private slots:
+  void errorInSocket(QAbstractSocket::SocketError error);
+
+};
+
+#endif // POWER_SUPPLY_MANAGER_H
