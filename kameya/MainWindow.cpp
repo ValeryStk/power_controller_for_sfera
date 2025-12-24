@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     setUpGui();
     makeConnects();
     qApp->installEventFilter(this);
-    m_sounder.playSound("welcome.mp3");
+    m_sounder.playSound("safety.mp3");
     connect(&m_afterLampsOnHeatingTimer,SIGNAL(timeout()),SLOT(showElapsedHeatingTime()));
 }
 
@@ -142,9 +142,9 @@ void MainWindow::initializeVariables()
 {
 
     QStringList pages = {
-        "Приветствие","Техника безопасности","Тестирование",
+        "Техника безопасности","Тестирование",
         "Подготовка к калибровке",
-        "Калибровка","Настройка параметров","Расчёт","Результат"
+        "Калибровка"
     };
     for(int i=0;i<pages.size();++i) m_pages.insert(i,pages.at(i));
 
@@ -157,10 +157,7 @@ void MainWindow::initializeVariables()
 
 void MainWindow::createObjects()
 {
-
-
     m_powerManager = new PowerSupplyManager;
-    m_ini = new QSettings(QDir::currentPath()+"/kameya.ini",QSettings::IniFormat);
     m_sceneCalibr = new QGraphicsScene;
     repeatLastNotification = new QShortcut(this);
     repeatLastNotification->setKey(Qt::CTRL + Qt::Key_R);
