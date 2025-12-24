@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     initializeVariables();
     setUpGui();
     makeConnects();
+    setUpScene();
     qApp->installEventFilter(this);
     m_sounder.playSound("safety.mp3");
     connect(&m_afterLampsOnHeatingTimer,SIGNAL(timeout()),SLOT(showElapsedHeatingTime()));
@@ -112,9 +113,9 @@ void MainWindow::testSlot()
 {
 
     QVector<QPair<QLabel*,bool>> labels = {
-        {ui->label_test_power_1,m_powerManager->results().power1},
-        {ui->label_test_power_2,m_powerManager->results().power2},
-        {ui->label_test_power_3,m_powerManager->results().power3}
+        {ui->label_test_power_1,true},
+        {ui->label_test_power_2,true},
+        {ui->label_test_power_3,true}
     };
     bool testOk = true;
     for(int i=0;i<labels.size();++i){
@@ -174,33 +175,22 @@ void MainWindow::setUpGui()
     ui->label_TitlePage->setText(m_pages.value(ui->stackedWidget->currentIndex()));
     ui->centralwidget->setStyleSheet("background-color:#2E2F30;color:lightgrey");
     ui->pushButton_Backward->setVisible(false);
-
-    m_movie.setFileName(":/guiPictures/calculation_process.gif");
-    ui->label_calculation->setMovie(&m_movie);
-    m_movie.start();
-    QStringList sensors = {"ПВД","ПИК"};
-    ui->comboBox_sensor->addItems(sensors);
     ui->stackedWidget->setCurrentIndex(0);
 }
 
 void MainWindow::setUpScene()
 {
     ui->graphicsView->setScene(m_sceneCalibr);
+    m_sceneCalibr->setSceneRect(0, 0, 800, 600);
     ot = new OpticTable;
+    ot->setZValue(1000);
     m_sceneCalibr->addItem(ot);
+    m_sceneCalibr->update();
 }
 
 void MainWindow::makeConnects()
 {
-    qRegisterMetaType<QVector<double>>();
-    qRegisterMetaType<PowerOuts>();
-    qRegisterMetaType<Param>();
-    qRegisterMetaType<PowerDevice>();
-    qRegisterMetaType<DeviceParam>();
 
-    connect(m_powerManager,SIGNAL(allLampsSwitchedOn()),&m_afterLampsOnHeatingTimer,SLOT(start()));
-    connect(m_powerManager,SIGNAL(oneLampWasSwitchedOff()),this,SLOT(afterLampWasSwitchedOff()));
-    connect(m_powerManager,&PowerSupplyManager::timeOutCaseWasHappened,this,&MainWindow::timeOutCaseHandler);
 }
 
 
@@ -215,7 +205,6 @@ void MainWindow::openFolderInExplorer()
 
 void MainWindow::afterLampWasSwitchedOff()
 {
-    m_logic.calibrAction = CalibrSteps::AFTER_SWITCH_OFF_ONE_LAMP; 
     --m_lampsCounter;
     qDebug()<<"After one lamp was switched off point: "<<m_lampsCounter;
     ot->setBulbOff(m_lampsCounter);
@@ -273,7 +262,7 @@ void MainWindow::on_pushButton_Forward_clicked()
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Тестирование"){
             m_sounder.playSound("startTest.mp3");
             ui->pushButton_Forward->setEnabled(false);
-            m_powerManager->connectToHost();
+            //m_powerManager->connectToHost();
             QTimer::singleShot(5000,this,SLOT(testSlot()));
         }
 
@@ -283,7 +272,7 @@ void MainWindow::on_pushButton_Forward_clicked()
             m_sounder.playSound("preparations.mp3");
             QTimer::singleShot(5000,this,[=](){
                 m_sounder.playSound("switchOnLamps.mp3");
-                m_powerManager->startToReachTargetCurrent();
+                //m_powerManager->startToReachTargetCurrent();
             });
 
         }
@@ -328,7 +317,8 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
     //ui->pushButton_switchOffOneLamp->setEnabled(false);
     m_sounder.playSound("switchOffLamp.mp3");
-    m_powerManager->switchOffOneLamp();
+     m_sceneCalibr->update();
+    //m_powerManager->switchOffOneLamp();
 }
 
 void MainWindow::timeOutCaseHandler()

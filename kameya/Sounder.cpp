@@ -14,7 +14,6 @@ void Sounder::playSound(const QString &sampleName)
     index = std::distance(mySounds_.begin(),
                           std::find(mySounds_.begin(),mySounds_.end(),sampleName));
     m_playlist_->setCurrentIndex(index);
-    qDebug()<<mySounds_.at(0);
     m_player_->play();
     lastSampleIndex_ = index;
 }

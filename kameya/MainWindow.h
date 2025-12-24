@@ -4,7 +4,7 @@
 #include <QShortcut>
 #include <QSettings>
 #include <QMessageBox>
-#include "PowerSupplyManager.h"
+#include "power_supply_manager.h"
 #include "QCustomPlot.h"
 #include "Sounder.h"
 #include "QThread"
@@ -12,6 +12,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <graphics_items/OpticTable.h>
+#include "Types.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -32,16 +33,11 @@ protected:
 
 private:
     Ui::MainWindow     *ui;
-    TestResults         m_testsResults;
-    SensorType          m_activeSensor;
-    logicCalibr         m_logic;
-    SpectralGetting     m_gettingSpecs;
     QString             rootDir;
 
     QTimer              m_opticalParamsChangigTimer;
     QTimer              m_afterLampsOnHeatingTimer;
 
-    ShutterText         m_shutterText;
     Sounder             m_sounder;
     QMovie              m_movie;
     PowerSupplyManager *m_powerManager;
@@ -75,17 +71,12 @@ private:
     QVector<double> bandProfileChannels;
     QVector<QLabel*> lamps;
     QHash <int, QString> m_pages;
-    QHash <int,int> grades;
-
-    int expoIndex;
-    double evaluate_exposition;
-    source_expositions src_expositions;
-    QMap<double,QString> Angles;
 
     QGraphicsScene *m_sceneCalibr;
     QGraphicsScene *m_scenePrepare;
     OpticTable *ot;
     LampsNumber m_lampsNumber;
+    TestResults m_testsResults;
 
 
     void getFilterIndex(int &filterIndex, const int waveLength);
