@@ -5,7 +5,6 @@
 #include <QSettings>
 #include <QMessageBox>
 #include "power_supply_manager.h"
-#include "QCustomPlot.h"
 #include "Sounder.h"
 #include "QThread"
 #include <QCloseEvent>
@@ -13,6 +12,7 @@
 #include <QKeyEvent>
 #include <graphics_items/OpticTable.h>
 #include "Types.h"
+#include "QTimer"
 
 
 QT_BEGIN_NAMESPACE
@@ -34,12 +34,9 @@ protected:
 private:
     Ui::MainWindow     *ui;
     QString             rootDir;
-
-    QTimer              m_opticalParamsChangigTimer;
     QTimer              m_afterLampsOnHeatingTimer;
 
     Sounder             m_sounder;
-    QMovie              m_movie;
     PowerSupplyManager *m_powerManager;
 
 
@@ -92,9 +89,6 @@ private slots:
 
     void on_pushButton_Backward_clicked();
     void on_pushButton_Forward_clicked();
-    void on_pushButton_angleBigSphere_clicked();
-    void on_pushButton_angleSmallSphere_clicked();
-    void on_pushButton_angleLasers_clicked();
     void on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1);
 
     void showElapsedHeatingTime();
@@ -102,5 +96,6 @@ private slots:
     void afterLampWasSwitchedOff();
     void on_pushButton_switchOffOneLamp_clicked();
 
+    void on_pushButton_switch_on_one_lamp_clicked();
 };
 #endif // MAINWINDOW_H

@@ -11,6 +11,7 @@
 #include <chrono>
 #include <QPair>
 #include <memory>
+#include "QStyleFactory"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -291,21 +292,6 @@ void MainWindow::on_pushButton_Forward_clicked()
     }
 }
 
-void MainWindow::on_pushButton_angleBigSphere_clicked()
-{
-    m_sounder.playSound("bigSphereAngle.mp3");
-}
-
-void MainWindow::on_pushButton_angleSmallSphere_clicked()
-{
-    m_sounder.playSound("smallSphereAngle.mp3");
-}
-
-void MainWindow::on_pushButton_angleLasers_clicked()
-{
-    m_sounder.playSound("linearLightsAngle.mp3");
-}
-
 void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 {
     if(arg1 == Qt::Checked){
@@ -326,3 +312,9 @@ void MainWindow::timeOutCaseHandler()
     ui->pushButton_switchOffOneLamp->setEnabled(true);
     qDebug()<<"TimeOut handler....";
 }
+
+void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
+{
+    m_sounder.playSound("switchOnOneLamp.mp3");
+}
+
