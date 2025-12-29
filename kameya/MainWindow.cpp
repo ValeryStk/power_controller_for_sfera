@@ -306,6 +306,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
     if(m_lampsCounter == 0) return;
     m_sounder.playSound("switchOffLamp.mp3");
     --m_lampsCounter;
+    m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
     ot->setBulbOff(m_lampsCounter);
     m_sceneCalibr->update();
     //m_powerManager->switchOffOneLamp();

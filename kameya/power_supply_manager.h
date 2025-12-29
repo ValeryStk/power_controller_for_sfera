@@ -37,6 +37,7 @@ class PowerSupplyManager: public QObject {
   void switchOffAllUnits();
 
   void increaseVoltageStepByStepToCurrentLimit(const quint16 index);
+  void decreaseVoltageStepByStepToZero(const quint16 index);
 
   bool isPowerOutConnected(const int index);
 

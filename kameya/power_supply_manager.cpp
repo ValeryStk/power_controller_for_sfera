@@ -12,9 +12,10 @@ PowerSupplyManager::PowerSupplyManager() {
   connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
           SLOT(errorInSocket(QAbstractSocket::SocketError)));
   loadJsonConfig();
+  switchOnAllUnits();
   checkPowersConection();
   setInitialParams();
-  switchOnAllUnits();
+
 }
 
 PowerSupplyManager::~PowerSupplyManager() {
@@ -138,6 +139,25 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     setVoltage(index,voltage);
     Sleep(300);
     qDebug()<<i<<"------------------ iteration ---------------------------";
+    }
+}
+
+void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
+{
+    maybeReconnectHost(index);
+    setCurrentLimit(index,10);
+    double current = getCurrentValue(index);
+    qDebug()<<"current --> "<<current;
+    double currentLimit = getCurrentLimit(index);
+    qDebug()<<"current limit --> "<<currentLimit;
+
+    while(true){
+    double voltage = getVoltage(index);
+    qDebug()<<"voltage --> "<<voltage;
+    voltage = voltage - 0.5;
+    setVoltage(index,voltage);
+    Sleep(300);
+    if(voltage<0)break;
     }
 }
 
@@ -273,6 +293,8 @@ void PowerSupplyManager::checkPowersConection() {
 }
 
 void PowerSupplyManager::setInitialParams() {
+
+
   for (int i = 0; i < getPowerOutsSize(); ++i) {
     if (isPowerOutConnected(i)) {
       setCurrentLimit(i, 0);
