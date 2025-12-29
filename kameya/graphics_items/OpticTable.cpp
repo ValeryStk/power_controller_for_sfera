@@ -50,3 +50,9 @@ void OpticTable::setBulbOff(int bi)
     if(bi>isBulbsOn.size()-1||bi<0)return;
     isBulbsOn[bi] = false;
 }
+
+void OpticTable::setBulbOn(int bi)
+{
+    if(bi>isBulbsOn.size()-1||bi<0)return;
+    isBulbsOn[bi] = true;
+}

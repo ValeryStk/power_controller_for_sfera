@@ -12,6 +12,7 @@
 #include <QPair>
 #include <memory>
 #include "QStyleFactory"
+#include <QDateTime>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -302,8 +303,11 @@ void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
     //ui->pushButton_switchOffOneLamp->setEnabled(false);
+    if(m_lampsCounter == 0) return;
     m_sounder.playSound("switchOffLamp.mp3");
-     m_sceneCalibr->update();
+    --m_lampsCounter;
+    ot->setBulbOff(m_lampsCounter);
+    m_sceneCalibr->update();
     //m_powerManager->switchOffOneLamp();
 }
 
@@ -315,6 +319,11 @@ void MainWindow::timeOutCaseHandler()
 
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 {
+    if(m_lampsCounter == 6)return;
     m_sounder.playSound("switchOnOneLamp.mp3");
+    ot->setBulbOn(m_lampsCounter);
+    m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
+    m_sceneCalibr->update();
+    ++m_lampsCounter;
 }
 

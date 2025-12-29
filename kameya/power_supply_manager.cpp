@@ -3,6 +3,7 @@
 #include <QtGlobal>
 #include "json_utils.h"
 #include "commands_builder.h"
+#include "Windows.h"
 
 constexpr int host_port = 9221;
 
@@ -120,6 +121,24 @@ void PowerSupplyManager::switchOffAllUnits() {
     switchOffUnit(i);
   };
   checkPowersConection();
+}
+
+void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 index)
+{
+    maybeReconnectHost(index);
+    setCurrentLimit(index,10);
+    double current = getCurrentValue(index);
+    qDebug()<<"current --> "<<current;
+    double currentLimit = getCurrentLimit(index);
+    qDebug()<<"current limit --> "<<currentLimit;
+    for(int i=0;i<10;++i){
+    double voltage = getVoltage(index);
+    //qDebug()<<"voltage --> "<<voltage;
+    voltage = qAbs(voltage+0.5);
+    setVoltage(index,voltage);
+    Sleep(300);
+    qDebug()<<i<<"------------------ iteration ---------------------------";
+    }
 }
 
 bool PowerSupplyManager::isPowerOutConnected(const int index) {
