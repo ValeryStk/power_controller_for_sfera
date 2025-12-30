@@ -17,6 +17,7 @@ class PowerSupplyManager: public QObject {
  public:
   PowerSupplyManager();
   ~PowerSupplyManager();
+  QJsonObject get_power_states();
   QString getID();
   bool getPowerStatus(const quint16 index);
 
@@ -45,6 +46,7 @@ class PowerSupplyManager: public QObject {
   QTcpSocket*     m_socket;
   QHostAddress    m_hostAddress;
   QJsonObject     m_powers;
+  bool            m_net_error;
 
   void loadJsonConfig();
   double getValueFromMessage(const QString& msg);
