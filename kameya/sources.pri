@@ -1,24 +1,26 @@
 HEADERS += \
-    commands_builder.h\
-    MainWindow.h\
-    graphics_items\OpticTable.h\
-    power_supply_manager.h\
-    QCustomPlot.h \
-    QrcFilesRestorer.h \
-    Sounder.h \
-    Types.h\
-    json_utils.h\
+    $$PWD\commands_builder.h\
+    $$PWD\MainWindow.h\
+    $$PWD\graphics_items\OpticTable.h\
+    $$PWD\power_supply_manager.h\
+    $$PWD\QCustomPlot.h \
+    $$PWD\QrcFilesRestorer.h \
+    $$PWD\Sounder.h \
+    $$PWD\Types.h\
+    $$PWD\json_utils.h\
 
 SOURCES += \
-    MainWindow.cpp\
-    graphics_items\OpticTable.cpp \
-    power_supply_manager.cpp\
-    QCustomPlot.cpp \
-    QrcFilesRestorer.cpp \
-    Sounder.cpp \
-    main.cpp\
-    json_utils.cpp\
+    $$PWD\MainWindow.cpp\
+    $$PWD\graphics_items\OpticTable.cpp \
+    $$PWD\power_supply_manager.cpp\
+    $$PWD\QCustomPlot.cpp \
+    $$PWD\QrcFilesRestorer.cpp \
+    $$PWD\Sounder.cpp \
+    $$PWD\main.cpp\
+    $$PWD\json_utils.cpp\
 
 
 FORMS += \
-        MainWindow.ui
+        $$PWD\MainWindow.ui
+
+INCLUDEPATH += $$PWD
