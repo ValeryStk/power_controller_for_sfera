@@ -136,17 +136,16 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
 {
     maybeReconnectHost(index);
     //setCurrentLimit(index,5);
-    double target_current = m_powers["lamps"].toArray()[index].toObject().value("current_target").toDouble();
+    double target_current = m_powers["lamps"].toArray()[index].toObject().value("max_current").toDouble();
     qDebug()<<"target current --> "<<target_current;
     double current = getCurrentValue(index);
     qDebug()<<"current --> "<<current;
-    target_current = 3;
     double currentValue = 0;
     while(currentValue < target_current){
         double voltage = getVoltage(index);
         currentValue = getCurrentValue(index);
-        qDebug()<<"current value --> "<<currentValue;
-        voltage = qAbs(voltage+0.1);
+        qDebug()<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
+        voltage = qAbs(voltage+0.2);//0.1
         setVoltage(index,voltage);
         Sleep(300);
         if(m_net_error){
@@ -159,7 +158,7 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
 void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
 {
     maybeReconnectHost(index);
-    setCurrentLimit(index,5);
+    //setCurrentLimit(index,5);
     double current = getCurrentValue(index);
     qDebug()<<"current --> "<<current;
     double currentLimit = getCurrentLimit(index);
@@ -317,10 +316,11 @@ void PowerSupplyManager::setInitialParams() {
 
     for (int i = 0; i < getPowerOutsSize(); ++i) {
         if (isPowerOutConnected(i)) {
-            double max_current = m_powers["lamps"].toArray()[i].toObject().value("current_target").toDouble();
+            double max_current = m_powers["lamps"].toArray()[i].toObject().value("max_current").toDouble();
+            qDebug()<<"max_current: "<<max_current;
             setCurrentLimit(i, max_current);
+            //increaseVoltageStepByStepToCurrentLimit(i);
             Sleep(500);
-            setVoltage(i, m_powers["voltage"].toDouble());
         }
     }
 }
