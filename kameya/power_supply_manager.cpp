@@ -141,13 +141,22 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     double current = getCurrentValue(index);
     qDebug()<<"current --> "<<current;
     double currentValue = 0;
+    int dolbo_counter = 0;
     while(currentValue < target_current){
         double voltage = getVoltage(index);
         currentValue = getCurrentValue(index);
+        if((target_current-currentValue)<=0.005){
+            ++dolbo_counter;
+        }
         qDebug()<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
         voltage = qAbs(voltage+0.2);//0.1
         setVoltage(index,voltage);
         Sleep(300);
+        if(dolbo_counter == 10){
+            qDebug()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
+            qDebug()<<"***************************************************************************************";
+            break;
+        }
         if(m_net_error){
             m_net_error = false;
             break;
