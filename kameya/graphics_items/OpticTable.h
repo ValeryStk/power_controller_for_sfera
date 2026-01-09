@@ -1,5 +1,5 @@
-#ifndef OPTICTABLE_H
-#define OPTICTABLE_H
+#ifndef OPTIC_TABLE_H
+#define OPTIC_TABLE_H
 
 #include <QGraphicsItem>
 
@@ -11,14 +11,20 @@ public:
 
 public:
     virtual QRectF boundingRect() const override;
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-    void setBulbOff(int bi);
-    void setBulbOn(int bi);
+    virtual void paint(QPainter *painter,
+                       const QStyleOptionGraphicsItem *option,
+                       QWidget *widget) override;
+
+    bool setBulbOff(int bi);
+    bool setBulbOn(int bi);
+    bool setBulbUndefined(int bi);
 
 private:
-    QVector<bool> isBulbsOn;
+    enum class bulb_state{ON,OFF,UNDEFINED};
+    QVector<bulb_state> bulb_state;
     void drawLamps(QPainter *painter);
+    int m_current_lamp_index = 0;
 
 };
 
-#endif // OPTICTABLE_H
+#endif // OPTIC_TABLE_H

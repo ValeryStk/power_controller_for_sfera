@@ -56,9 +56,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     } else if(event->type() == QEvent::MouseButtonDblClick){
         if(obj->objectName()=="label_TitlePage"){
           bool isMuted = m_sounder.isNotificationsMuted();
-          if(isMuted)isMuted = false;
-          else isMuted = true;
-          m_sounder.muteSoundNotifications(isMuted);
+          isMuted = !isMuted;
+          if(isMuted){
+              m_sounder.playSound("audioNotificationsOff.mp3");
+              m_sounder.muteSoundNotifications(isMuted);
+          }else{
+              m_sounder.muteSoundNotifications(isMuted);
+              m_sounder.playSound("soundOn.mp3");
+          };
+
         }
 
     }
@@ -290,11 +296,14 @@ void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
-    if(m_lampsCounter == 0) return;
-    m_sounder.playSound("switchOffLamp.mp3");
-    --m_lampsCounter;
-    m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
-    ot->setBulbOff(m_lampsCounter);
+    if(m_lampsCounter > 0)--m_lampsCounter;
+    if(ot->setBulbOff(m_lampsCounter)){
+       m_sounder.playSound("lamp_is_already_off.mp3");
+       return;
+    }else{
+        m_sounder.playSound("switchOffLamp.mp3");
+        m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
+    };
     m_sceneCalibr->update();
 }
 
@@ -306,11 +315,15 @@ void MainWindow::timeOutCaseHandler()
 
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 {
-    if(m_lampsCounter == 6)return;
-    m_sounder.playSound("switchOnOneLamp.mp3");
-    ot->setBulbOn(m_lampsCounter);
+
+    if(ot->setBulbOn(m_lampsCounter)){
+       m_sounder.playSound("lamp_is_already_on.mp3");
+       return;
+    }else{
+        m_sounder.playSound("switchOnOneLamp.mp3");
+    };
     //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
     m_sceneCalibr->update();
-    ++m_lampsCounter;
+    if(m_lampsCounter < 6)++m_lampsCounter;
 }
 
