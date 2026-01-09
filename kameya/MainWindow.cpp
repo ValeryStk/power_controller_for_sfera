@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "qgraphicsproxywidget.h"
 #include "ui_MainWindow.h"
 #include "Version.h"
 #include <QProcess>
@@ -256,6 +257,8 @@ void MainWindow::setUpGui()
     ui->pushButton_switch_on_one_lamp->setIconSize(QSize(64,64));
     ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
+    ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
+    ui->pushButton_sound->setIconSize(QSize(64,64));
 }
 
 void MainWindow::setUpScene()
@@ -437,5 +440,21 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
 
     ot->set_current_lamp_index(m_lampsCounter);
     m_sceneCalibr->update();
+}
+
+
+void MainWindow::on_pushButton_sound_toggled(bool checked)
+{
+    if(checked){
+        m_sounder.playSound("audioNotificationsOff.mp3");
+        m_sounder.muteSoundNotifications(checked);
+        ui->pushButton_sound->setIcon(QIcon(":/guiPictures/no_sound.svg"));
+
+    }else{
+        m_sounder.muteSoundNotifications(checked);
+        m_sounder.playSound("soundOn.mp3");
+        ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
+    }
+
 }
 

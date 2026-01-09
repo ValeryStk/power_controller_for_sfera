@@ -42,5 +42,7 @@
         <file>sounds/run_all_lamps_to_off_state.mp3</file>
         <file>sounds/run_all_lamps_to_on_state.mp3</file>
         <file>sounds/lamp_in_undefined_state_is_founded.mp3</file>
+        <file>guiPictures/no_sound.svg</file>
+        <file>guiPictures/volume_up.svg</file>
     </qresource>
 </RCC>

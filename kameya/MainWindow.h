@@ -99,5 +99,6 @@ private slots:
     void on_comboBox__mode_currentIndexChanged(int index);
     void switch_on_all_lamps();
     void switch_off_all_lamps();
+    void on_pushButton_sound_toggled(bool checked);
 };
 #endif // MAINWINDOW_H
