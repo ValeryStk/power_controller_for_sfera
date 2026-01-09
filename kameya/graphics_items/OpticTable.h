@@ -18,6 +18,7 @@ public:
     bool setBulbOff(int bi);
     bool setBulbOn(int bi);
     bool setBulbUndefined(int bi);
+    void set_current_lamp_index(const int index);
 
 private:
     enum class bulb_state{ON,OFF,UNDEFINED};
