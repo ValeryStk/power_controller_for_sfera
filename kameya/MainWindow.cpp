@@ -14,6 +14,11 @@
 #include "QStyleFactory"
 #include <QDateTime>
 
+constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
+constexpr char kSwitchOnOneLampText[] = "Включить одну лампу";
+constexpr char kSwitchOffLampsText[] = "Выключить все лампы";
+constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -201,6 +206,12 @@ void MainWindow::setUpGui()
     for(int i=0;i<pwrs.size();++i){
         ui->comboBox__mode->addItem(pwrs[i].toObject().value("name").toString());
     }
+    ui->pushButton_switchOffOneLamp->setIcon(QIcon(":/guiPictures/trending_down.svg"));
+    ui->pushButton_switchOffOneLamp->setIconSize(QSize(64,64));
+    ui->pushButton_switch_on_one_lamp->setIcon(QIcon(":/guiPictures/trending_up.svg"));
+    ui->pushButton_switch_on_one_lamp->setIconSize(QSize(64,64));
+    ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
+    ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
 }
 
 void MainWindow::setUpScene()
@@ -218,7 +229,6 @@ void MainWindow::makeConnects()
 
 }
 
-
 void MainWindow::openFolderInExplorer()
 {
     QString openExplorer = "c:/windows/explorer.exe";
@@ -226,7 +236,6 @@ void MainWindow::openFolderInExplorer()
     args.append(QDir::toNativeSeparators(QDir::currentPath()));
     QProcess::startDetached(openExplorer, args);
 }
-
 
 void MainWindow::afterLampWasSwitchedOff()
 {
@@ -358,9 +367,18 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
         is_first_start_index = false;
         return;
     }
-    qDebug()<<"modes changing";
+
+    if(index==0){
+     ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
+     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
+    }else{
+     ui->pushButton_switchOffOneLamp->setText(kSwitchOffOneLampText);
+     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnOneLampText);
+    }
+
     if(index < 1 || index > 6)return;
     m_lampsCounter = index - 1;
+
     ot->set_current_lamp_index(m_lampsCounter);
     m_sceneCalibr->update();
 }

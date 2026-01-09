@@ -38,5 +38,7 @@
         <file>sounds/soundOn.mp3</file>
         <file>sounds/lamp_is_already_off.mp3</file>
         <file>sounds/lamp_is_already_on.mp3</file>
+        <file>guiPictures/trending_down.svg</file>
+        <file>guiPictures/trending_up.svg</file>
     </qresource>
 </RCC>
