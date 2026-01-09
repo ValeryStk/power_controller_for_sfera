@@ -1,4 +1,5 @@
 #include "OpticTable.h"
+#include "qdatetime.h"
 
 #include <QLinearGradient>
 #include <QPainter>
@@ -17,6 +18,7 @@ OpticTable::OpticTable()
                   init_state
                  };
     m_current_lamp_index = 5;
+    m_bulb_on_time.resize(6);
 }
 
 QRectF OpticTable::boundingRect() const
@@ -76,6 +78,25 @@ void OpticTable::drawLamps(QPainter *painter)
         }
 
 
+        // --- вывод порядкового номера лампы в кружке фона ---
+        painter->setPen(Qt::black);
+        QFont font = painter->font();
+        font.setBold(true);
+        font.setPointSize(10);
+        painter->setFont(font);
+
+        // смещение для "19 часов" (примерно влево и вниз от центра круга)
+        int offsetX = -radius * 0.7;
+        int offsetY = radius * 0.4;
+
+        // прямоугольник для текста
+        QRect textRect(centerX + offsetX - 10, centerY + offsetY - 10, 20, 20);
+
+        // рисуем номер лампы (i+1)
+        painter->drawText(textRect, Qt::AlignCenter, QString::number(i + 1));
+
+
+
         // если это текущая лампа — обводим красным жирным кругом
         if (i == m_current_lamp_index) {
             // currentLampIndex — индекс текущей лампы
@@ -86,7 +107,35 @@ void OpticTable::drawLamps(QPainter *painter)
             painter->setBrush(Qt::NoBrush);
             painter->drawEllipse(QPoint(centerX, centerY), radius, radius);
         }
+
+
+
+        // --- вывод времени работы лампы справа ---
+        if (bulb_state[i] == bulb_state::ON && i < m_bulb_on_time.size()) {
+            // вычисляем прошедшее время
+            qint64 secs = m_bulb_on_time[i].secsTo(QDateTime::currentDateTime());
+            int minutes = secs / 60;
+            int seconds = secs % 60;
+
+            QString timeText = QString("%1:%2")
+                                   .arg(minutes, 2, 10, QChar('0'))
+                                   .arg(seconds, 2, 10, QChar('0'));
+
+            painter->setPen(Qt::lightGray);
+            QFont font = painter->font();
+            font.setPointSize(11);
+            painter->setFont(font);
+
+            // прямоугольник справа от круга
+            QRect timeRect(centerX + radius + 10, centerY - 10, 50, 20);
+            painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignVCenter, timeText);
+        }
+
+
+
     }
+
+
 
 }
 
@@ -111,6 +160,9 @@ bool OpticTable::setBulbOn(int bi)
     }
     bulb_state[bi] = bulb_state::ON;
     m_current_lamp_index = bi;
+    if(!is_state_the_same){
+    m_bulb_on_time[bi] = QDateTime::currentDateTime();
+    }
     return is_state_the_same;
 }
 
@@ -131,3 +183,9 @@ void OpticTable::set_current_lamp_index(const int index)
     if(index < 0 || index > 5) return;
     m_current_lamp_index = index;
 }
+
+void OpticTable::set_bulb_states(QVector<enum class bulb_state> states)
+{
+ bulb_state = states;
+}
+

@@ -70,7 +70,6 @@ private:
     QHash <int, QString> m_pages;
 
     QGraphicsScene *m_sceneCalibr;
-    QGraphicsScene *m_scenePrepare;
     OpticTable *ot;
     LampsNumber m_lampsNumber;
 

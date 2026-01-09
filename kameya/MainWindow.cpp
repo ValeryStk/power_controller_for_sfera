@@ -28,6 +28,13 @@ MainWindow::MainWindow(QWidget *parent)
     qApp->installEventFilter(this);
     m_sounder.playSound("safety.mp3");
     connect(&m_afterLampsOnHeatingTimer,SIGNAL(timeout()),SLOT(showElapsedHeatingTime()));
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this]() {
+        m_sceneCalibr->update();
+    });
+    timer->start(1000);
+
 }
 
 MainWindow::~MainWindow()
@@ -123,6 +130,9 @@ void MainWindow::testSlot()
     bool first_power_state =  m_powerManager->getPowerStatus(0);
     bool second_power_sate = m_powerManager->getPowerStatus(2);
     bool third_power_state = m_powerManager->getPowerStatus(4);
+
+    ot->set_bulb_states({bulb_state::OFF,bulb_state::OFF,bulb_state::OFF,bulb_state::OFF,bulb_state::OFF,bulb_state::OFF});
+    m_sceneCalibr->update();
 
     QVector<QPair<QLabel*,bool>> labels = {
         {ui->label_test_power_1, first_power_state},
@@ -296,19 +306,20 @@ void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
+
+    if(ot->setBulbOff(m_lampsCounter)){
+       m_sounder.playSound("lamp_is_already_off.mp3");
+
+    }else{
+        m_sounder.playSound("switchOffLamp.mp3");
+        m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
+    };
     if(m_lampsCounter > 0){
         if(ui->comboBox__mode->currentIndex()==0){
         --m_lampsCounter;
         }
     }
-
-    if(ot->setBulbOff(m_lampsCounter)){
-       m_sounder.playSound("lamp_is_already_off.mp3");
-       ot->set_current_lamp_index(m_lampsCounter);
-    }else{
-        m_sounder.playSound("switchOffLamp.mp3");
-        m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
-    };
+    ot->set_current_lamp_index(m_lampsCounter);
     m_sceneCalibr->update();
 }
 
@@ -323,17 +334,19 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 
     if(ot->setBulbOn(m_lampsCounter)){
        m_sounder.playSound("lamp_is_already_on.mp3");
-       ot->set_current_lamp_index(m_lampsCounter);
+
     }else{
         m_sounder.playSound("switchOnOneLamp.mp3");
         //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
     };
-    m_sceneCalibr->update();
-    if(m_lampsCounter < 6){
+
+    if(m_lampsCounter < 5){
         if(ui->comboBox__mode->currentIndex()==0){
         ++m_lampsCounter;
         }
     }
+    ot->set_current_lamp_index(m_lampsCounter);
+    m_sceneCalibr->update();
 }
 
 
@@ -341,7 +354,7 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
 {
     static bool is_first_start_index = true;
     if(is_first_start_index){
-        m_lampsCounter = 6;
+        m_lampsCounter = 5;
         is_first_start_index = false;
         return;
     }
