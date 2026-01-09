@@ -91,8 +91,6 @@ double PowerSupplyManager::getCurrentValue(const quint16 index) {
 }
 
 bool PowerSupplyManager::getPowerStatus(const quint16 index) {
-    if (!isPowerOutConnected(index))
-        return false;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeGetSwitchStateCommand(out));
     m_socket->waitForReadyRead();

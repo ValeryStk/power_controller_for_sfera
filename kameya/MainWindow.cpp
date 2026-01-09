@@ -114,12 +114,16 @@ void MainWindow::openRootFolder()
 void MainWindow::testSlot()
 {
 
+    bool first_power_state =  m_powerManager->getPowerStatus(0);
+    bool second_power_sate = m_powerManager->getPowerStatus(2);
+    bool third_power_state = m_powerManager->getPowerStatus(4);
+
     QVector<QPair<QLabel*,bool>> labels = {
-        {ui->label_test_power_1,true},
-        {ui->label_test_power_2,true},
-        {ui->label_test_power_3,true}
+        {ui->label_test_power_1, first_power_state},
+        {ui->label_test_power_2, second_power_sate},
+        {ui->label_test_power_3, third_power_state}
     };
-    bool testOk = true;
+    bool testOk = false;
     for(int i=0;i<labels.size();++i){
 
         QString style = "";
@@ -132,12 +136,11 @@ void MainWindow::testSlot()
     }
     if(testOk){
         m_sounder.playSound("testOk.mp3");
-        ui->pushButton_Forward->setEnabled(true);
     }else{
         m_sounder.playSound("network_error.mp3");
-        ui->pushButton_Forward->setEnabled(false);
     }
 
+    ui->pushButton_Forward->setEnabled(true);
 }
 
 
@@ -145,13 +148,12 @@ void MainWindow::initializeVariables()
 {
 
     QStringList pages = {
-        "Техника безопасности","Тестирование",
-        "Подготовка к калибровке",
+        "Техника безопасности",
+        "Тестирование",
         "Калибровка"
     };
     for(int i=0;i<pages.size();++i) m_pages.insert(i,pages.at(i));
 
-    m_testsResults = {false,false,false,false,false,false,false};
     m_isTestPassed = false;
     m_isControlPressed = false;
     m_lampsCounter = 6;
@@ -178,6 +180,11 @@ void MainWindow::setUpGui()
     ui->centralwidget->setStyleSheet("background-color:#2E2F30;color:lightgrey");
     ui->pushButton_Backward->setVisible(false);
     ui->stackedWidget->setCurrentIndex(0);
+    ui->comboBox__mode->addItem("Все лампы");
+    auto pwrs = m_powerManager->get_power_states().value("lamps").toArray();
+    for(int i=0;i<pwrs.size();++i){
+        ui->comboBox__mode->addItem(pwrs[i].toObject().value("name").toString());
+    }
 }
 
 void MainWindow::setUpScene()
@@ -225,7 +232,7 @@ void MainWindow::showElapsedHeatingTime()
 {
     static long long time = 0;
     ++time;
-    ui->label_afterHeatingTime->setText(QDateTime::fromSecsSinceEpoch(time).toUTC().toString("hh:mm:ss"));
+    //ui->label_afterHeatingTime->setText(QDateTime::fromSecsSinceEpoch(time).toUTC().toString("hh:mm:ss"));
 
 }
 
@@ -260,36 +267,17 @@ void MainWindow::on_pushButton_Forward_clicked()
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Техника безопасности"){
             m_sounder.playSound("safety.mp3");
         }
-
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Тестирование"){
             m_sounder.playSound("startTest.mp3");
             ui->pushButton_Forward->setEnabled(false);
-            //m_powerManager->connectToHost();
             QTimer::singleShot(5000,this,SLOT(testSlot()));
         }
-
-        if(m_pages.value(ui->stackedWidget->currentIndex())=="Подготовка к калибровке"){
-
-
-            m_sounder.playSound("preparations.mp3");
-            QTimer::singleShot(5000,this,[=](){
-                m_sounder.playSound("switchOnLamps.mp3");
-                //m_powerManager->startToReachTargetCurrent();
-            });
-
-        }
-
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Калибровка"){
 
             m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
-
+            ui->pushButton_Forward->setVisible(false);
         }
-
-        if(m_pages.value(ui->stackedWidget->currentIndex())=="Расчёт")m_sounder.playSound("calculation.mp3");
-
-        if(m_pages.value(ui->stackedWidget->currentIndex())=="Результат")m_sounder.playSound("finishCalibration.mp3");
-
     }
 }
 
@@ -302,14 +290,12 @@ void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
-    //ui->pushButton_switchOffOneLamp->setEnabled(false);
     if(m_lampsCounter == 0) return;
     m_sounder.playSound("switchOffLamp.mp3");
     --m_lampsCounter;
     m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
     ot->setBulbOff(m_lampsCounter);
     m_sceneCalibr->update();
-    //m_powerManager->switchOffOneLamp();
 }
 
 void MainWindow::timeOutCaseHandler()
@@ -323,7 +309,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
     if(m_lampsCounter == 6)return;
     m_sounder.playSound("switchOnOneLamp.mp3");
     ot->setBulbOn(m_lampsCounter);
-    m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
+    //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
     m_sceneCalibr->update();
     ++m_lampsCounter;
 }

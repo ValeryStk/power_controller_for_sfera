@@ -73,7 +73,6 @@ private:
     QGraphicsScene *m_scenePrepare;
     OpticTable *ot;
     LampsNumber m_lampsNumber;
-    TestResults m_testsResults;
 
 
     void getFilterIndex(int &filterIndex, const int waveLength);

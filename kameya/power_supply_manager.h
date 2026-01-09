@@ -19,6 +19,7 @@ class PowerSupplyManager: public QObject {
   ~PowerSupplyManager();
   QJsonObject get_power_states();
   QString getID();
+  void checkPowersConection();
   bool getPowerStatus(const quint16 index);
 
   double getVoltage(const quint16 index);
@@ -55,7 +56,6 @@ class PowerSupplyManager: public QObject {
                            int& out);
   int getPowerOutsSize() const;
   int maybeReconnectHost(const int index);
-  void checkPowersConection();
   void setInitialParams();
 
  private slots:
