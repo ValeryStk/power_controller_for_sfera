@@ -144,6 +144,20 @@ void MainWindow::switch_on_all_lamps()
 
 void MainWindow::switch_off_all_lamps()
 {
+    auto pwrs = m_powerManager->get_power_states();
+    auto lamps = pwrs["lamps"].toArray();
+
+    for(int i=lamps.size()-1;i>=0;--i){
+        m_powerManager->decreaseVoltageStepByStepToZero(i);
+        ot->set_current_lamp_index(i);
+        ot->setBulbOff(i);
+        m_sceneCalibr->update();
+        QApplication::processEvents();
+        Sleep(500);
+    }
+    for(int i=0;i<lamps.size();++i){
+        auto voltage = m_powerManager->getVoltage(i);
+    }
 
 }
 
@@ -348,7 +362,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 
     if(ui->comboBox__mode->currentIndex()==0){
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
-        switch_off_all_lamps();
+        QTimer::singleShot(1000,this,&MainWindow::switch_off_all_lamps);
         return;
     }
 
