@@ -16,6 +16,7 @@ OpticTable::OpticTable()
                   init_state,
                   init_state
                  };
+    m_current_lamp_index = 5;
 }
 
 QRectF OpticTable::boundingRect() const

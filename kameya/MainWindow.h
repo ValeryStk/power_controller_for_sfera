@@ -96,5 +96,6 @@ private slots:
     void on_pushButton_switchOffOneLamp_clicked();
 
     void on_pushButton_switch_on_one_lamp_clicked();
+    void on_comboBox__mode_currentIndexChanged(int index);
 };
 #endif // MAINWINDOW_H

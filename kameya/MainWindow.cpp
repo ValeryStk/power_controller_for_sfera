@@ -318,12 +318,17 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 
     if(ot->setBulbOn(m_lampsCounter)){
        m_sounder.playSound("lamp_is_already_on.mp3");
-       return;
     }else{
         m_sounder.playSound("switchOnOneLamp.mp3");
+        //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
     };
-    //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
     m_sceneCalibr->update();
     if(m_lampsCounter < 6)++m_lampsCounter;
+}
+
+
+void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
+{
+    qDebug()<<"modes changing";
 }
 
