@@ -78,6 +78,7 @@ private:
     QJsonDocument readJsonDocumentFromFile(const QString &docName);
     QShortcut *repeatLastNotification;
 
+
 public slots:
 void timeOutCaseHandler();
 
@@ -96,5 +97,7 @@ private slots:
 
     void on_pushButton_switch_on_one_lamp_clicked();
     void on_comboBox__mode_currentIndexChanged(int index);
+    void switch_on_all_lamps();
+    void switch_off_all_lamps();
 };
 #endif // MAINWINDOW_H

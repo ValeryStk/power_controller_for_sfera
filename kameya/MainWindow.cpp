@@ -13,6 +13,7 @@
 #include <memory>
 #include "QStyleFactory"
 #include <QDateTime>
+#include "Windows.h"
 
 constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[] = "Включить одну лампу";
@@ -67,15 +68,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         return false;
     } else if(event->type() == QEvent::MouseButtonDblClick){
         if(obj->objectName()=="label_TitlePage"){
-          bool isMuted = m_sounder.isNotificationsMuted();
-          isMuted = !isMuted;
-          if(isMuted){
-              m_sounder.playSound("audioNotificationsOff.mp3");
-              m_sounder.muteSoundNotifications(isMuted);
-          }else{
-              m_sounder.muteSoundNotifications(isMuted);
-              m_sounder.playSound("soundOn.mp3");
-          };
+            bool isMuted = m_sounder.isNotificationsMuted();
+            isMuted = !isMuted;
+            if(isMuted){
+                m_sounder.playSound("audioNotificationsOff.mp3");
+                m_sounder.muteSoundNotifications(isMuted);
+            }else{
+                m_sounder.muteSoundNotifications(isMuted);
+                m_sounder.playSound("soundOn.mp3");
+            };
 
         }
 
@@ -115,6 +116,35 @@ QJsonDocument MainWindow::readJsonDocumentFromFile(const QString &docName)
     }
     file.close();
     return doc;
+}
+
+void MainWindow::switch_on_all_lamps()
+{
+
+    auto pwrs = m_powerManager->get_power_states();
+    auto lamps = pwrs["lamps"].toArray();
+
+    for(int i=0;i<lamps.size();++i){
+        //m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
+        ot->set_current_lamp_index(i);
+        ot->setBulbOn(i);
+        m_sceneCalibr->update();
+        QApplication::processEvents();
+        Sleep(500);
+    }
+
+    /*for(int i=0;i<lamps.size();++i){
+        auto current = m_powerManager->getCurrentValue(i);
+        auto current_limit = m_powerManager->getCurrentLimit(i);
+        auto diff = current_limit - current;
+    }*/
+
+
+}
+
+void MainWindow::switch_off_all_lamps()
+{
+
 }
 
 void MainWindow::openRootFolder()
@@ -316,8 +346,14 @@ void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
 
+    if(ui->comboBox__mode->currentIndex()==0){
+        m_sounder.playSound("run_all_lamps_to_off_state.mp3");
+        switch_off_all_lamps();
+        return;
+    }
+
     if(ot->setBulbOff(m_lampsCounter)){
-       m_sounder.playSound("lamp_is_already_off.mp3");
+        m_sounder.playSound("lamp_is_already_off.mp3");
 
     }else{
         m_sounder.playSound("switchOffLamp.mp3");
@@ -325,7 +361,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
     };
     if(m_lampsCounter > 0){
         if(ui->comboBox__mode->currentIndex()==0){
-        --m_lampsCounter;
+            --m_lampsCounter;
         }
     }
     ot->set_current_lamp_index(m_lampsCounter);
@@ -341,8 +377,14 @@ void MainWindow::timeOutCaseHandler()
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 {
 
+    if(ui->comboBox__mode->currentIndex()==0){
+        m_sounder.playSound("run_all_lamps_to_on_state.mp3");
+        QTimer::singleShot(1000,this,&MainWindow::switch_on_all_lamps);
+        return;
+    }
+
     if(ot->setBulbOn(m_lampsCounter)){
-       m_sounder.playSound("lamp_is_already_on.mp3");
+        m_sounder.playSound("lamp_is_already_on.mp3");
 
     }else{
         m_sounder.playSound("switchOnOneLamp.mp3");
@@ -351,7 +393,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 
     if(m_lampsCounter < 5){
         if(ui->comboBox__mode->currentIndex()==0){
-        ++m_lampsCounter;
+            ++m_lampsCounter;
         }
     }
     ot->set_current_lamp_index(m_lampsCounter);
@@ -369,11 +411,11 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
     }
 
     if(index==0){
-     ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
-     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
+        ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
+        ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
     }else{
-     ui->pushButton_switchOffOneLamp->setText(kSwitchOffOneLampText);
-     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnOneLampText);
+        ui->pushButton_switchOffOneLamp->setText(kSwitchOffOneLampText);
+        ui->pushButton_switch_on_one_lamp->setText(kSwitchOnOneLampText);
     }
 
     if(index < 1 || index > 6)return;

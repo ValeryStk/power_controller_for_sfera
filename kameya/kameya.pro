@@ -6,5 +6,4 @@ RESOURCES += \
     res.qrc
 include(sources.pri)
 
-DISTFILES +=
 
