@@ -387,6 +387,25 @@ color: rgb(0, 0, 0);</string>
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="checkBox_auto_up_down">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Авто-переход</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="pushButton_switchOffOneLamp">
             <property name="minimumSize">
              <size>
@@ -413,6 +432,28 @@ color: rgb(0, 0, 0);</string>
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="pushButton_repeat_last_sound">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Повторить последнее звуковое оповещение&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>RLS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="pushButton_sound">
             <property name="minimumSize">
              <size>
@@ -425,6 +466,9 @@ color: rgb(0, 0, 0);</string>
               <width>80</width>
               <height>80</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Включить/Выключить голосовой помощник&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string/>

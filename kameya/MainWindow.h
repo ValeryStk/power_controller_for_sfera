@@ -28,54 +28,29 @@ public:
     ~MainWindow() override;
     void closeEvent(QCloseEvent*event)override;
 
-protected:
-    bool eventFilter(QObject*obj,QEvent*event)override;
 
 private:
     Ui::MainWindow     *ui;
-    QString             rootDir;
-    QTimer              m_afterLampsOnHeatingTimer;
-
     Sounder             m_sounder;
     PowerSupplyManager *m_powerManager;
-
-
-    bool m_isTestPassed;
-    bool m_isGraphUpdate;
-    bool m_isControlPressed;
-    bool m_isResetZero;
-    bool m_isAngleReached;
-    int  m_infraRedChannelsNumber;
-    int  m_visibleRangeChannelsNumber;
-    int  m_darkModeCapturingDelay;
-    quint64 total_number_of_spectrs;
-    quint64 captured_spectrs_counter;
 
     void initializeVariables();
     void createObjects();
     void setUpGui();
     void setUpScene();
     void makeConnects();
-    void showMessageBox  (QMessageBox::Icon ico, QString titleText, QString text);
+    void showMessageBox  (QMessageBox::Icon ico,
+                          QString titleText,
+                          QString text);
     bool checkSafetyUser();
-    void setSavingPath();
 
-    bool   isStop = false;
-    double maxProfileValue;
-    double minProfileValue;
-    int    m_lampsCounter;
+    int    m_current_lamp_index;
 
     QVector<double> bandProfileChannels;
     QVector<QLabel*> lamps;
     QHash <int, QString> m_pages;
-
     QGraphicsScene *m_sceneCalibr;
     OpticTable *ot;
-    LampsNumber m_lampsNumber;
-
-
-    void getFilterIndex(int &filterIndex, const int waveLength);
-    QJsonDocument readJsonDocumentFromFile(const QString &docName);
     QShortcut *repeatLastNotification;
 
 
@@ -90,7 +65,6 @@ private slots:
     void on_pushButton_Forward_clicked();
     void on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1);
 
-    void showElapsedHeatingTime();
     void openFolderInExplorer();
     void afterLampWasSwitchedOff();
     void on_pushButton_switchOffOneLamp_clicked();

@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
     setUpScene();
     qApp->installEventFilter(this);
     m_sounder.playSound("safety.mp3");
-    connect(&m_afterLampsOnHeatingTimer,SIGNAL(timeout()),SLOT(showElapsedHeatingTime()));
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]() {
@@ -52,37 +51,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    isStop = true;
     event->accept();
-}
-
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-    if(event->type() == QEvent::MouseButtonPress) {
-        QString objectName = obj->objectName();
-        if(objectName=="labelLamp1"){return false;}
-        if(objectName=="labelLamp2"){return false;}
-        if(objectName=="labelLamp3"){return false;}
-        if(objectName=="labelLamp4"){return false;}
-        if(objectName=="labelLamp5"){return false;}
-        if(objectName=="labelLamp6"){return false;}
-        return false;
-    } else if(event->type() == QEvent::MouseButtonDblClick){
-        if(obj->objectName()=="label_TitlePage"){
-            bool isMuted = m_sounder.isNotificationsMuted();
-            isMuted = !isMuted;
-            if(isMuted){
-                m_sounder.playSound("audioNotificationsOff.mp3");
-                m_sounder.muteSoundNotifications(isMuted);
-            }else{
-                m_sounder.muteSoundNotifications(isMuted);
-                m_sounder.playSound("soundOn.mp3");
-            };
-
-        }
-
-    }
-    return false;
 }
 
 
@@ -103,20 +72,6 @@ bool MainWindow::checkSafetyUser()
             ui->checkBox_2_power->isChecked()&&
             ui->checkBox_5_cooling_for_big_sphere->isChecked())return true;
     else return false;
-}
-
-QJsonDocument MainWindow::readJsonDocumentFromFile(const QString &docName)
-{
-    QFile file(docName);
-    file.open(QIODevice::ReadOnly);
-    QByteArray data = file.readAll();
-    QJsonParseError errorPtr;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &errorPtr);
-    if (doc.isNull()) {
-        qDebug() << "Ошибка разбора JSON!";
-    }
-    file.close();
-    return doc;
 }
 
 void MainWindow::switch_on_all_lamps()
@@ -220,9 +175,7 @@ void MainWindow::initializeVariables()
     };
     for(int i=0;i<pages.size();++i) m_pages.insert(i,pages.at(i));
 
-    m_isTestPassed = false;
-    m_isControlPressed = false;
-    m_lampsCounter = 6;
+    m_current_lamp_index = 5;
 
 }
 
@@ -233,6 +186,7 @@ void MainWindow::createObjects()
     repeatLastNotification = new QShortcut(this);
     repeatLastNotification->setKey(Qt::CTRL + Qt::Key_R);
     QObject::connect(repeatLastNotification,SIGNAL(activated()),&m_sounder,SLOT(playLastSound()));
+    connect(ui->pushButton_repeat_last_sound,SIGNAL(clicked()),&m_sounder,SLOT(playLastSound()));
 }
 
 void MainWindow::setUpGui()
@@ -286,11 +240,11 @@ void MainWindow::openFolderInExplorer()
 
 void MainWindow::afterLampWasSwitchedOff()
 {
-    --m_lampsCounter;
-    qDebug()<<"After one lamp was switched off point: "<<m_lampsCounter;
-    ot->setBulbOff(m_lampsCounter);
+    --m_current_lamp_index;
+    qDebug()<<"After one lamp was switched off point: "<<m_current_lamp_index;
+    ot->setBulbOff(m_current_lamp_index);
     m_sceneCalibr->update();
-    if(m_lampsCounter == 0){
+    if(m_current_lamp_index == 0){
         qDebug()<<"Calibration process was finished...";
         m_sounder.playSound("calibrationFinish.mp3");
     }
@@ -300,13 +254,6 @@ void MainWindow::afterLampWasSwitchedOff()
     }
 }
 
-void MainWindow::showElapsedHeatingTime()
-{
-    static long long time = 0;
-    ++time;
-    //ui->label_afterHeatingTime->setText(QDateTime::fromSecsSinceEpoch(time).toUTC().toString("hh:mm:ss"));
-
-}
 
 
 // GUI handlers
@@ -369,19 +316,19 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
         return;
     }
 
-    if(ot->setBulbOff(m_lampsCounter)){
+    if(ot->setBulbOff(m_current_lamp_index)){
         m_sounder.playSound("lamp_is_already_off.mp3");
 
     }else{
         m_sounder.playSound("switchOffLamp.mp3");
-        m_powerManager->decreaseVoltageStepByStepToZero(m_lampsCounter);
+        m_powerManager->decreaseVoltageStepByStepToZero(m_current_lamp_index);
     };
-    if(m_lampsCounter > 0){
-        if(ui->comboBox__mode->currentIndex()==0){
-            --m_lampsCounter;
+    if(m_current_lamp_index > 0){
+        if(ui->checkBox_auto_up_down->isChecked()){
+            --m_current_lamp_index;
         }
     }
-    ot->set_current_lamp_index(m_lampsCounter);
+    ot->set_current_lamp_index(m_current_lamp_index);
     m_sceneCalibr->update();
 }
 
@@ -400,20 +347,20 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
         return;
     }
 
-    if(ot->setBulbOn(m_lampsCounter)){
+    if(ot->setBulbOn(m_current_lamp_index)){
         m_sounder.playSound("lamp_is_already_on.mp3");
 
     }else{
         m_sounder.playSound("switchOnOneLamp.mp3");
-        //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_lampsCounter);
+        //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_current_lamp_index);
     };
 
-    if(m_lampsCounter < 5){
-        if(ui->comboBox__mode->currentIndex()==0){
-            ++m_lampsCounter;
+    if(m_current_lamp_index < 5){
+        if(ui->checkBox_auto_up_down->isChecked()){
+            ++m_current_lamp_index;
         }
     }
-    ot->set_current_lamp_index(m_lampsCounter);
+    ot->set_current_lamp_index(m_current_lamp_index);
     m_sceneCalibr->update();
 }
 
@@ -422,7 +369,7 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
 {
     static bool is_first_start_index = true;
     if(is_first_start_index){
-        m_lampsCounter = 5;
+        m_current_lamp_index = 5;
         is_first_start_index = false;
         return;
     }
@@ -436,9 +383,9 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
     }
 
     if(index < 1 || index > 6)return;
-    m_lampsCounter = index - 1;
+    m_current_lamp_index = index - 1;
 
-    ot->set_current_lamp_index(m_lampsCounter);
+    ot->set_current_lamp_index(m_current_lamp_index);
     m_sceneCalibr->update();
 }
 
@@ -457,4 +404,5 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
     }
 
 }
+
 
