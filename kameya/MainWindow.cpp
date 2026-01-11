@@ -1,4 +1,6 @@
 #include "MainWindow.h"
+
+#include "graphics_items/power_supply_item.h"
 #include "qgraphicsproxywidget.h"
 #include "ui_MainWindow.h"
 #include "Version.h"
@@ -223,6 +225,15 @@ void MainWindow::setUpScene()
     ot->setZValue(1000);
     m_sceneCalibr->addItem(ot);
     m_sceneCalibr->update();
+    PowerSupplyItem* psi1 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    psi1->setScale(0.8);
+    m_sceneCalibr->addItem(psi1);
+    PowerSupplyItem* psi2 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    psi2->setScale(0.8);
+    m_sceneCalibr->addItem(psi2);
+    PowerSupplyItem* psi3 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    psi3->setScale(0.8);
+    m_sceneCalibr->addItem(psi3);
 }
 
 void MainWindow::makeConnects()
