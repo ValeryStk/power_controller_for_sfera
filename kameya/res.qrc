@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>4restoring/PowerSupplyList.json</file>
         <file>sounds/accuracy_fail.mp3</file>
         <file>sounds/calculation.mp3</file>
         <file>sounds/calibration_data_ready.mp3</file>
