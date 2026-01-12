@@ -140,14 +140,25 @@ void MainWindow::testSlot()
 
     auto pwrs = m_powerManager->get_power_states();
     QJsonArray lamps = pwrs["lamps"].toArray();
-    QVector<QPair<double,double>> v_i();
+    QVector<bulb_state> bulbs_states(lamps.size());
 
-    ot->set_bulb_states({bulb_state::OFF,
-                         bulb_state::OFF,
-                         bulb_state::OFF,
-                         bulb_state::OFF,
-                         bulb_state::OFF,
-                         bulb_state::OFF});
+    for(int i=0; i<lamps.size(); ++i){
+        auto current_limit_value = lamps[i].toObject().value("max_current").toDouble();
+        auto current_present_value = m_powerManager->getCurrentValue(i);
+        auto current_voltage = m_powerManager->getVoltage(i);
+        if(current_voltage == 0 || current_voltage <= 0.05){
+            bulbs_states[i] = bulb_state::OFF;
+        }else if(qAbs(current_limit_value - current_present_value) < 0.03){
+            qDebug()<<"---ON--->"<<current_limit_value<<current_present_value;
+            bulbs_states[i] = bulb_state::ON;
+        }else{
+            bulbs_states[i] = bulb_state::UNDEFINED;
+            qDebug()<<"---UB--->"<<current_limit_value<<current_present_value;
+            m_sounder.playSound("notLoaded.mp3");
+        }
+    }
+
+    ot->set_bulb_states(bulbs_states);
     m_sceneCalibr->update();
 
     QVector<QPair<QLabel*,bool>> labels = {
@@ -156,6 +167,9 @@ void MainWindow::testSlot()
         {ui->label_test_power_3, third_power_state}
     };
     bool testOk = false;
+    if(first_power_state && second_power_sate && third_power_state){
+        testOk = true;
+    }
     for(int i=0;i<labels.size();++i){
 
         QString style = "";
