@@ -83,7 +83,7 @@ void MainWindow::switch_on_all_lamps()
     auto lamps = pwrs["lamps"].toArray();
 
     for(int i=0;i<lamps.size();++i){
-        //m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
+        m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
         ot->set_current_lamp_index(i);
         ot->setBulbOn(i);
         m_sceneCalibr->update();
@@ -138,7 +138,16 @@ void MainWindow::testSlot()
     bool second_power_sate = m_powerManager->getPowerStatus(2);
     bool third_power_state = m_powerManager->getPowerStatus(4);
 
-    ot->set_bulb_states({bulb_state::OFF,bulb_state::OFF,bulb_state::OFF,bulb_state::OFF,bulb_state::OFF,bulb_state::OFF});
+    auto pwrs = m_powerManager->get_power_states();
+    QJsonArray lamps = pwrs["lamps"].toArray();
+    QVector<QPair<double,double>> v_i();
+
+    ot->set_bulb_states({bulb_state::OFF,
+                         bulb_state::OFF,
+                         bulb_state::OFF,
+                         bulb_state::OFF,
+                         bulb_state::OFF,
+                         bulb_state::OFF});
     m_sceneCalibr->update();
 
     QVector<QPair<QLabel*,bool>> labels = {
@@ -225,7 +234,7 @@ void MainWindow::setUpScene()
     ot->setZValue(1000);
     m_sceneCalibr->addItem(ot);
     m_sceneCalibr->update();
-    PowerSupplyItem* psi1 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    /*PowerSupplyItem* psi1 = new PowerSupplyItem(":/guiPictures/PS.svg");
     psi1->setScale(0.8);
     m_sceneCalibr->addItem(psi1);
     PowerSupplyItem* psi2 = new PowerSupplyItem(":/guiPictures/PS.svg");
@@ -233,7 +242,7 @@ void MainWindow::setUpScene()
     m_sceneCalibr->addItem(psi2);
     PowerSupplyItem* psi3 = new PowerSupplyItem(":/guiPictures/PS.svg");
     psi3->setScale(0.8);
-    m_sceneCalibr->addItem(psi3);
+    m_sceneCalibr->addItem(psi3);*/
 }
 
 void MainWindow::makeConnects()
@@ -303,7 +312,6 @@ void MainWindow::on_pushButton_Forward_clicked()
             QTimer::singleShot(5000,this,SLOT(testSlot()));
         }
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Калибровка"){
-
             m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
             ui->pushButton_Forward->setVisible(false);
@@ -363,7 +371,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 
     }else{
         m_sounder.playSound("switchOnOneLamp.mp3");
-        //m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_current_lamp_index);
+        m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_current_lamp_index);
     };
 
     if(m_current_lamp_index < 5){
