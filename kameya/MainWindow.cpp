@@ -51,12 +51,13 @@ MainWindow::MainWindow(QWidget *parent)
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]() {
         m_sceneCalibr->update();
-        //update_ps(1,1,true,10.33,50.55);
-        auto result = m_powerManager->get_all_params_for_lamp_out(m_current_lamp_index);
-        int power_num = lamp_pwr_out[m_current_lamp_index][0];
-        int out_num = lamp_pwr_out[m_current_lamp_index][1];
-        qDebug()<<power_num<<out_num;
+        for(int i=0;i<6;++i){
+        auto result = m_powerManager->get_all_params_for_lamp_out(i);
+        int power_num = lamp_pwr_out[i][0];
+        int out_num = lamp_pwr_out[i][1];
+        //qDebug()<<power_num<<out_num;
         update_ps(power_num, out_num, result.isOn, result.V, result.I);
+        }
 
 
     });
