@@ -7,6 +7,8 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include "Types.h"
+
 
 //!
 //! \brief Предназначен для управления блоками питания
@@ -30,6 +32,7 @@ class PowerSupplyManager: public QObject {
                        double value);
   double getCurrentLimit(const quint16 index);
   double getCurrentValue(const quint16 index);
+  PowerUnitParams get_all_params_for_lamp_out(const quint16 index);
 
 
   void switchOnUnit(const quint16 index);
@@ -60,6 +63,9 @@ class PowerSupplyManager: public QObject {
 
  private slots:
   void errorInSocket(QAbstractSocket::SocketError error);
+
+signals:
+  void ps_params_changed(int ps, int out, bool is_on, double voltage, double current);
 
 };
 

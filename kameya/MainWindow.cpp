@@ -24,6 +24,17 @@ constexpr char kSwitchOffLampsText[] = "Выключить все лампы";
 constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
 
 
+constexpr int lamp_pwr_out[6][2] = {{1,1},
+                                    {1,2},
+                                    {2,1},
+                                    {2,2},
+                                    {3,1},
+                                    {3,2}};
+
+PowerSupplyItem* psi1;
+PowerSupplyItem* psi2;
+PowerSupplyItem* psi3;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -40,19 +51,36 @@ MainWindow::MainWindow(QWidget *parent)
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]() {
         m_sceneCalibr->update();
+        //update_ps(1,1,true,10.33,50.55);
+        auto result = m_powerManager->get_all_params_for_lamp_out(m_current_lamp_index);
+        int power_num = lamp_pwr_out[m_current_lamp_index][0];
+        int out_num = lamp_pwr_out[m_current_lamp_index][1];
+        qDebug()<<power_num<<out_num;
+        update_ps(power_num, out_num, result.isOn, result.V, result.I);
+
+
     });
     timer->start(1000);
+    connect(m_powerManager, &PowerSupplyManager::ps_params_changed, this, &MainWindow::update_ps);
 
 }
 
 MainWindow::~MainWindow()
 {
+
     delete ui;
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
+    m_sceneCalibr->removeItem(psi1);
+    delete psi1;
+    m_sceneCalibr->removeItem(psi2);
+    delete psi2;
+    m_sceneCalibr->removeItem(psi3);
+    delete psi3;
     event->accept();
 }
 
@@ -130,6 +158,38 @@ void MainWindow::openRootFolder()
     QStringList args;
     QProcess::startDetached(openExplorer, args);
 }
+//  void ps_params_changed(int ps, int out, bool is_on, double voltage, double current);
+void MainWindow::update_ps(int ps,
+                           int out,
+                           bool isOn,
+                           double voltage,
+                           double current)
+{
+    PowerSupplyItem* ps_item = nullptr;
+    switch (ps) {
+
+    case 1:
+        ps_item = psi1;
+        break;
+    case 2:
+        ps_item = psi2;
+        break;
+    case 3:
+        ps_item = psi3;
+        break;
+    default:return;
+    }
+    if(ps_item == nullptr)return;
+    if(out == 1)ps_item->set_voltage_out_1(voltage);
+    if(out == 2)ps_item->set_voltage_out_2(voltage);
+    if(out == 1)ps_item->set_current_out_1(current);
+    if(out == 2)ps_item->set_current_out_2(current);
+    if(out == 1)ps_item->set_enabled_out_1(isOn);
+    if(out == 2)ps_item->set_enabled_out_2(isOn);
+    qDebug()<<"------------------PS ITEMS UPDATE----------------->";
+    m_sceneCalibr->update();
+}
+
 
 void MainWindow::testSlot()
 {
@@ -248,15 +308,16 @@ void MainWindow::setUpScene()
     ot->setZValue(1000);
     m_sceneCalibr->addItem(ot);
     m_sceneCalibr->update();
-    /*PowerSupplyItem* psi1 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    psi1 = new PowerSupplyItem(":/guiPictures/PS.svg","ps1");
     psi1->setScale(0.8);
     m_sceneCalibr->addItem(psi1);
-    PowerSupplyItem* psi2 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    psi2 = new PowerSupplyItem(":/guiPictures/PS.svg","ps2");
     psi2->setScale(0.8);
     m_sceneCalibr->addItem(psi2);
-    PowerSupplyItem* psi3 = new PowerSupplyItem(":/guiPictures/PS.svg");
+    psi3 = new PowerSupplyItem(":/guiPictures/PS.svg","ps3");
     psi3->setScale(0.8);
-    m_sceneCalibr->addItem(psi3);*/
+    m_sceneCalibr->addItem(psi3);
+
 }
 
 void MainWindow::makeConnects()

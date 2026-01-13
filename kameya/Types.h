@@ -20,11 +20,10 @@ enum class LampsNumber{
 
 
 struct PowerUnitParams{
-
+    bool   isOn;
     double V;
     double I;
-    double Ilim;
-    bool   isOn;
+    double Ilim;  
 };
 
 enum class PowerDevice:int{

@@ -1,5 +1,6 @@
 // PowerSupplyItem.cpp
 #include "power_supply_item.h"
+
 #include "qgraphicssceneevent.h"
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
@@ -7,9 +8,11 @@
 #include <QFontMetricsF>
 #include <QToolTip>
 #include <QDebug>
+#include <QJsonObject>
+#include "json_utils.h"
 
-PowerSupplyItem::PowerSupplyItem(const QString& svgPath, QGraphicsItem* parent)
-    : QGraphicsSvgItem(parent)
+PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
+                                 const QString& name):m_label(name)
 {
     // Improve rendering quality
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
@@ -18,6 +21,24 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath, QGraphicsItem* parent)
     if (!svgPath.isEmpty()) {
         loadSvg(svgPath);
     }
+    QJsonObject jo;
+    jsn::getJsonObjectFromFile("ir_lamps.json",jo);
+    auto x = jo[m_label].toObject().value("x").toInt();
+    auto y = jo[m_label].toObject().value("y").toInt();
+    setPos(x,y);
+}
+
+PowerSupplyItem::~PowerSupplyItem()
+{
+    QJsonObject jo;
+    auto pos = scenePos().toPoint();
+    QJsonObject coords;
+    coords["x"] = pos.x();
+    coords["y"] = pos.y();
+    jsn::getJsonObjectFromFile("ir_lamps.json",jo);
+    jo[m_label] = coords;
+    jsn::saveJsonObjectToFile("ir_lamps.json",jo,QJsonDocument::Indented);
+    qDebug()<<"-------------JO-----------------"<<jo;
 }
 
 bool PowerSupplyItem::loadSvg(const QString& svgPath)
@@ -48,13 +69,13 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 
     // Lines: label, voltage, current, state
     const QString lineLabel   = m_label;
-    const QString lineVoltage = QStringLiteral("%1 V").arg(m_voltage, 0, 'f', 3);
-    const QString lineCurrent = QStringLiteral("%1 A").arg(m_current, 0, 'f', 3);
-    const QString lineState   = m_enabled ? QStringLiteral("ON") : QStringLiteral("OFF");
+    const QString lineVoltage = QStringLiteral("%1 V").arg(m_voltage_out_1, 0, 'f', 3);
+    const QString lineCurrent = QStringLiteral("%1 A").arg(m_current_out_1, 0, 'f', 3);
+    const QString lineState   = m_enabled_out_1 ? QStringLiteral("ON") : QStringLiteral("OFF");
 
-    const QString lineVoltage2 = QStringLiteral("%1 V").arg(m_voltage, 0, 'f', 3);
-    const QString lineCurrent2 = QStringLiteral("%1 A").arg(m_current, 0, 'f', 3);
-    const QString lineState2   = m_enabled ? QStringLiteral("ON") : QStringLiteral("OFF");
+    const QString lineVoltage2 = QStringLiteral("%1 V").arg(m_voltage_out_2, 0, 'f', 3);
+    const QString lineCurrent2 = QStringLiteral("%1 A").arg(m_current_out_2, 0, 'f', 3);
+    const QString lineState2   = m_enabled_out_2 ? QStringLiteral("ON") : QStringLiteral("OFF");
 
 
     // Draw text
@@ -67,7 +88,7 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     //painter->drawText(QPointF(165,20),"192.168.1.22");
 
     // State line with color
-    QColor stateColor = m_enabled ? m_enabledColorOn : m_enabledColorOff;
+    QColor stateColor = m_enabled_out_1 ? m_enabledColorOn : m_enabledColorOff;
     painter->setPen(stateColor);
 
     // Optional status indicator circle (top-right)
@@ -93,27 +114,48 @@ void PowerSupplyItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         QString text = QString("Local: (%1, %2)\nScene: (%3, %4)")
                            .arg(localPos.x()).arg(localPos.y())
                            .arg(scenePos.x()).arg(scenePos.y());
-        qDebug()<<text;
+        //qDebug()<<text;
 }
 
-void PowerSupplyItem::setVoltage(double volts)
+void PowerSupplyItem::set_voltage_out_1(double volts)
 {
-    if (qFuzzyCompare(m_voltage, volts)) return;
-    m_voltage = volts;
+    if (qFuzzyCompare(m_voltage_out_1, volts)) return;
+    m_voltage_out_1 = volts;
     update();
 }
 
-void PowerSupplyItem::setCurrent(double amps)
+void PowerSupplyItem::set_current_out_1(double amps)
 {
-    if (qFuzzyCompare(m_current, amps)) return;
-    m_current = amps;
+    if (qFuzzyCompare(m_current_out_1, amps)) return;
+    m_current_out_1 = amps;
     update();
 }
 
-void PowerSupplyItem::setEnabled(bool on)
+void PowerSupplyItem::set_enabled_out_1(bool on)
 {
-    if (m_enabled == on) return;
-    m_enabled = on;
+    if (m_enabled_out_1 == on) return;
+    m_enabled_out_1 = on;
+    update();
+}
+
+void PowerSupplyItem::set_voltage_out_2(double volts)
+{
+    if (qFuzzyCompare(m_voltage_out_2, volts)) return;
+    m_voltage_out_2 = volts;
+    update();
+}
+
+void PowerSupplyItem::set_current_out_2(double amps)
+{
+    if (qFuzzyCompare(m_current_out_2, amps)) return;
+    m_current_out_2 = amps;
+    update();
+}
+
+void PowerSupplyItem::set_enabled_out_2(bool on)
+{
+    if (m_enabled_out_2 == on) return;
+    m_enabled_out_2 = on;
     update();
 }
 

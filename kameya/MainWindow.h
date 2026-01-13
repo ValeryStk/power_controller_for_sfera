@@ -61,6 +61,11 @@ void timeOutCaseHandler();
 private slots:
     void testSlot();
     void openRootFolder();
+    void update_ps( int ps,
+                    int out,
+                    bool isOn,
+                    double voltage,
+                    double current);
 
     void on_pushButton_Backward_clicked();
     void on_pushButton_Forward_clicked();

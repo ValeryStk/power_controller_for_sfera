@@ -90,6 +90,15 @@ double PowerSupplyManager::getCurrentValue(const quint16 index) {
     return getValueFromMessage(QString::fromLocal8Bit(m_socket->readAll()));
 }
 
+PowerUnitParams PowerSupplyManager::get_all_params_for_lamp_out(const quint16 index)
+{
+
+    return {getPowerStatus(index),
+            getVoltage(index),
+            getCurrentValue(index),
+            getCurrentLimit(index)};
+}
+
 bool PowerSupplyManager::getPowerStatus(const quint16 index) {
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeGetSwitchStateCommand(out));
@@ -170,7 +179,6 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
     qDebug()<<"current --> "<<current;
     double currentLimit = getCurrentLimit(index);
     qDebug()<<"current limit --> "<<currentLimit;
-
     while(true){
         double voltage = getVoltage(index);
         qDebug()<<"voltage --> "<<voltage;
@@ -327,6 +335,12 @@ void PowerSupplyManager::setInitialParams() {
             qDebug()<<"max_current: "<<max_current;
             setCurrentLimit(i, max_current);
             //increaseVoltageStepByStepToCurrentLimit(i);
+            emit ps_params_changed(1,1,true,1.11,1.11);
+            emit ps_params_changed(1,2,false,1.11,1.11);
+            emit ps_params_changed(2,1,true,2.22,2.22);
+            emit ps_params_changed(2,2,false,2.22,2.22);
+            emit ps_params_changed(3,1,true,3.33,3.33);
+            emit ps_params_changed(3,2,false,3.33,3.33);
             Sleep(500);
         }
     }
