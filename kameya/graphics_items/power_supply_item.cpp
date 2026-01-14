@@ -65,17 +65,13 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 
     // Prepare text overlay
     painter->setFont(m_font);
-    QFontMetricsF fm(m_font);
 
     // Lines: label, voltage, current, state
-    const QString lineLabel   = m_label;
     const QString lineVoltage = QStringLiteral("%1 V").arg(m_voltage_out_1, 0, 'f', 3);
     const QString lineCurrent = QStringLiteral("%1 A").arg(m_current_out_1, 0, 'f', 3);
-    const QString lineState   = m_enabled_out_1 ? QStringLiteral("ON") : QStringLiteral("OFF");
 
     const QString lineVoltage2 = QStringLiteral("%1 V").arg(m_voltage_out_2, 0, 'f', 3);
     const QString lineCurrent2 = QStringLiteral("%1 A").arg(m_current_out_2, 0, 'f', 3);
-    const QString lineState2   = m_enabled_out_2 ? QStringLiteral("ON") : QStringLiteral("OFF");
 
 
     // Draw text
@@ -99,6 +95,25 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->setBrush(stateColor);
     painter->drawEllipse(circleCenter, r, r);
     painter->drawEllipse(circleCenter2, r, r);
+
+    painter->setBrush(QBrush(m_out_1_color));
+    painter->setPen(QPen(m_out_1_color,5));
+    painter->drawEllipse(QPointF(202,270),8,8);
+    painter->drawEllipse(QPointF(250,270),8,8);
+    if(m_is_out_1_active){
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(QRect(QPoint(177,247),QPoint(273,288)));
+    }
+
+    painter->setBrush(QBrush(m_out_2_color));
+    painter->setPen(QPen(m_out_2_color,5));
+    painter->drawEllipse(QPointF(350,270),8,8);
+    painter->drawEllipse(QPointF(398,270),8,8);
+    if(m_is_out_2_active){
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(QRect(QPoint(321,247),QPoint(425,288)));
+    }
+
 }
 
 void PowerSupplyItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
@@ -138,6 +153,16 @@ void PowerSupplyItem::set_enabled_out_1(bool on)
     update();
 }
 
+void PowerSupplyItem::set_out_1_color(const QColor &color)
+{
+    m_out_1_color = color;
+}
+
+void PowerSupplyItem::set_out_1_active()
+{
+    m_is_out_1_active = true;
+}
+
 void PowerSupplyItem::set_voltage_out_2(double volts)
 {
     if (qFuzzyCompare(m_voltage_out_2, volts)) return;
@@ -157,6 +182,22 @@ void PowerSupplyItem::set_enabled_out_2(bool on)
     if (m_enabled_out_2 == on) return;
     m_enabled_out_2 = on;
     update();
+}
+
+void PowerSupplyItem::set_out_2_color(const QColor &color)
+{
+    m_out_2_color = color;
+}
+
+void PowerSupplyItem::set_out_2_active()
+{
+    m_is_out_2_active = true;
+}
+
+void PowerSupplyItem::set_all_outs_unactive()
+{
+    m_is_out_1_active = false;
+    m_is_out_2_active = false;
 }
 
 void PowerSupplyItem::setLabel(const QString& name)

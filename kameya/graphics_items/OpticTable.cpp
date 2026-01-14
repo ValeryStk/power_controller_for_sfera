@@ -4,8 +4,12 @@
 #include <QLinearGradient>
 #include <QPainter>
 #include <QDebug>
+#include <QJsonObject>
+#include <QJsonArray>
+#include "QColor"
+#include "json_utils.h"
 
-
+QVector<QColor> bulb_colors;
 
 OpticTable::OpticTable()
 {
@@ -17,8 +21,16 @@ OpticTable::OpticTable()
                   init_state,
                   init_state
                  };
+
     m_current_lamp_index = 5;
     m_bulb_on_time.resize(6);
+    bulb_colors.resize(6);
+    QJsonObject jo;
+    jsn::getJsonObjectFromFile("ir_lamps.json",jo);
+    auto lamps = jo["lamps"].toArray();
+    for(int i=0;i<lamps.size();++i){
+    bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
+    }
 }
 
 QRectF OpticTable::boundingRect() const
@@ -94,6 +106,11 @@ void OpticTable::drawLamps(QPainter *painter)
 
         // рисуем номер лампы (i+1)
         painter->drawText(textRect, Qt::AlignCenter, QString::number(i + 1));
+
+        offsetX = radius * 0.8;
+        offsetY = radius * 0.8;
+        painter->setBrush(bulb_colors[i]);
+        painter->drawEllipse(QPoint(centerX + offsetX - 10, centerY + offsetY - 10),8,8);
 
 
 

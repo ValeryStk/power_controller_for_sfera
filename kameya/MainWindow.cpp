@@ -52,11 +52,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer, &QTimer::timeout, this, [this]() {
         m_sceneCalibr->update();
         for(int i=0;i<6;++i){
-        auto result = m_powerManager->get_all_params_for_lamp_out(i);
-        int power_num = lamp_pwr_out[i][0];
-        int out_num = lamp_pwr_out[i][1];
-        //qDebug()<<power_num<<out_num;
-        update_ps(power_num, out_num, result.isOn, result.V, result.I);
+            auto result = m_powerManager->get_all_params_for_lamp_out(i);
+            int power_num = lamp_pwr_out[i][0];
+            int out_num = lamp_pwr_out[i][1];
+            //qDebug()<<power_num<<out_num;
+            update_ps(power_num, out_num, result.isOn, result.V, result.I);
         }
 
 
@@ -167,6 +167,9 @@ void MainWindow::update_ps(int ps,
                            double current)
 {
     PowerSupplyItem* ps_item = nullptr;
+    psi1->set_all_outs_unactive();
+    psi2->set_all_outs_unactive();
+    psi3->set_all_outs_unactive();
     switch (ps) {
 
     case 1:
@@ -181,6 +184,8 @@ void MainWindow::update_ps(int ps,
     default:return;
     }
     if(ps_item == nullptr)return;
+
+
     if(out == 1)ps_item->set_voltage_out_1(voltage);
     if(out == 2)ps_item->set_voltage_out_2(voltage);
     if(out == 1)ps_item->set_current_out_1(current);
@@ -188,6 +193,22 @@ void MainWindow::update_ps(int ps,
     if(out == 1)ps_item->set_enabled_out_1(isOn);
     if(out == 2)ps_item->set_enabled_out_2(isOn);
 
+    //m_current_lamp_index
+    int current_pwr_num = lamp_pwr_out[m_current_lamp_index][0];
+    int active_out = lamp_pwr_out[m_current_lamp_index][1];
+    if(current_pwr_num == 1){
+        ps_item = psi1;
+    }else if(current_pwr_num == 2){
+        ps_item = psi2;
+    }else if (current_pwr_num == 3) {
+        ps_item = psi3;
+    }
+    if(active_out == 1){
+    ps_item->set_out_1_active();
+    }
+    if(active_out == 2){
+    ps_item->set_out_2_active();
+    }
     m_sceneCalibr->update();
 }
 
@@ -304,6 +325,14 @@ void MainWindow::setUpGui()
 void MainWindow::setUpScene()
 {
     ui->graphicsView->setScene(m_sceneCalibr);
+    QVector<QColor> bulb_colors;
+    bulb_colors.resize(6);
+    QJsonObject jo;
+    jo = m_powerManager->get_power_states();
+    auto lamps = jo["lamps"].toArray();
+    for(int i=0;i<lamps.size();++i){
+        bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
+    }
     m_sceneCalibr->setSceneRect(0, 0, 800, 600);
     ot = new OpticTable;
     ot->setZValue(1000);
@@ -311,12 +340,18 @@ void MainWindow::setUpScene()
     m_sceneCalibr->update();
     psi1 = new PowerSupplyItem(":/guiPictures/PS.svg","ps1");
     psi1->setScale(0.8);
+    psi1->set_out_1_color(QColor(bulb_colors[0]));
+    psi1->set_out_2_color(QColor(bulb_colors[1]));
     m_sceneCalibr->addItem(psi1);
     psi2 = new PowerSupplyItem(":/guiPictures/PS.svg","ps2");
     psi2->setScale(0.8);
+    psi2->set_out_1_color(QColor(bulb_colors[2]));
+    psi2->set_out_2_color(QColor(bulb_colors[3]));
     m_sceneCalibr->addItem(psi2);
     psi3 = new PowerSupplyItem(":/guiPictures/PS.svg","ps3");
     psi3->setScale(0.8);
+    psi3->set_out_1_color(QColor(bulb_colors[4]));
+    psi3->set_out_2_color(QColor(bulb_colors[5]));
     m_sceneCalibr->addItem(psi3);
 
 }
