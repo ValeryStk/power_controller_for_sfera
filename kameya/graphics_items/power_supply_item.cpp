@@ -187,10 +187,3 @@ void PowerSupplyItem::setFont(const QFont& font)
     m_font = font;
     update();
 }
-
-void PowerSupplyItem::setPadding(qreal px)
-{
-    if (qFuzzyCompare(m_padding, px)) return;
-    m_padding = px;
-    update();
-}

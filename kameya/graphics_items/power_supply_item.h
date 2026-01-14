@@ -44,7 +44,6 @@ public:
     QColor enabledColorOn() const { return m_enabledColorOn; }
     QColor enabledColorOff() const { return m_enabledColorOff; }
     QFont font() const { return m_font; }
-    qreal padding() const { return m_padding; }
 
     // Load/replace SVG
     bool loadSvg(const QString& svgPath);
@@ -71,7 +70,6 @@ private:
     QColor  m_textColor         = QColor(255, 0, 0);
     QColor  m_enabledColorOn    = QColor(0, 150, 0);
     QColor  m_enabledColorOff   = QColor(160, 0, 0);
-    qreal   m_padding           = 8.0;
 
     // Cache
     QRectF  m_cachedBounds;
