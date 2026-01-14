@@ -81,7 +81,8 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 
     painter->drawText(QPointF(331,70), lineVoltage2);
     painter->drawText(QPointF(331,120), lineCurrent2);
-    //painter->drawText(QPointF(165,20),"192.168.1.22");
+    painter->setPen(QPen(Qt::black));
+    painter->drawText(QPointF(165,30),m_label);
 
     // State line with color
     QColor stateColor = m_enabled_out_1 ? m_enabledColorOn : m_enabledColorOff;
