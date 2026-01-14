@@ -114,7 +114,7 @@ void PowerSupplyItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         QString text = QString("Local: (%1, %2)\nScene: (%3, %4)")
                            .arg(localPos.x()).arg(localPos.y())
                            .arg(scenePos.x()).arg(scenePos.y());
-        //qDebug()<<text;
+        qDebug()<<text;
 }
 
 void PowerSupplyItem::set_voltage_out_1(double volts)

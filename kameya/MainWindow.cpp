@@ -187,7 +187,7 @@ void MainWindow::update_ps(int ps,
     if(out == 2)ps_item->set_current_out_2(current);
     if(out == 1)ps_item->set_enabled_out_1(isOn);
     if(out == 2)ps_item->set_enabled_out_2(isOn);
-    qDebug()<<"------------------PS ITEMS UPDATE----------------->";
+
     m_sceneCalibr->update();
 }
 
@@ -210,11 +210,11 @@ void MainWindow::testSlot()
         if(current_voltage == 0 || current_voltage <= 0.05){
             bulbs_states[i] = bulb_state::OFF;
         }else if(qAbs(current_limit_value - current_present_value) < 0.03){
-            qDebug()<<"---ON--->"<<current_limit_value<<current_present_value;
+            //qDebug()<<"---ON--->"<<current_limit_value<<current_present_value;
             bulbs_states[i] = bulb_state::ON;
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
-            qDebug()<<"---UB--->"<<current_limit_value<<current_present_value;
+            //qDebug()<<"---UB--->"<<current_limit_value<<current_present_value;
             m_sounder.playSound("notLoaded.mp3");
         }
     }
@@ -334,26 +334,13 @@ void MainWindow::openFolderInExplorer()
     QProcess::startDetached(openExplorer, args);
 }
 
-void MainWindow::afterLampWasSwitchedOff()
+void MainWindow::timeOutCaseHandler()
 {
-    --m_current_lamp_index;
-    qDebug()<<"After one lamp was switched off point: "<<m_current_lamp_index;
-    ot->setBulbOff(m_current_lamp_index);
-    m_sceneCalibr->update();
-    if(m_current_lamp_index == 0){
-        qDebug()<<"Calibration process was finished...";
-        m_sounder.playSound("calibrationFinish.mp3");
-    }
-    else {
-        m_sounder.playSound("oneLampWasSwitchedOff.mp3");
-        ui->pushButton_switchOffOneLamp->setEnabled(true);
-    }
+    ui->pushButton_switchOffOneLamp->setEnabled(true);
+    qDebug()<<"TimeOut handler....";
 }
 
-
-
 // GUI handlers
-
 void MainWindow::on_pushButton_Backward_clicked()
 {
     if(ui->stackedWidget->currentIndex()>0){
@@ -427,12 +414,6 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
     m_sceneCalibr->update();
 }
 
-void MainWindow::timeOutCaseHandler()
-{
-    ui->pushButton_switchOffOneLamp->setEnabled(true);
-    qDebug()<<"TimeOut handler....";
-}
-
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 {
 
@@ -459,7 +440,6 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
     m_sceneCalibr->update();
 }
 
-
 void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
 {
     static bool is_first_start_index = true;
@@ -484,7 +464,6 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
     m_sceneCalibr->update();
 }
 
-
 void MainWindow::on_pushButton_sound_toggled(bool checked)
 {
     if(checked){
@@ -499,5 +478,3 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
     }
 
 }
-
-

@@ -49,13 +49,13 @@ double PowerSupplyManager::getVoltage(const quint16 index) {
     m_socket->write(pwr::makeGetVoltageValueCommand(out));
     m_socket->waitForReadyRead();
     QString response = QString::fromLocal8Bit(m_socket->readAll());
-    qDebug() << "voltage: " << response;
+    //qDebug() << "voltage: " << response;
     return getValueFromMessage(response);
 }
 
 void PowerSupplyManager::setVoltage(const quint16 index,
                                     double value) {
-    qDebug() << "set voltage: " << value;
+    //qDebug() << "set voltage: " << value;
     if (!isPowerOutConnected(index))
         return;
     int out = maybeReconnectHost(index);
@@ -144,10 +144,9 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     maybeReconnectHost(index);
     //setCurrentLimit(index,5);
     double target_current = m_powers["lamps"].toArray()[index].toObject().value("max_current").toDouble();
-    qDebug()<<"target current --> "<<target_current;
-    double current = getCurrentValue(index);
-    qDebug()<<"current --> "<<current;
-    double currentValue = 0;
+    //qDebug()<<"target current --> "<<target_current;
+
+    double currentValue = getCurrentValue(index);
     int dolbo_counter = 0;
     while(currentValue < target_current){
         double voltage = getVoltage(index);
@@ -155,8 +154,8 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
         if((target_current-currentValue)<=0.005){
             ++dolbo_counter;
         }
-        qDebug()<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
-        voltage = qAbs(voltage+0.2);//0.1
+        //qDebug()<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
+        voltage = qAbs(voltage + 0.2);//0.1
         setVoltage(index,voltage);
         Sleep(300);
         if(dolbo_counter == 10){
@@ -174,19 +173,13 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
 void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
 {
     maybeReconnectHost(index);
-    //setCurrentLimit(index,5);
-    double current = getCurrentValue(index);
-    qDebug()<<"current --> "<<current;
-    double currentLimit = getCurrentLimit(index);
-    qDebug()<<"current limit --> "<<currentLimit;
     while(true){
         double voltage = getVoltage(index);
-        qDebug()<<"voltage --> "<<voltage;
         voltage = voltage - 0.1;
         if(voltage<0)voltage = 0;
         setVoltage(index,voltage);
         Sleep(300);
-        if(voltage==0)break;
+        if(voltage<=0)break;
         if(m_net_error){
             m_net_error = false;
             break;
@@ -323,24 +316,14 @@ void PowerSupplyManager::checkPowersConection() {
         lamps[i] = object;
     };
     m_powers["lamps"] = lamps;
-    qDebug() << m_powers;
 }
 
 void PowerSupplyManager::setInitialParams() {
 
-
     for (int i = 0; i < getPowerOutsSize(); ++i) {
         if (isPowerOutConnected(i)) {
             double max_current = m_powers["lamps"].toArray()[i].toObject().value("max_current").toDouble();
-            qDebug()<<"max_current: "<<max_current;
             setCurrentLimit(i, max_current);
-            //increaseVoltageStepByStepToCurrentLimit(i);
-            emit ps_params_changed(1,1,true,1.11,1.11);
-            emit ps_params_changed(1,2,false,1.11,1.11);
-            emit ps_params_changed(2,1,true,2.22,2.22);
-            emit ps_params_changed(2,2,false,2.22,2.22);
-            emit ps_params_changed(3,1,true,3.33,3.33);
-            emit ps_params_changed(3,2,false,3.33,3.33);
             Sleep(500);
         }
     }

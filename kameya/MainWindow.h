@@ -72,9 +72,8 @@ private slots:
     void on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1);
 
     void openFolderInExplorer();
-    void afterLampWasSwitchedOff();
-    void on_pushButton_switchOffOneLamp_clicked();
 
+    void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
     void on_comboBox__mode_currentIndexChanged(int index);
     void switch_on_all_lamps();
