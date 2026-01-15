@@ -64,8 +64,6 @@ class PowerSupplyManager: public QObject {
  private slots:
   void errorInSocket(QAbstractSocket::SocketError error);
 
-signals:
-  void ps_params_changed(int ps, int out, bool is_on, double voltage, double current);
 
 };
 

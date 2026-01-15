@@ -18,22 +18,26 @@
 #include <QDateTime>
 #include "Windows.h"
 
+constexpr int NUMBER_OF_LAMPS = 6;
+
 constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[] = "Включить одну лампу";
 constexpr char kSwitchOffLampsText[] = "Выключить все лампы";
 constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
 
 
-constexpr int lamp_pwr_out[6][2] = {{1,1},
-                                    {1,2},
-                                    {2,1},
-                                    {2,2},
-                                    {3,1},
-                                    {3,2}};
+constexpr int lamp_pwr_out[NUMBER_OF_LAMPS][2] = {{1,1},
+                                                  {1,2},
+                                                  {2,1},
+                                                  {2,2},
+                                                  {3,1},
+                                                  {3,2}};
 
 PowerSupplyItem* psi1;
 PowerSupplyItem* psi2;
 PowerSupplyItem* psi3;
+
+QTimer *m_timer_to_update_power_states;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -43,34 +47,25 @@ MainWindow::MainWindow(QWidget *parent)
     createObjects();
     initializeVariables();
     setUpGui();
-    makeConnects();
     setUpScene();
     qApp->installEventFilter(this);
     m_sounder.playSound("safety.mp3");
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this]() {
+    m_timer_to_update_power_states = new QTimer(this);
+    connect(m_timer_to_update_power_states, &QTimer::timeout, this, [this]() {
         m_sceneCalibr->update();
-        for(int i=0;i<6;++i){
+        for(int i=0;i<NUMBER_OF_LAMPS;++i){
             auto result = m_powerManager->get_all_params_for_lamp_out(i);
             int power_num = lamp_pwr_out[i][0];
             int out_num = lamp_pwr_out[i][1];
-            //qDebug()<<power_num<<out_num;
             update_ps(power_num, out_num, result.isOn, result.V, result.I);
         }
-
-
     });
-    timer->start(1000);
-    connect(m_powerManager, &PowerSupplyManager::ps_params_changed, this, &MainWindow::update_ps);
-
 }
 
 MainWindow::~MainWindow()
 {
-
     delete ui;
-
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -142,10 +137,6 @@ void MainWindow::switch_off_all_lamps()
         QApplication::processEvents();
         Sleep(500);
     }
-    for(int i=0;i<lamps.size();++i){
-        auto voltage = m_powerManager->getVoltage(i);
-    }
-
 }
 
 void MainWindow::openRootFolder()
@@ -231,11 +222,9 @@ void MainWindow::testSlot()
         if(current_voltage == 0 || current_voltage <= 0.05){
             bulbs_states[i] = bulb_state::OFF;
         }else if(qAbs(current_limit_value - current_present_value) < 0.03){
-            //qDebug()<<"---ON--->"<<current_limit_value<<current_present_value;
             bulbs_states[i] = bulb_state::ON;
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
-            //qDebug()<<"---UB--->"<<current_limit_value<<current_present_value;
             m_sounder.playSound("notLoaded.mp3");
         }
     }
@@ -251,6 +240,7 @@ void MainWindow::testSlot()
     bool testOk = false;
     if(first_power_state && second_power_sate && third_power_state){
         testOk = true;
+        m_timer_to_update_power_states->start(1000);
     }
     for(int i=0;i<labels.size();++i){
 
@@ -353,11 +343,6 @@ void MainWindow::setUpScene()
     psi3->set_out_1_color(QColor(bulb_colors[4]));
     psi3->set_out_2_color(QColor(bulb_colors[5]));
     m_sceneCalibr->addItem(psi3);
-
-}
-
-void MainWindow::makeConnects()
-{
 
 }
 
