@@ -109,7 +109,7 @@ color: rgb(0, 128, 0);</string>
        <number>3</number>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_Warnings">
        <property name="styleSheet">
@@ -449,6 +449,28 @@ color: rgb(0, 0, 0);</string>
             </property>
             <property name="text">
              <string>Включить одну лампу</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_update">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Проверить подключение блоков питания&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>

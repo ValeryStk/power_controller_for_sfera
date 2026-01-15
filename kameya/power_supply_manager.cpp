@@ -288,7 +288,7 @@ int PowerSupplyManager::maybeReconnectHost(const int index) {
     QString new_host;
     getIpAndOutForIndex(index, new_host, out);
     QString current_host = m_hostAddress.toString();
-    if (current_host == new_host)
+    if (current_host == new_host && m_socket->state() == QTcpSocket::ConnectedState)
         return out;
     m_socket->disconnectFromHost();
     m_hostAddress.setAddress(new_host);

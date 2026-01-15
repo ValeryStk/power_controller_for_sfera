@@ -79,5 +79,6 @@ private slots:
     void switch_off_all_lamps();
     void on_pushButton_sound_toggled(bool checked);
     void on_pushButton_update_power_states_clicked();
+    void on_pushButton_update_clicked();
 };
 #endif // MAINWINDOW_H

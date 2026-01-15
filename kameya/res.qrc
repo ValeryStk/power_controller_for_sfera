@@ -44,5 +44,6 @@
         <file>guiPictures/no_sound.svg</file>
         <file>guiPictures/volume_up.svg</file>
         <file>guiPictures/PS.svg</file>
+        <file>guiPictures/update.svg</file>
     </qresource>
 </RCC>

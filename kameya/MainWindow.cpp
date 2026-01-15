@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_sounder.playSound("safety.mp3");
 
     m_timer_to_update_power_states = new QTimer(this);
+    m_timer_to_update_power_states->setInterval(1000);
+
     connect(m_timer_to_update_power_states, &QTimer::timeout, this, [this]() {
 
         for(int i=0;i<NUMBER_OF_LAMPS;++i){
@@ -311,6 +313,11 @@ void MainWindow::setUpGui()
     ui->pushButton_switchOffOneLamp->setIconSize(QSize(64,64));
     ui->pushButton_switch_on_one_lamp->setIcon(QIcon(":/guiPictures/trending_up.svg"));
     ui->pushButton_switch_on_one_lamp->setIconSize(QSize(64,64));
+    ui->pushButton_update_power_states->setIcon(QIcon(":/guiPictures/update.svg"));
+    ui->pushButton_update_power_states->setIconSize(QSize(64,64));
+    ui->pushButton_update->setIcon(QIcon(":/guiPictures/update.svg"));
+    ui->pushButton_update->setIconSize(QSize(64,64));
+
     ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
     ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
@@ -402,7 +409,7 @@ void MainWindow::on_pushButton_Forward_clicked()
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Калибровка"){
             m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
-            m_timer_to_update_power_states->start(1000);
+            m_timer_to_update_power_states->start();
             ui->pushButton_Forward->setVisible(false);
         }
     }
@@ -508,5 +515,13 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
 void MainWindow::on_pushButton_update_power_states_clicked()
 {
     QTimer::singleShot(5000,this,SLOT(testSlot()));
+}
+
+
+void MainWindow::on_pushButton_update_clicked()
+{
+    m_timer_to_update_power_states->stop();
+    testSlot();
+    m_timer_to_update_power_states->start();
 }
 
