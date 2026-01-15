@@ -157,11 +157,13 @@ void PowerSupplyItem::set_enabled_out_1(bool on)
 void PowerSupplyItem::set_out_1_color(const QColor &color)
 {
     m_out_1_color = color;
+    update();
 }
 
 void PowerSupplyItem::set_out_1_active()
 {
     m_is_out_1_active = true;
+    update();
 }
 
 void PowerSupplyItem::set_voltage_out_2(double volts)
@@ -188,17 +190,20 @@ void PowerSupplyItem::set_enabled_out_2(bool on)
 void PowerSupplyItem::set_out_2_color(const QColor &color)
 {
     m_out_2_color = color;
+    update();
 }
 
 void PowerSupplyItem::set_out_2_active()
 {
     m_is_out_2_active = true;
+    update();
 }
 
 void PowerSupplyItem::set_all_outs_unactive()
 {
     m_is_out_1_active = false;
     m_is_out_2_active = false;
+    update();
 }
 
 void PowerSupplyItem::setLabel(const QString& name)
@@ -220,7 +225,7 @@ void PowerSupplyItem::setEnabledColor(const QColor& onColor, const QColor& offCo
     bool changed = false;
     if (m_enabledColorOn != onColor) { m_enabledColorOn = onColor; changed = true; }
     if (m_enabledColorOff != offColor) { m_enabledColorOff = offColor; changed = true; }
-    if (changed) update();
+    update();
 }
 
 void PowerSupplyItem::setFont(const QFont& font)
