@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
             auto result = m_powerManager->get_all_params_for_lamp_out(i);
             int power_num = lamp_pwr_out[i][0];
             int out_num = lamp_pwr_out[i][1];
+            QApplication::processEvents();
             update_ps(power_num, out_num, result.isOn, result.V, result.I);
         }
     });
@@ -241,7 +242,6 @@ void MainWindow::testSlot()
     bool testOk = false;
     if(first_power_state && second_power_sate && third_power_state){
         testOk = true;
-        m_timer_to_update_power_states->start(1000);
     }
     for(int i=0;i<labels.size();++i){
 
@@ -399,6 +399,7 @@ void MainWindow::on_pushButton_Forward_clicked()
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Калибровка"){
             m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
+            m_timer_to_update_power_states->start(1000);
             ui->pushButton_Forward->setVisible(false);
         }
     }
