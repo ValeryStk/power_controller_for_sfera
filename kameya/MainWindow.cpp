@@ -114,10 +114,12 @@ void MainWindow::switch_on_all_lamps()
     auto lamps = pwrs["lamps"].toArray();
 
     for(int i=0;i<lamps.size();++i){
-        m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
         m_current_lamp_index = i;
         ot->set_current_lamp_index(i);
+        if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
+        m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
         ot->setBulbOn(i);
+        }
         m_sceneCalibr->update();
         QApplication::processEvents();
         Sleep(200);
@@ -130,10 +132,12 @@ void MainWindow::switch_off_all_lamps()
     auto lamps = pwrs["lamps"].toArray();
 
     for(int i=lamps.size()-1;i>=0;--i){
-        m_powerManager->decreaseVoltageStepByStepToZero(i);
         m_current_lamp_index = i;
         ot->set_current_lamp_index(i);
+        if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
+        m_powerManager->decreaseVoltageStepByStepToZero(i);
         ot->setBulbOff(i);
+        }
         m_sceneCalibr->update();
         QApplication::processEvents();
         Sleep(200);
@@ -516,7 +520,6 @@ void MainWindow::on_pushButton_update_power_states_clicked()
 {
     QTimer::singleShot(5000,this,SLOT(testSlot()));
 }
-
 
 void MainWindow::on_pushButton_update_clicked()
 {

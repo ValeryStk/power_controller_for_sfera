@@ -142,9 +142,7 @@ void PowerSupplyManager::switchOffAllUnits() {
 void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 index)
 {
     maybeReconnectHost(index);
-    //setCurrentLimit(index,5);
     double target_current = m_powers["lamps"].toArray()[index].toObject().value("max_current").toDouble();
-    //qDebug()<<"target current --> "<<target_current;
 
     double currentValue = getCurrentValue(index);
     int dolbo_counter = 0;
@@ -154,13 +152,12 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
         if((target_current-currentValue)<=0.005){
             ++dolbo_counter;
         }
-        //qDebug()<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
-        voltage = qAbs(voltage + 0.2);//0.1
+        voltage = qAbs(voltage + 0.1);
         setVoltage(index,voltage);
         Sleep(300);
         if(dolbo_counter == 10){
-            qDebug()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
-            qDebug()<<"***************************************************************************************";
+            //qDebug()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
+            //qDebug()<<"***************************************************************************************";
             break;
         }
         if(m_net_error){
@@ -206,6 +203,7 @@ void PowerSupplyManager::errorInSocket(QAbstractSocket::SocketError error) {
     case QAbstractSocket::SocketResourceError:
         break;
     case QAbstractSocket::SocketTimeoutError:
+        m_net_error = true;
         break;
     case QAbstractSocket::DatagramTooLargeError:
         break;
