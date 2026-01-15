@@ -108,20 +108,13 @@ void MainWindow::switch_on_all_lamps()
 
     for(int i=0;i<lamps.size();++i){
         m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
+        m_current_lamp_index = i;
         ot->set_current_lamp_index(i);
         ot->setBulbOn(i);
         m_sceneCalibr->update();
         QApplication::processEvents();
-        Sleep(500);
+        Sleep(200);
     }
-
-    /*for(int i=0;i<lamps.size();++i){
-        auto current = m_powerManager->getCurrentValue(i);
-        auto current_limit = m_powerManager->getCurrentLimit(i);
-        auto diff = current_limit - current;
-    }*/
-
-
 }
 
 void MainWindow::switch_off_all_lamps()
@@ -131,11 +124,12 @@ void MainWindow::switch_off_all_lamps()
 
     for(int i=lamps.size()-1;i>=0;--i){
         m_powerManager->decreaseVoltageStepByStepToZero(i);
+        m_current_lamp_index = i;
         ot->set_current_lamp_index(i);
         ot->setBulbOff(i);
         m_sceneCalibr->update();
         QApplication::processEvents();
-        Sleep(500);
+        Sleep(200);
     }
 }
 
@@ -150,7 +144,8 @@ void MainWindow::openRootFolder()
     QStringList args;
     QProcess::startDetached(openExplorer, args);
 }
-//  void ps_params_changed(int ps, int out, bool is_on, double voltage, double current);
+
+
 void MainWindow::update_ps(int ps,
                            int out,
                            bool isOn,
@@ -161,8 +156,8 @@ void MainWindow::update_ps(int ps,
     psi1->set_all_outs_unactive();
     psi2->set_all_outs_unactive();
     psi3->set_all_outs_unactive();
-    switch (ps) {
 
+    switch (ps) {
     case 1:
         ps_item = psi1;
         break;
@@ -174,15 +169,21 @@ void MainWindow::update_ps(int ps,
         break;
     default:return;
     }
+
     if(ps_item == nullptr)return;
 
 
-    if(out == 1)ps_item->set_voltage_out_1(voltage);
-    if(out == 2)ps_item->set_voltage_out_2(voltage);
-    if(out == 1)ps_item->set_current_out_1(current);
-    if(out == 2)ps_item->set_current_out_2(current);
-    if(out == 1)ps_item->set_enabled_out_1(isOn);
-    if(out == 2)ps_item->set_enabled_out_2(isOn);
+    if(out == 1){
+        ps_item->set_voltage_out_1(voltage);
+        ps_item->set_current_out_1(current);
+        ps_item->set_enabled_out_1(isOn);
+    }
+
+    if(out == 2){
+        ps_item->set_voltage_out_2(voltage);
+        ps_item->set_current_out_2(current);
+        ps_item->set_enabled_out_2(isOn);
+    }
 
     //m_current_lamp_index
     int current_pwr_num = lamp_pwr_out[m_current_lamp_index][0];
@@ -195,10 +196,10 @@ void MainWindow::update_ps(int ps,
         ps_item = psi3;
     }
     if(active_out == 1){
-    ps_item->set_out_1_active();
+        ps_item->set_out_1_active();
     }
     if(active_out == 2){
-    ps_item->set_out_2_active();
+        ps_item->set_out_2_active();
     }
     m_sceneCalibr->update();
 }
@@ -257,6 +258,7 @@ void MainWindow::testSlot()
         ui->pushButton_Forward->setEnabled(true);
     }else{
         m_sounder.playSound("network_error.mp3");
+        if(pwrs["is_unlock"].toBool())ui->pushButton_Forward->setEnabled(true);
     }
 
 }
