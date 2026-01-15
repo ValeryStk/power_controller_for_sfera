@@ -53,14 +53,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_timer_to_update_power_states = new QTimer(this);
     connect(m_timer_to_update_power_states, &QTimer::timeout, this, [this]() {
-        m_sceneCalibr->update();
+
         for(int i=0;i<NUMBER_OF_LAMPS;++i){
-            auto result = m_powerManager->get_all_params_for_lamp_out(i);
+            bool isConnected = m_powerManager->isPowerOutConnected(i);
+            PowerUnitParams result{false,0.000,0.000,0.000};
+            if(isConnected){
+            result = m_powerManager->get_all_params_for_lamp_out(i);
+            }
             int power_num = lamp_pwr_out[i][0];
             int out_num = lamp_pwr_out[i][1];
-            QApplication::processEvents();
             update_ps(power_num, out_num, result.isOn, result.V, result.I);
         }
+         m_sceneCalibr->update();
     });
 }
 
@@ -202,7 +206,6 @@ void MainWindow::update_ps(int ps,
     if(active_out == 2){
         ps_item->set_out_2_active();
     }
-    m_sceneCalibr->update();
 }
 
 
