@@ -254,11 +254,11 @@ void MainWindow::testSlot()
     }
     if(testOk){
         m_sounder.playSound("testOk.mp3");
+        ui->pushButton_Forward->setEnabled(true);
     }else{
         m_sounder.playSound("network_error.mp3");
     }
 
-    ui->pushButton_Forward->setEnabled(true);
 }
 
 
@@ -498,3 +498,9 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
     }
 
 }
+
+void MainWindow::on_pushButton_update_power_states_clicked()
+{
+    QTimer::singleShot(5000,this,SLOT(testSlot()));
+}
+

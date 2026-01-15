@@ -39,7 +39,6 @@ private:
     void createObjects();
     void setUpGui();
     void setUpScene();
-    void makeConnects();
     void showMessageBox  (QMessageBox::Icon ico,
                           QString titleText,
                           QString text);
@@ -79,5 +78,6 @@ private slots:
     void switch_on_all_lamps();
     void switch_off_all_lamps();
     void on_pushButton_sound_toggled(bool checked);
+    void on_pushButton_update_power_states_clicked();
 };
 #endif // MAINWINDOW_H
