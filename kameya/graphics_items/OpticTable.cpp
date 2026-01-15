@@ -55,8 +55,8 @@ void OpticTable::drawLamps(QPainter *painter)
     static QImage imgOff(":/guiPictures/bulb_off.png");
     static QImage imgUndefined(":/guiPictures/bulb_undefined.png");
 
-    int spacing = imgOn.height() + 10; // vertical spacing between bulbs
-    int radius = std::max(imgOn.width(), imgOn.height()) / 2 + 5; // радиус круга чуть больше лампы
+    int spacing = imgOn.height() + 10;
+    int radius = std::max(imgOn.width(), imgOn.height()) / 2 + 5;
 
     for (int i = 0; i < bulb_state.size(); ++i) {
         int y = i * spacing;
@@ -64,9 +64,9 @@ void OpticTable::drawLamps(QPainter *painter)
         // Нарисовать фон-круг
         QBrush back_brush;
         if(bulb_state[i]==bulb_state::ON){
-            back_brush = QBrush(Qt::darkGray);
-        }else{
             back_brush = QBrush(Qt::lightGray);
+        }else{
+            back_brush = QBrush(Qt::darkGray);
         }
         painter->setBrush(back_brush);
         painter->setPen(Qt::NoPen);

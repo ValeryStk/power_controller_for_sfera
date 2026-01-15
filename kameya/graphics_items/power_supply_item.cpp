@@ -82,7 +82,7 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 
     painter->drawText(QPointF(331,70), lineVoltage2);
     painter->drawText(QPointF(331,120), lineCurrent2);
-    painter->setPen(QPen(Qt::black));
+    painter->setPen(QPen(Qt::lightGray));
     painter->drawText(QPointF(165,30),m_label);
 
     // State line with color
