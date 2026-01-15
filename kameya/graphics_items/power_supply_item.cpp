@@ -1,7 +1,6 @@
 // PowerSupplyItem.cpp
 #include "power_supply_item.h"
 
-#include "qgraphicssceneevent.h"
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <QSvgRenderer>
@@ -11,40 +10,42 @@
 #include <QJsonObject>
 #include "json_utils.h"
 
+constexpr char json_ini_name[] = "ir_lamps.json";
+
 PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
-                                 const QString& name):m_label(name)
+                                 const QString& name,
+                                 const QString& obj_name):m_label(name),
+                                                          m_object_name(obj_name)
 {
-    // Improve rendering quality
+
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
-    setAcceptHoverEvents(true); // включаем события наведения
+
     if (!svgPath.isEmpty()) {
         loadSvg(svgPath);
     }
     QJsonObject jo;
-    jsn::getJsonObjectFromFile("ir_lamps.json",jo);
-    auto x = jo[m_label].toObject().value("x").toInt();
-    auto y = jo[m_label].toObject().value("y").toInt();
+    jsn::getJsonObjectFromFile(json_ini_name,jo);
+    auto x = jo[m_object_name].toObject().value("x").toInt();
+    auto y = jo[m_object_name].toObject().value("y").toInt();
     setPos(x,y);
 }
 
 PowerSupplyItem::~PowerSupplyItem()
 {
     QJsonObject jo;
+    jsn::getJsonObjectFromFile(json_ini_name,jo);
     auto pos = scenePos().toPoint();
-    QJsonObject coords;
+    QJsonObject coords = jo[m_object_name].toObject();
     coords["x"] = pos.x();
     coords["y"] = pos.y();
-    jsn::getJsonObjectFromFile("ir_lamps.json",jo);
-    jo[m_label] = coords;
-    jsn::saveJsonObjectToFile("ir_lamps.json",jo,QJsonDocument::Indented);
-    qDebug()<<"-------------JO-----------------"<<jo;
+    jo[m_object_name] = coords;
+    jsn::saveJsonObjectToFile(json_ini_name,jo,QJsonDocument::Indented);
 }
 
 bool PowerSupplyItem::loadSvg(const QString& svgPath)
 {
     setSharedRenderer(new QSvgRenderer(svgPath));
-    // Update bounds cache
     m_cachedBounds = QGraphicsSvgItem::boundingRect();
     update();
     return renderer() && renderer()->isValid();
@@ -115,22 +116,6 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->drawRect(QRect(QPoint(321,247),QPoint(425,288)));
     }
 
-}
-
-void PowerSupplyItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-{
-
-        // Локальные координаты внутри блока питания
-        QPointF localPos = event->pos();
-
-        // Глобальные координаты сцены
-        QPointF scenePos = event->scenePos();
-
-        // Показываем всплывающую подсказку с координатами
-        QString text = QString("Local: (%1, %2)\nScene: (%3, %4)")
-                           .arg(localPos.x()).arg(localPos.y())
-                           .arg(scenePos.x()).arg(scenePos.y());
-        //qDebug()<<text;
 }
 
 void PowerSupplyItem::set_voltage_out_1(double volts)
@@ -213,24 +198,3 @@ void PowerSupplyItem::setLabel(const QString& name)
     update();
 }
 
-void PowerSupplyItem::setTextColor(const QColor& color)
-{
-    if (m_textColor == color) return;
-    m_textColor = color;
-    update();
-}
-
-void PowerSupplyItem::setEnabledColor(const QColor& onColor, const QColor& offColor)
-{
-    bool changed = false;
-    if (m_enabledColorOn != onColor) { m_enabledColorOn = onColor; changed = true; }
-    if (m_enabledColorOff != offColor) { m_enabledColorOff = offColor; changed = true; }
-    update();
-}
-
-void PowerSupplyItem::setFont(const QFont& font)
-{
-    if (m_font == font) return;
-    m_font = font;
-    update();
-}

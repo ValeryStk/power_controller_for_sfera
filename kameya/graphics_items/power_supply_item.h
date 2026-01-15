@@ -7,7 +7,9 @@
 
 class PowerSupplyItem : public QGraphicsSvgItem {
 public:
-    explicit PowerSupplyItem(const QString& svgPath, const QString& name);
+    explicit PowerSupplyItem(const QString& svgPath,
+                             const QString& name,
+                             const QString& obj_name);
     ~PowerSupplyItem();
 
 
@@ -26,13 +28,8 @@ public:
     void set_out_2_active();
 
     void set_all_outs_unactive();
-
     void setLabel(const QString& name);
 
-    // Optional: human-readable label
-    void setTextColor(const QColor& color);
-    void setEnabledColor(const QColor& onColor, const QColor& offColor);
-    void setFont(const QFont& font);
 
     // State getters
     double voltage_out_1() const { return m_voltage_out_1; }
@@ -72,7 +69,8 @@ private:
     QColor  m_out_2_color;
 
 
-    QString m_label     = QStringLiteral("PSU");
+    QString m_label;
+    QString m_object_name;
 
     // Style
     QFont   m_font              = QFont(QStringLiteral("Arial"), 20, QFont::Normal);
@@ -83,5 +81,4 @@ private:
     // Cache
     QRectF  m_cachedBounds;
 
-protected: void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
 };
