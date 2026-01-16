@@ -52,10 +52,11 @@ private:
     QGraphicsScene *m_sceneCalibr;
     OpticTable *ot;
     QShortcut *repeatLastNotification;
+    QShortcut *open_log_dir;
+    QShortcut *show_log;
 
-
-public slots:
-void timeOutCaseHandler();
+private:
+    void operation_failed();
 
 private slots:
     void testSlot();

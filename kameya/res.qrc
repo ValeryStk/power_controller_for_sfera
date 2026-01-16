@@ -45,5 +45,6 @@
         <file>guiPictures/volume_up.svg</file>
         <file>guiPictures/PS.svg</file>
         <file>guiPictures/update.svg</file>
+        <file>sounds/operation_failed.mp3</file>
     </qresource>
 </RCC>

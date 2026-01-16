@@ -23,7 +23,7 @@ void myMessageOutput(QtMsgType type,
 
     switch (type) {
       case QtInfoMsg:
-        OutMessage = msg;
+        OutMessage = msg+"\n";
         break;
       case QtDebugMsg:
         OutMessage = QString("Debug[%1]: %2\n").arg(time, msg);
@@ -46,10 +46,10 @@ void myMessageOutput(QtMsgType type,
 int main(int argc, char *argv[])
 {
 
-    QSystemSemaphore semaphore("<SPECTRASYN>", 1);
+    QSystemSemaphore semaphore("<POWER_CONTROLLER>", 1);
     semaphore.acquire();
 
-    QSharedMemory sharedMemory("<SPECTRASYN 2>");
+    QSharedMemory sharedMemory("<POWER_CONTROLLER 2>");
     bool is_running;
     if (sharedMemory.attach()) {
       is_running = true;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     qInfo() << "\n\n\n"
                "************************************************************\n"
                "******************** POWER CONTROLLER **********************\n"
-               "************************************************************\n\n";
+               "************************************************************";
     MainWindow w;
     w.show();
     return app.exec();
