@@ -10,6 +10,7 @@ class OpticTable:public QGraphicsItem
 
 public:
     OpticTable();
+    ~OpticTable()override;
 
 public:
 

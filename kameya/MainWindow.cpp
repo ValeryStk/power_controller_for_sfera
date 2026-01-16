@@ -21,6 +21,7 @@
 #include "text_log_constants.h"
 #include <QDesktopServices>
 #include <QUrl>
+#include "icon_generator.h"
 
 
 constexpr int NUMBER_OF_LAMPS = 6;
@@ -107,6 +108,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     delete psi2;
     m_sceneCalibr->removeItem(psi3);
     delete psi3;
+    m_sceneCalibr->removeItem(ot);
+    delete ot;
     m_powerManager->deleteLater();
     QApplication::processEvents();
     event->accept();
@@ -361,7 +364,11 @@ void MainWindow::setUpGui()
     ui->comboBox__mode->addItem("Все лампы");
     auto pwrs = m_powerManager->get_power_states().value("lamps").toArray();
     for(int i=0;i<pwrs.size();++i){
-        ui->comboBox__mode->addItem(pwrs[i].toObject().value("name").toString());
+        QString str_color = pwrs[i].toObject().value("color").toString();
+        QColor color(str_color);
+        auto icon = iut::createIcon(color.red(),color.green(),color.blue());
+        ui->comboBox__mode->addItem(icon,pwrs[i].toObject().value("name").toString());
+
     }
     ui->pushButton_switchOffOneLamp->setIcon(QIcon(":/guiPictures/trending_down.svg"));
     ui->pushButton_switchOffOneLamp->setIconSize(QSize(64,64));
@@ -395,7 +402,7 @@ void MainWindow::setUpScene()
     for(int i=0;i<lamps.size();++i){
         bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
     }
-    m_sceneCalibr->setSceneRect(0, 0, 800, 600);
+    m_sceneCalibr->setSceneRect(0, 0, 1000, 600);
     ot = new OpticTable;
     ot->setZValue(1000);
     m_sceneCalibr->addItem(ot);

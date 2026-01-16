@@ -8,11 +8,14 @@
 #include <QJsonArray>
 #include "QColor"
 #include "json_utils.h"
+#include "config.h"
 
 QVector<QColor> bulb_colors;
 
 OpticTable::OpticTable()
 {
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
     auto init_state = bulb_state::UNDEFINED;
     bulb_state = {init_state,
                   init_state,
@@ -26,17 +29,39 @@ OpticTable::OpticTable()
     m_bulb_on_time.resize(6);
     bulb_colors.resize(6);
     QJsonObject jo;
-    jsn::getJsonObjectFromFile("ir_lamps.json",jo);
+    jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
+    auto x = jo["lamps_item_coords"].toObject().value("x").toInt();
+    auto y = jo["lamps_item_coords"].toObject().value("y").toInt();
+    setPos(x,y);
     auto lamps = jo["lamps"].toArray();
     for(int i=0;i<lamps.size();++i){
-    bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
+        bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
     }
+}
+
+OpticTable::~OpticTable()
+{
+    QJsonObject jo;
+    jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
+    auto pos = scenePos().toPoint();
+    QJsonObject coords;
+    coords["x"] = pos.x();
+    coords["y"] = pos.y();
+    jo["lamps_item_coords"] = coords;
+    jsn::saveJsonObjectToFile(global::json_lamps_file_name,jo,QJsonDocument::Indented);
 }
 
 QRectF OpticTable::boundingRect() const
 {
-    return QRectF(0, 0, 400, 400);
+    static QImage imgOn(":/guiPictures/bulb_on.png");
+
+    int spacing = imgOn.height() + 10;
+    int totalHeight = bulb_state.size() * spacing;
+    int totalWidth  = imgOn.width() + 100; // запас справа под время работы
+
+    return QRectF(-10, -10, totalWidth+10, totalHeight+10);
 }
+
 
 void OpticTable::paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
@@ -112,20 +137,16 @@ void OpticTable::drawLamps(QPainter *painter)
         painter->setBrush(bulb_colors[i]);
         painter->drawEllipse(QPoint(centerX + offsetX - 10, centerY + offsetY - 10),8,8);
 
-
-
         // если это текущая лампа — обводим красным жирным кругом
         if (i == m_current_lamp_index) {
             // currentLampIndex — индекс текущей лампы
-            QPen pen(Qt::red);
+            QPen pen(bulb_colors[i]);
             pen.setWidth(4);
             // толщина линии
             painter->setPen(pen);
             painter->setBrush(Qt::NoBrush);
             painter->drawEllipse(QPoint(centerX, centerY), radius, radius);
         }
-
-
 
         // --- вывод времени работы лампы справа ---
         if (bulb_state[i] == bulb_state::ON && i < m_bulb_on_time.size()) {
@@ -135,8 +156,8 @@ void OpticTable::drawLamps(QPainter *painter)
             int seconds = secs % 60;
 
             QString timeText = QString("%1:%2")
-                                   .arg(minutes, 2, 10, QChar('0'))
-                                   .arg(seconds, 2, 10, QChar('0'));
+                    .arg(minutes, 2, 10, QChar('0'))
+                    .arg(seconds, 2, 10, QChar('0'));
 
             painter->setPen(Qt::lightGray);
             QFont font = painter->font();
@@ -147,13 +168,7 @@ void OpticTable::drawLamps(QPainter *painter)
             QRect timeRect(centerX + radius + 10, centerY - 10, 50, 20);
             painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignVCenter, timeText);
         }
-
-
-
     }
-
-
-
 }
 
 bool OpticTable::setBulbOff(int bi)
@@ -165,6 +180,7 @@ bool OpticTable::setBulbOff(int bi)
     }
     bulb_state[bi] = bulb_state::OFF;
     m_current_lamp_index = bi;
+    update();
     return is_state_the_same;
 }
 
@@ -178,8 +194,9 @@ bool OpticTable::setBulbOn(int bi)
     bulb_state[bi] = bulb_state::ON;
     m_current_lamp_index = bi;
     if(!is_state_the_same){
-    m_bulb_on_time[bi] = QDateTime::currentDateTime();
+        m_bulb_on_time[bi] = QDateTime::currentDateTime();
     }
+    update();
     return is_state_the_same;
 }
 
@@ -192,6 +209,7 @@ bool OpticTable::setBulbUndefined(int bi)
     }
     bulb_state[bi] = bulb_state::UNDEFINED;
     m_current_lamp_index = bi;
+    update();
     return is_state_the_same;
 }
 
@@ -199,10 +217,12 @@ void OpticTable::set_current_lamp_index(const int index)
 {
     if(index < 0 || index > 5) return;
     m_current_lamp_index = index;
+    update();
 }
 
 void OpticTable::set_bulb_states(QVector<enum class bulb_state> states)
 {
- bulb_state = states;
+    bulb_state = states;
+    update();
 }
 
