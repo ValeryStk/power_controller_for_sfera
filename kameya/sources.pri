@@ -10,6 +10,7 @@ HEADERS += \
     $$PWD/Sounder.h \
     $$PWD/Types.h\
     $$PWD/json_utils.h\
+    $$PWD/text_log_constants.h
 
 SOURCES += \
     $$PWD/config.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
     $$PWD/Sounder.cpp \
     $$PWD/main.cpp\
     $$PWD/json_utils.cpp\
+    $$PWD/text_log_constants.cpp
 
 
 FORMS += \

@@ -18,6 +18,7 @@
 #include <QDateTime>
 #include "Windows.h"
 #include "config.h"
+#include "text_log_constants.h"
 
 
 constexpr int NUMBER_OF_LAMPS = 6;
@@ -34,6 +35,17 @@ constexpr int lamp_pwr_out[NUMBER_OF_LAMPS][2] = {{1,1},
                                                   {2,2},
                                                   {3,1},
                                                   {3,2}};
+
+namespace{
+int get_power_num_by_index(int index){
+    if(index<0||index>=NUMBER_OF_LAMPS)return-1;
+    return lamp_pwr_out[index][0];
+}
+int get_power_out_by_index(int index){
+    if(index<0||index>=NUMBER_OF_LAMPS)return-1;
+    return lamp_pwr_out[index][1];
+}
+} //namespace
 
 PowerSupplyItem* psi1;
 PowerSupplyItem* psi2;
@@ -70,8 +82,6 @@ MainWindow::MainWindow(QWidget *parent)
         }
         m_sceneCalibr->update();
     });
-
-    //openRootFolder();
 }
 
 MainWindow::~MainWindow()
@@ -82,16 +92,14 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    m_powerManager->deleteLater();
+
     m_sceneCalibr->removeItem(psi1);
     delete psi1;
     m_sceneCalibr->removeItem(psi2);
     delete psi2;
     m_sceneCalibr->removeItem(psi3);
     delete psi3;
-    qInfo()<<"############################################################\n"
-             "############################################################\n"
-             "############################################################\n";
+    m_powerManager->deleteLater();
     event->accept();
 }
 
@@ -125,7 +133,7 @@ void MainWindow::operation_failed()
 void MainWindow::switch_on_all_lamps()
 {
 
-    qInfo()<<"SWITCH ON ALL LAMPS OPERATION";
+    qInfo()<<tlc::kOperatinAllLampsSwitchOnName;
     auto pwrs = m_powerManager->get_power_states();
     auto lamps = pwrs["lamps"].toArray();
 
@@ -136,7 +144,8 @@ void MainWindow::switch_on_all_lamps()
             m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
             ot->setBulbOn(i);
         }else{
-            qWarning()<<"SWITCH ON ALL LAMPS FAILED ---> Power "<<i + 1<<" is DISCONNECTED";
+            auto power_num = get_power_num_by_index(i);
+            qWarning()<<QString(tlc::kOperationAllLampsSwitchOnFailed).arg(power_num);
             operation_failed();
             break;
         }
@@ -148,7 +157,7 @@ void MainWindow::switch_on_all_lamps()
 
 void MainWindow::switch_off_all_lamps()
 {
-    qInfo()<<"SWITCH OFF ALL LAMPS OPERATION";
+    qInfo()<<tlc::kOperatinAllLampsSwitchOffName;
     auto pwrs = m_powerManager->get_power_states();
     auto lamps = pwrs["lamps"].toArray();
 
@@ -159,7 +168,8 @@ void MainWindow::switch_off_all_lamps()
             m_powerManager->decreaseVoltageStepByStepToZero(i);
             ot->setBulbOff(i);
         }else{
-            qWarning()<<"SWITCH OFF ALL LAMPS FAILED ---> Power "<<i+1<<" is DISCONNECTED";
+            auto power_num = get_power_num_by_index(i);
+            qWarning()<<QString(tlc::kOperationAllLampsSwitchOffFailed).arg(power_num);
             operation_failed();
             break;
         }
@@ -219,8 +229,8 @@ void MainWindow::update_ps(int ps,
     }
 
     //m_current_lamp_index
-    int current_pwr_num = lamp_pwr_out[m_current_lamp_index][0];
-    int active_out = lamp_pwr_out[m_current_lamp_index][1];
+    int current_pwr_num = get_power_num_by_index(m_current_lamp_index);
+    int active_out = get_power_out_by_index(m_current_lamp_index);
     if(current_pwr_num == 1){
         ps_item = psi1;
     }else if(current_pwr_num == 2){
@@ -297,7 +307,6 @@ void MainWindow::testSlot()
     }
 
 }
-
 
 void MainWindow::initializeVariables()
 {
@@ -397,13 +406,6 @@ void MainWindow::setUpScene()
 
 }
 
-void MainWindow::openFolderInExplorer()
-{
-    QString openExplorer = "c:/windows/explorer.exe";
-    QStringList args;
-    args.append(QDir::toNativeSeparators(QDir::currentPath()));
-    QProcess::startDetached(openExplorer, args);
-}
 
 // GUI handlers
 void MainWindow::on_pushButton_Backward_clicked()
@@ -455,73 +457,6 @@ void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
     };
 }
 
-void MainWindow::on_pushButton_switchOffOneLamp_clicked()
-{
-
-    if(ui->comboBox__mode->currentIndex()==0){
-        m_sounder.playSound("run_all_lamps_to_off_state.mp3");
-        QTimer::singleShot(1000,this,&MainWindow::switch_off_all_lamps);
-        return;
-    }
-
-
-    qInfo()<<"SWITCH OFF ONE LAMP OPERATION";
-    if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
-
-        if(ot->setBulbOff(m_current_lamp_index)){
-            m_sounder.playSound("lamp_is_already_off.mp3");
-        }else{
-            m_sounder.playSound("switchOffLamp.mp3");
-            m_powerManager->decreaseVoltageStepByStepToZero(m_current_lamp_index);
-        };
-        if(m_current_lamp_index > 0){
-            if(ui->checkBox_auto_up_down->isChecked()){
-                --m_current_lamp_index;
-            }
-        }
-        ot->set_current_lamp_index(m_current_lamp_index);
-        m_sceneCalibr->update();
-
-    }else{
-        operation_failed();
-        qWarning()<<"SWITCH OFF ONE LAMP FAILED ---> Power "<<m_current_lamp_index + 1<<" is DISCONNECTED";
-    }
-}
-
-void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
-{
-
-    if(ui->comboBox__mode->currentIndex()==0){
-        m_sounder.playSound("run_all_lamps_to_on_state.mp3");
-        QTimer::singleShot(1000,this,&MainWindow::switch_on_all_lamps);
-        return;
-    }
-
-    qInfo()<<"SWITCH ON ONE LAMP OPERATION";
-    if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
-
-        if(ot->setBulbOn(m_current_lamp_index)){
-            m_sounder.playSound("lamp_is_already_on.mp3");
-
-        }else{
-            m_sounder.playSound("switchOnOneLamp.mp3");
-            m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_current_lamp_index);
-        };
-
-        if(m_current_lamp_index < 5){
-            if(ui->checkBox_auto_up_down->isChecked()){
-                ++m_current_lamp_index;
-            }
-        }
-        ot->set_current_lamp_index(m_current_lamp_index);
-        m_sceneCalibr->update();
-
-    }else{
-        operation_failed();
-        qWarning()<<"SWITCH ON ONE LAMP FAILED ---> Power "<<m_current_lamp_index + 1<<" is DISCONNECTED";
-    }
-}
-
 void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
 {
     static bool is_first_start_index = true;
@@ -563,7 +498,7 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
 
 void MainWindow::on_pushButton_update_power_states_clicked()
 {
-    qInfo()<<"RETEST ALL POWERS OPERATION";
+    qInfo()<<tlc::kOperationUpdateAllPowersStates;
     QTimer::singleShot(5000,this,SLOT(testSlot()));
 }
 
@@ -574,3 +509,72 @@ void MainWindow::on_pushButton_update_clicked()
     m_timer_to_update_power_states->start();
 }
 
+// Обраблтчик нажатия на кнопку выключения OFF
+void MainWindow::on_pushButton_switchOffOneLamp_clicked()
+{
+
+    if(ui->comboBox__mode->currentIndex()==0){
+        m_sounder.playSound("run_all_lamps_to_off_state.mp3");
+        QTimer::singleShot(1000,this,&MainWindow::switch_off_all_lamps);
+        return;
+    }
+
+    qInfo()<<tlc::kOperationSwitchOffOneLampName;
+    if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
+
+        if(ot->setBulbOff(m_current_lamp_index)){
+            m_sounder.playSound("lamp_is_already_off.mp3");
+        }else{
+            m_sounder.playSound("switchOffLamp.mp3");
+            m_powerManager->decreaseVoltageStepByStepToZero(m_current_lamp_index);
+        };
+        if(m_current_lamp_index > 0){
+            if(ui->checkBox_auto_up_down->isChecked()){
+                --m_current_lamp_index;
+            }
+        }
+        ot->set_current_lamp_index(m_current_lamp_index);
+        m_sceneCalibr->update();
+
+    }else{
+        operation_failed();
+        auto power_num = get_power_num_by_index(m_current_lamp_index);
+        qWarning()<<QString(tlc::kOperationSwitchOffOneLampFailed).arg(power_num);
+    }
+}
+
+// Обраблтчик нажатия на кнопку включения ON
+void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
+{
+
+    if(ui->comboBox__mode->currentIndex()==0){
+        m_sounder.playSound("run_all_lamps_to_on_state.mp3");
+        QTimer::singleShot(1000,this,&MainWindow::switch_on_all_lamps);
+        return;
+    }
+
+    qInfo()<<tlc::kOperationSwitchOnOneLampName;
+    if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
+
+        if(ot->setBulbOn(m_current_lamp_index)){
+            m_sounder.playSound("lamp_is_already_on.mp3");
+
+        }else{
+            m_sounder.playSound("switchOnOneLamp.mp3");
+            m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_current_lamp_index);
+        };
+
+        if(m_current_lamp_index < 5){
+            if(ui->checkBox_auto_up_down->isChecked()){
+                ++m_current_lamp_index;
+            }
+        }
+        ot->set_current_lamp_index(m_current_lamp_index);
+        m_sceneCalibr->update();
+
+    }else{
+        operation_failed();
+        auto power_num = get_power_num_by_index(m_current_lamp_index);
+        qWarning()<<QString(tlc::kOperationSwitchOnOneLampFailed).arg(power_num);
+    }
+}

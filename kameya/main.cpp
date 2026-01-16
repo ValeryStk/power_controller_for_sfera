@@ -5,6 +5,7 @@
 #include "qsharedmemory.h"
 #include "qsystemsemaphore.h"
 #include "qtextcodec.h"
+#include "text_log_constants.h"
 
 void myMessageOutput(QtMsgType type,
                      const QMessageLogContext& context,
@@ -74,10 +75,7 @@ int main(int argc, char *argv[])
     QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
     QApplication app(argc, argv);
     qInstallMessageHandler(myMessageOutput);
-    qInfo() << "\n\n\n"
-               "************************************************************\n"
-               "******************** POWER CONTROLLER **********************\n"
-               "************************************************************";
+    qInfo() << tlc::kStartTheLog;
     MainWindow w;
     w.show();
     return app.exec();

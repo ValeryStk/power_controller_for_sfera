@@ -4,11 +4,12 @@
 #include "json_utils.h"
 #include "commands_builder.h"
 #include "Windows.h"
+#include "text_log_constants.h"
 
 constexpr int host_port = 9221;
 
 PowerSupplyManager::PowerSupplyManager() {
-    qInfo()<<"PowerSupplyManager constructor";
+    qInfo()<<tlc::kPowerManagerConstructor;
     m_socket = new QTcpSocket;
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(errorInSocket(QAbstractSocket::SocketError)));
@@ -19,10 +20,11 @@ PowerSupplyManager::PowerSupplyManager() {
 }
 
 PowerSupplyManager::~PowerSupplyManager() {
-    qInfo()<<"power manager destructor";
+    qInfo()<<tlc::kPowerManagerDestructor;
     switchOffAllUnits();
     if (m_socket->state() == QAbstractSocket::ConnectedState)
         m_socket->disconnectFromHost();
+    qInfo()<<tlc::kEndOfTheLog;
 }
 
 QJsonObject PowerSupplyManager::get_power_states()
@@ -38,7 +40,8 @@ QString PowerSupplyManager::getID() {
 
 void PowerSupplyManager::loadJsonConfig() {
     qInfo()<<"Load lamps.json config";
-    jsn::getJsonObjectFromFile("ir_lamps.json", m_powers);
+    bool is_json_valid = jsn::getJsonObjectFromFile("ir_lamps.json", m_powers);
+    if(!is_json_valid)qCritical()<<"json config is not loaded";
 }
 
 double PowerSupplyManager::getVoltage(const quint16 index) {
@@ -48,13 +51,11 @@ double PowerSupplyManager::getVoltage(const quint16 index) {
     m_socket->write(pwr::makeGetVoltageValueCommand(out));
     m_socket->waitForReadyRead();
     QString response = QString::fromLocal8Bit(m_socket->readAll());
-    //qDebug() << "voltage: " << response;
     return getValueFromMessage(response);
 }
 
 void PowerSupplyManager::setVoltage(const quint16 index,
                                     double value) {
-    //qDebug() << "set voltage: " << value;
     if (!isPowerOutConnected(index))
         return;
     int out = maybeReconnectHost(index);
