@@ -69,7 +69,7 @@ private slots:
 
     void on_pushButton_Backward_clicked();
     void on_pushButton_Forward_clicked();
-    void on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1);
+    void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
 
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
@@ -79,5 +79,6 @@ private slots:
     void on_pushButton_sound_toggled(bool checked);
     void on_pushButton_update_power_states_clicked();
     void on_pushButton_update_clicked();
+    void on_pushButton_open_log_clicked();
 };
 #endif // MAINWINDOW_H

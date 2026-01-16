@@ -19,6 +19,8 @@
 #include "Windows.h"
 #include "config.h"
 #include "text_log_constants.h"
+#include <QDesktopServices>
+#include <QUrl>
 
 
 constexpr int NUMBER_OF_LAMPS = 6;
@@ -47,6 +49,11 @@ int get_power_out_by_index(int index){
     if(index<0||index>=NUMBER_OF_LAMPS)return-1;
     return lamp_pwr_out[index][1];
 }
+
+void openFileByDefaultSoftware(const QString &filePath) {
+    QUrl url = QUrl::fromLocalFile(filePath);
+    QDesktopServices::openUrl(url); }
+
 } //namespace
 
 PowerSupplyItem* psi1;
@@ -94,7 +101,6 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-
     m_sceneCalibr->removeItem(psi1);
     delete psi1;
     m_sceneCalibr->removeItem(psi2);
@@ -102,6 +108,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     m_sceneCalibr->removeItem(psi3);
     delete psi3;
     m_powerManager->deleteLater();
+    QApplication::processEvents();
     event->accept();
 }
 
@@ -123,7 +130,7 @@ bool MainWindow::checkSafetyUser()
 {
     if(ui->checkBox_1_uv->isChecked()&&
             ui->checkBox_2_power->isChecked()&&
-            ui->checkBox_5_cooling_for_big_sphere->isChecked())return true;
+            ui->checkBox_cooling_for_big_sphere->isChecked())return true;
     else return false;
 }
 
@@ -372,6 +379,9 @@ void MainWindow::setUpGui()
 
     ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
     ui->pushButton_sound->setIconSize(QSize(64,64));
+
+    ui->pushButton_open_log->setIcon(QIcon(":/guiPictures/log.svg"));
+    ui->pushButton_open_log->setIconSize(QSize(64,64));
 }
 
 void MainWindow::setUpScene()
@@ -452,8 +462,14 @@ void MainWindow::on_pushButton_Forward_clicked()
     }
 }
 
+void MainWindow::on_pushButton_open_log_clicked()
+{
+    auto pathToLogicLog = QApplication::applicationDirPath()+global::relative_path_to_log_file;
+    openFileByDefaultSoftware(pathToLogicLog);
+}
 
-void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
+
+void MainWindow::on_checkBox_cooling_for_big_sphere_stateChanged(int arg1)
 {
     if(arg1 == Qt::Checked){
         m_sounder.playSound("dontForgetCooling.mp3");
@@ -581,3 +597,5 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
         qWarning()<<QString(tlc::kOperationSwitchOnOneLampFailed).arg(power_num);
     }
 }
+
+

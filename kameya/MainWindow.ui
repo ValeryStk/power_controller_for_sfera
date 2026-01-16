@@ -109,7 +109,7 @@ color: rgb(0, 128, 0);</string>
        <number>3</number>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page_Warnings">
        <property name="styleSheet">
@@ -195,7 +195,7 @@ QCheckBox::indicator:checked {
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox_5_cooling_for_big_sphere">
+         <widget class="QCheckBox" name="checkBox_cooling_for_big_sphere">
           <property name="font">
            <font>
             <pointsize>18</pointsize>
@@ -493,6 +493,25 @@ color: rgb(0, 0, 0);</string>
             </property>
             <property name="text">
              <string>RLS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_open_log">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>

@@ -46,5 +46,6 @@
         <file>guiPictures/PS.svg</file>
         <file>guiPictures/update.svg</file>
         <file>sounds/operation_failed.mp3</file>
+        <file>guiPictures/log.svg</file>
     </qresource>
 </RCC>

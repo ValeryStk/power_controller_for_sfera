@@ -1,5 +1,6 @@
 #include "config.h"
 
 namespace global {
-const QString path_to_log_dir = "/_logs";
+const QString path_to_log_dir            = "/_logs";
+const QString relative_path_to_log_file  = "/_logs/logic.log";
 }

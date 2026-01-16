@@ -129,14 +129,12 @@ void PowerSupplyManager::switchOnAllUnits() {
     for (int i = 0; i < getPowerOutsSize(); ++i) {
         switchOnUnit(i);
     }
-    checkPowersConection();
 }
 
 void PowerSupplyManager::switchOffAllUnits() {
     for (int i = 0; i < getPowerOutsSize(); ++i) {
         switchOffUnit(i);
     };
-    checkPowersConection();
 }
 
 void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 index)
