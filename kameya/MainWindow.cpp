@@ -22,6 +22,8 @@
 
 
 constexpr int NUMBER_OF_LAMPS = 6;
+constexpr int MAX_CURRENT_LAMP_INDEX = 5;
+constexpr int MIN_CURRENT_LAMP_INDEX = 0;
 
 constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[] = "Включить одну лампу";
@@ -318,7 +320,7 @@ void MainWindow::initializeVariables()
     };
     for(int i=0;i<pages.size();++i) m_pages.insert(i,pages.at(i));
 
-    m_current_lamp_index = 5;
+    m_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
 
 }
 
@@ -450,6 +452,7 @@ void MainWindow::on_pushButton_Forward_clicked()
     }
 }
 
+
 void MainWindow::on_checkBox_5_cooling_for_big_sphere_stateChanged(int arg1)
 {
     if(arg1 == Qt::Checked){
@@ -461,7 +464,7 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
 {
     static bool is_first_start_index = true;
     if(is_first_start_index){
-        m_current_lamp_index = 5;
+        m_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
         is_first_start_index = false;
         return;
     }
@@ -528,7 +531,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
             m_sounder.playSound("switchOffLamp.mp3");
             m_powerManager->decreaseVoltageStepByStepToZero(m_current_lamp_index);
         };
-        if(m_current_lamp_index > 0){
+        if(m_current_lamp_index > MIN_CURRENT_LAMP_INDEX){
             if(ui->checkBox_auto_up_down->isChecked()){
                 --m_current_lamp_index;
             }
@@ -564,7 +567,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
             m_powerManager->increaseVoltageStepByStepToCurrentLimit(m_current_lamp_index);
         };
 
-        if(m_current_lamp_index < 5){
+        if(m_current_lamp_index < MAX_CURRENT_LAMP_INDEX){
             if(ui->checkBox_auto_up_down->isChecked()){
                 ++m_current_lamp_index;
             }
