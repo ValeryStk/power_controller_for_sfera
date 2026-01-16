@@ -1,4 +1,5 @@
 HEADERS += \
+    $$PWD/config.h \
     $$PWD/graphics_items/power_supply_item.h \
     $$PWD/commands_builder.h\
     $$PWD/MainWindow.h\
@@ -11,6 +12,7 @@ HEADERS += \
     $$PWD/json_utils.h\
 
 SOURCES += \
+    $$PWD/config.cpp \
     $$PWD/graphics_items/power_supply_item.cpp \
     $$PWD/MainWindow.cpp\
     $$PWD/graphics_items\OpticTable.cpp \

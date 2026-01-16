@@ -17,6 +17,8 @@
 #include "QStyleFactory"
 #include <QDateTime>
 #include "Windows.h"
+#include "config.h"
+
 
 constexpr int NUMBER_OF_LAMPS = 6;
 
@@ -68,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent)
         }
          m_sceneCalibr->update();
     });
+
+    openRootFolder();
 }
 
 MainWindow::~MainWindow()
@@ -89,7 +93,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 
-void MainWindow::showMessageBox(QMessageBox::Icon ico, QString titleText, QString text)
+void MainWindow::showMessageBox(QMessageBox::Icon ico,
+                                QString titleText,
+                                QString text)
 {
     if(text.isEmpty())text = "Нет данных";
     QMessageBox msgBox;
@@ -147,14 +153,19 @@ void MainWindow::switch_off_all_lamps()
 
 void MainWindow::openRootFolder()
 {
-    QString rootDir = QDir::currentPath()+"/KAMEYA";
-    QDir dir(rootDir);
-    if(!dir.exists())dir.mkdir(rootDir);
-    QString openExplorer = "c:/windows/explorer.exe /n,";
-    QString path= QDir::toNativeSeparators(QDir::currentPath()+"/KAMEYA");
-    openExplorer.append(path);
+
+    QString rootDir = QApplication::applicationDirPath() + global::path_to_log_dir;
+
+    // Создаём каталог, если его нет
+    QDir().mkpath(rootDir);
+
+    // Формируем команду для открытия проводника
+    QString explorer = "C:/Windows/explorer.exe";
     QStringList args;
-    QProcess::startDetached(openExplorer, args);
+    args << QDir::toNativeSeparators(rootDir);
+
+    // Запускаем
+    QProcess::startDetached(explorer, args);
 }
 
 

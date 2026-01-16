@@ -8,6 +8,7 @@
 constexpr int host_port = 9221;
 
 PowerSupplyManager::PowerSupplyManager() {
+    qInfo()<<"PowerSupplyManager constructor";
     m_socket = new QTcpSocket;
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(errorInSocket(QAbstractSocket::SocketError)));
@@ -15,13 +16,10 @@ PowerSupplyManager::PowerSupplyManager() {
     checkPowersConection();
     setInitialParams();
     switchOnAllUnits();
-
-
-
 }
 
 PowerSupplyManager::~PowerSupplyManager() {
-    qDebug()<<"power manager destructor.......";
+    qInfo()<<"power manager destructor";
     switchOffAllUnits();
     if (m_socket->state() == QAbstractSocket::ConnectedState)
         m_socket->disconnectFromHost();
@@ -39,6 +37,7 @@ QString PowerSupplyManager::getID() {
 }
 
 void PowerSupplyManager::loadJsonConfig() {
+    qInfo()<<"Load lamps.json config";
     jsn::getJsonObjectFromFile("ir_lamps.json", m_powers);
 }
 
@@ -148,6 +147,7 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     int dolbo_counter = 0;
     while(currentValue < target_current){
         if(m_socket->state() != QTcpSocket::ConnectedState){
+            qWarning()<<"Increasing lamp "<<index <<"failed because QTcpSocket::Unconnected";
             break;
         }
         double voltage = getVoltage(index);
@@ -159,8 +159,7 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
         setVoltage(index,voltage);
         Sleep(300);
         if(dolbo_counter == 10){
-            //qDebug()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<" --tc-- "<<target_current;
-            //qDebug()<<"***************************************************************************************";
+            qWarning()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<"  turget current --> "<<target_current;
             break;
         }
     }
@@ -171,6 +170,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
     maybeReconnectHost(index);
     while(true){
         if(m_socket->state() != QTcpSocket::ConnectedState){
+            qWarning()<<"Decreasing lamp "<<index <<"failed because QTcpSocket::Unconnected";
             break;
         }
         double voltage = getVoltage(index);
