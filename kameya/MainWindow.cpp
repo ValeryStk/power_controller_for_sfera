@@ -78,6 +78,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
+    m_powerManager->deleteLater();
     m_sceneCalibr->removeItem(psi1);
     delete psi1;
     m_sceneCalibr->removeItem(psi2);
@@ -315,15 +316,18 @@ void MainWindow::setUpGui()
     }
     ui->pushButton_switchOffOneLamp->setIcon(QIcon(":/guiPictures/trending_down.svg"));
     ui->pushButton_switchOffOneLamp->setIconSize(QSize(64,64));
+    ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
+
     ui->pushButton_switch_on_one_lamp->setIcon(QIcon(":/guiPictures/trending_up.svg"));
     ui->pushButton_switch_on_one_lamp->setIconSize(QSize(64,64));
+    ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
+
     ui->pushButton_update_power_states->setIcon(QIcon(":/guiPictures/update.svg"));
     ui->pushButton_update_power_states->setIconSize(QSize(64,64));
+
     ui->pushButton_update->setIcon(QIcon(":/guiPictures/update.svg"));
     ui->pushButton_update->setIconSize(QSize(64,64));
 
-    ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
-    ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
     ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
     ui->pushButton_sound->setIconSize(QSize(64,64));
 }

@@ -9,7 +9,6 @@ constexpr int host_port = 9221;
 
 PowerSupplyManager::PowerSupplyManager() {
     m_socket = new QTcpSocket;
-    m_net_error = false;
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(errorInSocket(QAbstractSocket::SocketError)));
     loadJsonConfig();
@@ -22,6 +21,7 @@ PowerSupplyManager::PowerSupplyManager() {
 }
 
 PowerSupplyManager::~PowerSupplyManager() {
+    qDebug()<<"power manager destructor.......";
     switchOffAllUnits();
     if (m_socket->state() == QAbstractSocket::ConnectedState)
         m_socket->disconnectFromHost();
@@ -147,6 +147,9 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     double currentValue = getCurrentValue(index);
     int dolbo_counter = 0;
     while(currentValue < target_current){
+        if(m_socket->state() != QTcpSocket::ConnectedState){
+            break;
+        }
         double voltage = getVoltage(index);
         currentValue = getCurrentValue(index);
         if((target_current-currentValue)<=0.005){
@@ -160,10 +163,6 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
             //qDebug()<<"***************************************************************************************";
             break;
         }
-        if(m_net_error){
-            m_net_error = false;
-            break;
-        }
     }
 }
 
@@ -171,16 +170,15 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
 {
     maybeReconnectHost(index);
     while(true){
+        if(m_socket->state() != QTcpSocket::ConnectedState){
+            break;
+        }
         double voltage = getVoltage(index);
         voltage = voltage - 0.1;
         if(voltage<0)voltage = 0;
         setVoltage(index,voltage);
         Sleep(300);
         if(voltage<=0)break;
-        if(m_net_error){
-            m_net_error = false;
-            break;
-        }
     }
 }
 
@@ -190,58 +188,32 @@ bool PowerSupplyManager::isPowerOutConnected(const int index) {
 }
 
 void PowerSupplyManager::errorInSocket(QAbstractSocket::SocketError error) {
-    qDebug() << error;
     switch (error) {
     case QAbstractSocket::ConnectionRefusedError:
-        break;
     case QAbstractSocket::RemoteHostClosedError:
-        break;
     case QAbstractSocket::HostNotFoundError:
-        break;
     case QAbstractSocket::SocketAccessError:
-        break;
     case QAbstractSocket::SocketResourceError:
-        break;
     case QAbstractSocket::SocketTimeoutError:
-        m_net_error = true;
-        break;
     case QAbstractSocket::DatagramTooLargeError:
-        break;
     case QAbstractSocket::NetworkError:
-        qDebug() << "No connection error.";
-        m_net_error = true;
-        break;
     case QAbstractSocket::AddressInUseError:
-        break;
     case QAbstractSocket::SocketAddressNotAvailableError:
-        break;
     case QAbstractSocket::UnsupportedSocketOperationError:
-        break;
     case QAbstractSocket::UnfinishedSocketOperationError:
-        break;
     case QAbstractSocket::ProxyAuthenticationRequiredError:
-        break;
     case QAbstractSocket::SslHandshakeFailedError:
-        break;
     case QAbstractSocket::ProxyConnectionRefusedError:
-        break;
     case QAbstractSocket::ProxyConnectionClosedError:
-        break;
     case QAbstractSocket::ProxyConnectionTimeoutError:
-        break;
     case QAbstractSocket::ProxyNotFoundError:
-        break;
     case QAbstractSocket::ProxyProtocolError:
-        break;
     case QAbstractSocket::OperationError:
-        break;
     case QAbstractSocket::SslInternalError:
-        break;
     case QAbstractSocket::SslInvalidUserDataError:
-        break;
     case QAbstractSocket::TemporaryError:
-        break;
     case QAbstractSocket::UnknownSocketError:
+        qDebug() << "net error code: "<<error;
         break;
     }
 }
@@ -301,15 +273,12 @@ void PowerSupplyManager::checkPowersConection() {
         auto object = lamps[i].toObject();
         maybeReconnectHost(i);
         auto state = m_socket->state();
-        switch (state) {
-        case QTcpSocket::UnconnectedState:
-            object["conection_state"] = false;
-            object["power_out_state"] = false;
-            break;
-        case QTcpSocket::ConnectedState:
+        if(state == QTcpSocket::ConnectedState) {
             object["conection_state"] = true;
             object["power_out_state"] = getPowerStatus(i);
-            break;
+        }else {
+            object["conection_state"] = false;
+            object["power_out_state"] = false;
         }
         lamps[i] = object;
     };
