@@ -1,8 +1,7 @@
 #include "MainWindow.h"
+#include "ui_MainWindow.h"
 
 #include "graphics_items/power_supply_item.h"
-#include "qgraphicsproxywidget.h"
-#include "ui_MainWindow.h"
 #include "Version.h"
 #include <QProcess>
 #include <QDir>
@@ -16,7 +15,9 @@
 #include <memory>
 #include "QStyleFactory"
 #include <QDateTime>
-#include "Windows.h"
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <synchapi.h>
 #include "config.h"
 #include "text_log_constants.h"
 #include <QDesktopServices>
@@ -553,7 +554,7 @@ void MainWindow::on_pushButton_update_clicked()
     retest_all_powers();
 }
 
-// Обраблтчик нажатия на кнопку выключения OFF
+// Обработчик нажатия на кнопку выключения лампы OFF
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
 
@@ -587,7 +588,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
     }
 }
 
-// Обраблтчик нажатия на кнопку включения ON
+// Обработчик нажатия на кнопку включения лампы ON
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 {
 
