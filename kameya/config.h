@@ -11,8 +11,10 @@ extern const double kCurrentTargetAccuracy;
 
 // file names and dirs
 extern const QString json_lamps_file_name;
-extern const QString path_to_log_dir;
-extern const QString relative_path_to_log_file;
+extern const QString current_voltage_log_file_name;
+extern const QString path_to_logs_dir;
+extern const QString relative_path_to_logic_log_file;
+extern const QString relative_path_to_cv_log_file;
 
 // root objects
 extern const char kJsonKeyLampsArray[];

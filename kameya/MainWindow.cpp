@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "qmutex.h"
 #include "ui_MainWindow.h"
 
 #include "graphics_items/power_supply_item.h"
@@ -23,6 +24,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include "icon_generator.h"
+#include <QtConcurrent/QtConcurrent>
 
 
 constexpr int NUMBER_OF_LAMPS = 6;
@@ -56,6 +58,21 @@ void openFileByDefaultSoftware(const QString &filePath) {
     QUrl url = QUrl::fromLocalFile(filePath);
     QDesktopServices::openUrl(url); }
 
+
+void append_v_i_to_log(const QString& filePath,
+                       const QString& line){
+    static QMutex mutex;
+    QtConcurrent::run([line, filePath]() {
+        QMutexLocker locker(&mutex);
+        QFile file(filePath);
+        if (file.open(QIODevice::Append | QIODevice::Text)) {
+            QTextStream out(&file);
+            out << line << "\n";
+        }
+    });
+
+};
+
 } //namespace
 
 PowerSupplyItem* psi1;
@@ -84,11 +101,18 @@ MainWindow::MainWindow(QWidget *parent)
         for(int i=0;i<NUMBER_OF_LAMPS;++i){
             bool isConnected = m_powerManager->isPowerOutConnected(i);
             PowerUnitParams result{false,0.000,0.000,0.000};
-            if(isConnected){
-                result = m_powerManager->get_all_params_for_lamp_out(i);
-            }
             int power_num = lamp_pwr_out[i][0];
             int out_num = lamp_pwr_out[i][1];
+            if(isConnected){
+                result = m_powerManager->get_all_params_for_lamp_out(i);
+                QString v_i_line = QString("%1 %2 %3 %4").arg(i+1)
+                        .arg(QDateTime::currentDateTime().toString("yyyy_MM_dd_hh:mm:ss"))
+                        .arg(result.V)
+                        .arg(result.I);
+                QString full_path_to_cv_log = QApplication::applicationDirPath()+
+                        global::relative_path_to_cv_log_file;
+                append_v_i_to_log(full_path_to_cv_log,v_i_line);
+            }
             update_ps(power_num, out_num, result.isOn, result.V, result.I);
         }
         m_sceneCalibr->update();
@@ -141,7 +165,7 @@ bool MainWindow::checkSafetyUser()
 void MainWindow::operation_failed_voice_notification()
 {
 
-    QTimer::singleShot(4000,[this](){
+    QTimer::singleShot(4000,this,[this](){
         m_sounder.playSound("operation_failed.mp3");});
     showMessageBox(QMessageBox::Warning,"Ошибка","Операция провалилась, смотрите logic.log");
 }
@@ -204,7 +228,7 @@ void MainWindow::switch_off_all_lamps()
 
 void MainWindow::openRootFolder()
 {
-    QString rootDir = QApplication::applicationDirPath() + global::path_to_log_dir;
+    QString rootDir = QApplication::applicationDirPath() + global::path_to_logs_dir;
     QDir().mkpath(rootDir);
     QString explorer = "C:/Windows/explorer.exe";
     QStringList args;
@@ -491,8 +515,10 @@ void MainWindow::on_pushButton_Forward_clicked()
 
 void MainWindow::on_pushButton_open_log_clicked()
 {
-    auto pathToLogicLog = QApplication::applicationDirPath()+global::relative_path_to_log_file;
+    auto pathToLogicLog = QApplication::applicationDirPath()+global::relative_path_to_logic_log_file;
+    auto pathToCV_Log = QApplication::applicationDirPath()+global::relative_path_to_cv_log_file;
     openFileByDefaultSoftware(pathToLogicLog);
+    openFileByDefaultSoftware(pathToCV_Log);
 }
 
 

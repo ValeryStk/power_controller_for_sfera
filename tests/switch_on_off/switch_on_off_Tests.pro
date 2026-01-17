@@ -1,7 +1,8 @@
-QT += testlib core network multimediawidgets widgets printsupport
+QT += testlib
 TARGET = switch_on_off_Tests
 
 include(../../kameya/sources.pri)
+
 INCLUDEPATH += ../../kameya
 
 HEADERS += switch_on_off_UnitTests.h\

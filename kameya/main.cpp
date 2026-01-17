@@ -12,7 +12,7 @@ void myMessageOutput(QtMsgType type,
                      const QString& msg) {
 
   Q_UNUSED(context);
-  QFile file(QCoreApplication::applicationDirPath() + global::path_to_log_dir + "/logic.log");
+  QFile file(QCoreApplication::applicationDirPath() + global::path_to_logs_dir + "/logic.log");
   if (file.exists())
     file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
   else
