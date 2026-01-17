@@ -41,7 +41,16 @@ QString PowerSupplyManager::getID() {
 void PowerSupplyManager::loadJsonConfig() {
     qInfo()<<"Load lamps.json config";
     bool is_json_valid = jsn::getJsonObjectFromFile("ir_lamps.json", m_powers);
-    if(!is_json_valid)qCritical()<<"json config is not loaded";
+    if(!is_json_valid){
+        qCritical()<<"json config is not loaded";
+        return;
+    }
+    auto lamps = m_powers["lamps"].toArray();
+    for(int i=0;i<lamps.size();++i){
+    qInfo()<<QString("lamp %1: current limit %2 A")
+             .arg(i + 1)
+             .arg(lamps[i].toObject()["max_current"].toDouble());
+    }
 }
 
 double PowerSupplyManager::getVoltage(const quint16 index) {

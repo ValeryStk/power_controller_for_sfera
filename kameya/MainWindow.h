@@ -57,6 +57,7 @@ private:
 
 private:
     void operation_failed();
+    void retest_all_powers();
 
 private slots:
     void testSlot();

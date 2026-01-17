@@ -142,6 +142,13 @@ void MainWindow::operation_failed()
     QTimer::singleShot(4000,[this](){m_sounder.playSound("operation_failed.mp3");});
 }
 
+void MainWindow::retest_all_powers()
+{
+    qInfo()<<tlc::kOperationUpdateAllPowersStates;
+    m_timer_to_update_power_states->stop();
+    QTimer::singleShot(5000,this,SLOT(testSlot()));
+}
+
 void MainWindow::switch_on_all_lamps()
 {
 
@@ -317,7 +324,7 @@ void MainWindow::testSlot()
             qWarning()<<"Forward button was unclocked. ----->";
         }
     }
-
+    m_timer_to_update_power_states->start();
 }
 
 void MainWindow::initializeVariables()
@@ -524,15 +531,12 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
 
 void MainWindow::on_pushButton_update_power_states_clicked()
 {
-    qInfo()<<tlc::kOperationUpdateAllPowersStates;
-    QTimer::singleShot(5000,this,SLOT(testSlot()));
+   retest_all_powers();
 }
 
 void MainWindow::on_pushButton_update_clicked()
 {
-    m_timer_to_update_power_states->stop();
-    testSlot();
-    m_timer_to_update_power_states->start();
+    retest_all_powers();
 }
 
 // Обраблтчик нажатия на кнопку выключения OFF
