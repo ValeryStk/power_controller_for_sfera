@@ -22,6 +22,11 @@ extern const char kOperationSwitchOffOneLampFailed[];
 extern const char kOperationSwitchOnOneLampName[];
 extern const char kOperationSwitchOnOneLampFailed[];
 
+extern const char kOperationSwitchOffResultFailed[];
+extern const char kOperationSwitchOnResultFailed[];
+
+extern const char kFailedLampIndex[];
+
 }
 
 #endif // TEXT_LOG_CONSTANTS_H

@@ -5,6 +5,7 @@
 #include "commands_builder.h"
 #include "Windows.h"
 #include "text_log_constants.h"
+#include "config.h"
 
 constexpr int host_port = 9221;
 
@@ -45,7 +46,7 @@ void PowerSupplyManager::loadJsonConfig() {
         qCritical()<<"json config is not loaded";
         return;
     }
-    auto lamps = m_powers["lamps"].toArray();
+    auto lamps = m_powers[global::kJsonKeyLampsArray].toArray();
     for(int i=0;i<lamps.size();++i){
     qInfo()<<QString("lamp %1: current limit %2 A")
              .arg(i + 1)
@@ -149,13 +150,13 @@ void PowerSupplyManager::switchOffAllUnits() {
 void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 index)
 {
     maybeReconnectHost(index);
-    double target_current = m_powers["lamps"].toArray()[index].toObject().value("max_current").toDouble();
+    double target_current = m_powers[global::kJsonKeyLampsArray].toArray()[index].toObject().value("max_current").toDouble();
 
     double currentValue = getCurrentValue(index);
     int dolbo_counter = 0;
     while(currentValue < target_current){
         if(m_socket->state() != QTcpSocket::ConnectedState){
-            qWarning()<<"Increasing lamp "<<index <<"failed because QTcpSocket::Unconnected";
+            qWarning()<<"Increasing lamp "<<index + 1 <<"failed because QTcpSocket::Unconnected";
             break;
         }
         double voltage = getVoltage(index);
@@ -178,7 +179,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
     maybeReconnectHost(index);
     while(true){
         if(m_socket->state() != QTcpSocket::ConnectedState){
-            qWarning()<<"Decreasing lamp "<<index <<"failed because QTcpSocket::Unconnected";
+            qWarning()<<"Decreasing lamp "<<index+1<<"failed because QTcpSocket::Unconnected";
             break;
         }
         double voltage = getVoltage(index);
@@ -191,7 +192,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
 }
 
 bool PowerSupplyManager::isPowerOutConnected(const int index) {
-    QJsonArray lamps = m_powers["lamps"].toArray();
+    QJsonArray lamps = m_powers[global::kJsonKeyLampsArray].toArray();
     return lamps[index].toObject()["conection_state"].toBool();
 }
 
@@ -252,13 +253,13 @@ void PowerSupplyManager::getIpAndOutForIndex(const int index,
                                              QString& ip,
                                              int& out) {
 
-    QJsonArray lamps = m_powers["lamps"].toArray();
+    QJsonArray lamps = m_powers[global::kJsonKeyLampsArray].toArray();
     ip = lamps[index].toObject()["ip"].toString();
     out = lamps[index].toObject()["out"].toInt();
 }
 
 int PowerSupplyManager::getPowerOutsSize() const {
-    return m_powers["lamps"].toArray().size();
+    return m_powers[global::kJsonKeyLampsArray].toArray().size();
 }
 
 int PowerSupplyManager::maybeReconnectHost(const int index) {
@@ -276,7 +277,7 @@ int PowerSupplyManager::maybeReconnectHost(const int index) {
 }
 
 void PowerSupplyManager::checkPowersConection() {
-    QJsonArray lamps = m_powers["lamps"].toArray();
+    QJsonArray lamps = m_powers[global::kJsonKeyLampsArray].toArray();
     for (int i = 0; i < getPowerOutsSize(); ++i) {
         auto object = lamps[i].toObject();
         maybeReconnectHost(i);
@@ -290,14 +291,14 @@ void PowerSupplyManager::checkPowersConection() {
         }
         lamps[i] = object;
     };
-    m_powers["lamps"] = lamps;
+    m_powers[global::kJsonKeyLampsArray] = lamps;
 }
 
 void PowerSupplyManager::setInitialParams() {
 
     for (int i = 0; i < getPowerOutsSize(); ++i) {
         if (isPowerOutConnected(i)) {
-            double max_current = m_powers["lamps"].toArray()[i].toObject().value("max_current").toDouble();
+            double max_current = m_powers[global::kJsonKeyLampsArray].toArray()[i].toObject().value("max_current").toDouble();
             setCurrentLimit(i, max_current);
             Sleep(500);
         }

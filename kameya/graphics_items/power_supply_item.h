@@ -17,12 +17,14 @@ public:
     // State setters
     void set_voltage_out_1(double volts);
     void set_current_out_1(double amps);
+    void set_max_current_out_1(double amps);
     void set_enabled_out_1(bool on);
     void set_out_1_color(const QColor& color);
     void set_out_1_active();
 
     void set_voltage_out_2(double volts);
     void set_current_out_2(double amps);
+    void set_max_current_out_2(double amps);
     void set_enabled_out_2(bool on);
     void set_out_2_color(const QColor& color);
     void set_out_2_active();
@@ -56,16 +58,18 @@ public:
 
 private:
     // Data
-    double  m_voltage_out_1   = 0.0;
-    double  m_current_out_1   = 0.0;
-    bool    m_enabled_out_1   = false;
-    bool    m_is_out_1_active = false;
+    double  m_voltage_out_1       = 0.0;
+    double  m_current_out_1       = 0.0;
+    double  m_max_current_out_1   = 0.0;
+    bool    m_enabled_out_1       = false;
+    bool    m_is_out_1_active     = false;
     QColor  m_out_1_color;
 
-    double  m_voltage_out_2   = 0.0;
-    double  m_current_out_2   = 0.0;
-    bool    m_enabled_out_2   = false;
-    bool    m_is_out_2_active = false;
+    double  m_voltage_out_2       = 0.0;
+    double  m_current_out_2       = 0.0;
+    double  m_max_current_out_2   = 0.0;
+    bool    m_enabled_out_2       = false;
+    bool    m_is_out_2_active     = false;
     QColor  m_out_2_color;
 
 

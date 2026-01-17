@@ -29,11 +29,11 @@ constexpr int MAX_CURRENT_LAMP_INDEX = 5;
 constexpr int MIN_CURRENT_LAMP_INDEX = 0;
 
 constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
-constexpr char kSwitchOnOneLampText[] = "Включить одну лампу";
-constexpr char kSwitchOffLampsText[] = "Выключить все лампы";
+constexpr char kSwitchOnOneLampText[]  = "Включить одну лампу";
+constexpr char kSwitchOffLampsText[]   = "Выключить все лампы";
 constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
 
-
+// find power and out numbers for current_lamp_index
 constexpr int lamp_pwr_out[NUMBER_OF_LAMPS][2] = {{1,1},
                                                   {1,2},
                                                   {2,1},
@@ -108,8 +108,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     delete psi2;
     m_sceneCalibr->removeItem(psi3);
     delete psi3;
-    m_sceneCalibr->removeItem(ot);
-    delete ot;
+    m_sceneCalibr->removeItem(m_bulbs_graphics_item);
+    delete m_bulbs_graphics_item;
     m_powerManager->deleteLater();
     QApplication::processEvents();
     event->accept();
@@ -137,9 +137,12 @@ bool MainWindow::checkSafetyUser()
     else return false;
 }
 
-void MainWindow::operation_failed()
+void MainWindow::operation_failed_voice_notification()
 {
-    QTimer::singleShot(4000,[this](){m_sounder.playSound("operation_failed.mp3");});
+
+    QTimer::singleShot(4000,[this](){
+        m_sounder.playSound("operation_failed.mp3");});
+    showMessageBox(QMessageBox::Warning,"Ошибка","Операция провалилась, смотрите logic.log");
 }
 
 void MainWindow::retest_all_powers()
@@ -154,18 +157,18 @@ void MainWindow::switch_on_all_lamps()
 
     qInfo()<<tlc::kOperatinAllLampsSwitchOnName;
     auto pwrs = m_powerManager->get_power_states();
-    auto lamps = pwrs["lamps"].toArray();
+    auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
 
     for(int i=0;i<lamps.size();++i){
         m_current_lamp_index = i;
-        ot->set_current_lamp_index(i);
+        m_bulbs_graphics_item->set_current_lamp_index(i);
         if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
             m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
-            ot->setBulbOn(i);
+            m_bulbs_graphics_item->setBulbOn(i);
         }else{
             auto power_num = get_power_num_by_index(i);
             qWarning()<<QString(tlc::kOperationAllLampsSwitchOnFailed).arg(power_num);
-            operation_failed();
+            operation_failed_voice_notification();
             break;
         }
         m_sceneCalibr->update();
@@ -178,18 +181,18 @@ void MainWindow::switch_off_all_lamps()
 {
     qInfo()<<tlc::kOperatinAllLampsSwitchOffName;
     auto pwrs = m_powerManager->get_power_states();
-    auto lamps = pwrs["lamps"].toArray();
+    auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
 
-    for(int i=lamps.size()-1;i>=0;--i){
+    for(int i=lamps.size()-1; i>=0; --i){
         m_current_lamp_index = i;
-        ot->set_current_lamp_index(i);
+        m_bulbs_graphics_item->set_current_lamp_index(i);
         if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
             m_powerManager->decreaseVoltageStepByStepToZero(i);
-            ot->setBulbOff(i);
+            m_bulbs_graphics_item->setBulbOff(i);
         }else{
             auto power_num = get_power_num_by_index(i);
             qWarning()<<QString(tlc::kOperationAllLampsSwitchOffFailed).arg(power_num);
-            operation_failed();
+            operation_failed_voice_notification();
             break;
         }
         m_sceneCalibr->update();
@@ -269,37 +272,44 @@ void MainWindow::testSlot()
 {
 
     bool first_power_state =  m_powerManager->getPowerStatus(0);
-    bool second_power_sate = m_powerManager->getPowerStatus(2);
+    bool second_power_state = m_powerManager->getPowerStatus(2);
     bool third_power_state = m_powerManager->getPowerStatus(4);
 
     auto pwrs = m_powerManager->get_power_states();
-    QJsonArray lamps = pwrs["lamps"].toArray();
+    auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
     QVector<bulb_state> bulbs_states(lamps.size());
 
     for(int i=0; i<lamps.size(); ++i){
-        auto current_limit_value = lamps[i].toObject().value("max_current").toDouble();
+        auto json_current_limit_value = lamps[i].toObject().value("max_current").toDouble();
+        auto current_max_value = m_powerManager->getCurrentLimit(i);
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
-        if(current_voltage == 0 || current_voltage <= 0.05){
+        if(current_voltage == 0 || current_voltage <= global::kVoltageZeroAccuracy){
             bulbs_states[i] = bulb_state::OFF;
-        }else if(qAbs(current_limit_value - current_present_value) < 0.03){
+        }else if(qAbs(json_current_limit_value - current_present_value) < global::kCurrentTargetAccuracy){
             bulbs_states[i] = bulb_state::ON;
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
             m_sounder.playSound("notLoaded.mp3");
         }
+        if(i==0)psi1->set_max_current_out_1(current_max_value);
+        if(i==1)psi1->set_max_current_out_2(current_max_value);
+        if(i==2)psi2->set_max_current_out_1(current_max_value);
+        if(i==3)psi2->set_max_current_out_2(current_max_value);
+        if(i==4)psi3->set_max_current_out_1(current_max_value);
+        if(i==5)psi3->set_max_current_out_2(current_max_value);
     }
 
-    ot->set_bulb_states(bulbs_states);
+    m_bulbs_graphics_item->set_bulb_states(bulbs_states);
     m_sceneCalibr->update();
 
     QVector<QPair<QLabel*,bool>> labels = {
         {ui->label_test_power_1, first_power_state},
-        {ui->label_test_power_2, second_power_sate},
+        {ui->label_test_power_2, second_power_state},
         {ui->label_test_power_3, third_power_state}
     };
     bool testOk = false;
-    if(first_power_state && second_power_sate && third_power_state){
+    if(first_power_state && second_power_state && third_power_state){
         testOk = true;
     }
     for(int i=0;i<labels.size();++i){
@@ -315,16 +325,18 @@ void MainWindow::testSlot()
     if(testOk){
         m_sounder.playSound("testOk.mp3");
         ui->pushButton_Forward->setEnabled(true);
-        qInfo()<<"Start test is OK!";
+        qInfo()<<"ALL POWERS TEST IS OK.";
     }else{
         m_sounder.playSound("network_error.mp3");
-        if(pwrs["is_unlock"].toBool()){
-            ui->pushButton_Forward->setEnabled(true);
-            qWarning()<<"Start test is failed :(";
-            qWarning()<<"Forward button was unclocked. ----->";
-        }
+        ui->pushButton_Forward->setEnabled(pwrs[global::kJsonKeyIsUnlockKeyFlag].toBool());
+        qWarning()<<"ALL POWERS TEST IS FAILED.";
+        qInfo()<<"POWER 1: "<<first_power_state;
+        qInfo()<<"POWER 2: "<<second_power_state;
+        qInfo()<<"POWER 3: "<<third_power_state;
     }
     m_timer_to_update_power_states->start();
+    ui->pushButton_update_power_states->setEnabled(true);
+    ui->pushButton_update->setEnabled(true);
 }
 
 void MainWindow::initializeVariables()
@@ -369,7 +381,7 @@ void MainWindow::setUpGui()
     ui->pushButton_Backward->setVisible(false);
     ui->stackedWidget->setCurrentIndex(0);
     ui->comboBox__mode->addItem("Все лампы");
-    auto pwrs = m_powerManager->get_power_states().value("lamps").toArray();
+    auto pwrs = m_powerManager->get_power_states().value(global::kJsonKeyLampsArray).toArray();
     for(int i=0;i<pwrs.size();++i){
         QString str_color = pwrs[i].toObject().value("color").toString();
         QColor color(str_color);
@@ -405,14 +417,14 @@ void MainWindow::setUpScene()
     bulb_colors.resize(6);
     QJsonObject jo;
     jo = m_powerManager->get_power_states();
-    auto lamps = jo["lamps"].toArray();
+    auto lamps = jo[global::kJsonKeyLampsArray].toArray();
     for(int i=0;i<lamps.size();++i){
         bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
     }
     m_sceneCalibr->setSceneRect(0, 0, 1000, 600);
-    ot = new OpticTable;
-    ot->setZValue(1000);
-    m_sceneCalibr->addItem(ot);
+    m_bulbs_graphics_item = new OpticTable;
+    m_bulbs_graphics_item->setZValue(1000);
+    m_sceneCalibr->addItem(m_bulbs_graphics_item);
     m_sceneCalibr->update();
     psi1 = new PowerSupplyItem(":/guiPictures/PS.svg",jo["ps1"].toObject().value("name").toString(),"ps1");
     psi1->setScale(0.8);
@@ -510,7 +522,7 @@ void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
     if(index < 1 || index > 6)return;
     m_current_lamp_index = index - 1;
 
-    ot->set_current_lamp_index(m_current_lamp_index);
+    m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
     m_sceneCalibr->update();
 }
 
@@ -531,11 +543,13 @@ void MainWindow::on_pushButton_sound_toggled(bool checked)
 
 void MainWindow::on_pushButton_update_power_states_clicked()
 {
-   retest_all_powers();
+    ui->pushButton_update_power_states->setEnabled(false);
+    retest_all_powers();
 }
 
 void MainWindow::on_pushButton_update_clicked()
 {
+    ui->pushButton_update->setEnabled(false);
     retest_all_powers();
 }
 
@@ -552,7 +566,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
     qInfo()<<tlc::kOperationSwitchOffOneLampName;
     if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
 
-        if(ot->setBulbOff(m_current_lamp_index)){
+        if(m_bulbs_graphics_item->setBulbOff(m_current_lamp_index)){
             m_sounder.playSound("lamp_is_already_off.mp3");
         }else{
             m_sounder.playSound("switchOffLamp.mp3");
@@ -563,11 +577,11 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
                 --m_current_lamp_index;
             }
         }
-        ot->set_current_lamp_index(m_current_lamp_index);
+        m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
         m_sceneCalibr->update();
 
     }else{
-        operation_failed();
+        operation_failed_voice_notification();
         auto power_num = get_power_num_by_index(m_current_lamp_index);
         qWarning()<<QString(tlc::kOperationSwitchOffOneLampFailed).arg(power_num);
     }
@@ -586,7 +600,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
     qInfo()<<tlc::kOperationSwitchOnOneLampName;
     if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
 
-        if(ot->setBulbOn(m_current_lamp_index)){
+        if(m_bulbs_graphics_item->setBulbOn(m_current_lamp_index)){
             m_sounder.playSound("lamp_is_already_on.mp3");
 
         }else{
@@ -599,11 +613,11 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
                 ++m_current_lamp_index;
             }
         }
-        ot->set_current_lamp_index(m_current_lamp_index);
+        m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
         m_sceneCalibr->update();
 
     }else{
-        operation_failed();
+        operation_failed_voice_notification();
         auto power_num = get_power_num_by_index(m_current_lamp_index);
         qWarning()<<QString(tlc::kOperationSwitchOnOneLampFailed).arg(power_num);
     }

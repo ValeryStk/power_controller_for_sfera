@@ -20,5 +20,8 @@ const char kOperationSwitchOffOneLampName[]    = "SWITCH OFF ONE LAMP OPERATION"
 const char kOperationSwitchOffOneLampFailed[]  = "SWITCH OFF ONE LAMP FAILED ---> POWER %1 is DISCONNECTED";
 const char kOperationSwitchOnOneLampName[]     = "SWITCH ON  ONE LAMP OPERATION";
 const char kOperationSwitchOnOneLampFailed[]   = "SWITCH ON  ONE LAMP FAILED ---> POWER %1 is DISCONNECTED";
+const char kOperationSwitchOffResultFailed[]   = "SWITCH OFF OPERATION FAILED (VOLTAGE IS NOT ZERO (%1))";
+const char kOperationSwitchOnResultFailed[]    = "SWITCH ON  OPERATION FAILED (TARGET CURRENT IS NOT REACHED (%1))";
+const char kFailedLampIndex[]                  = "FAILED LAMP: %1";
 
 } //end namespace tlc

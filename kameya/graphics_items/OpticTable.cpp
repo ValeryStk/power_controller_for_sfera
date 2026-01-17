@@ -33,7 +33,7 @@ OpticTable::OpticTable()
     auto x = jo["lamps_item_coords"].toObject().value("x").toInt();
     auto y = jo["lamps_item_coords"].toObject().value("y").toInt();
     setPos(x,y);
-    auto lamps = jo["lamps"].toArray();
+    auto lamps = jo[global::kJsonKeyLampsArray].toArray();
     for(int i=0;i<lamps.size();++i){
         bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
     }

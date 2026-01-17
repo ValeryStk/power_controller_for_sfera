@@ -1,3 +1,6 @@
+QT += network multimediawidgets widgets printsupport svg
+CONFIG += resources_big
+
 HEADERS += \
     $$PWD/config.h \
     $$PWD/graphics_items/power_supply_item.h \
@@ -23,10 +26,11 @@ SOURCES += \
     $$PWD/QCustomPlot.cpp \
     $$PWD/QrcFilesRestorer.cpp \
     $$PWD/Sounder.cpp \
-    $$PWD/main.cpp\
     $$PWD/json_utils.cpp\
     $$PWD/text_log_constants.cpp
 
+RESOURCES += \
+    $$PWD/res.qrc
 
 FORMS += \
         $$PWD/MainWindow.ui

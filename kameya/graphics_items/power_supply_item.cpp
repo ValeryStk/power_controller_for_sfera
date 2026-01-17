@@ -10,12 +10,13 @@
 #include <QJsonObject>
 #include "json_utils.h"
 #include "config.h"
+#include "qjsonarray.h"
 
 
 PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
                                  const QString& name,
                                  const QString& obj_name):m_label(name),
-                                                          m_object_name(obj_name)
+    m_object_name(obj_name)
 {
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
@@ -29,6 +30,9 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
     auto x = jo[m_object_name].toObject().value("x").toInt();
     auto y = jo[m_object_name].toObject().value("y").toInt();
     setPos(x,y);
+
+    m_max_current_out_1 = 0.0;
+    m_max_current_out_2 = 0.0;
 }
 
 PowerSupplyItem::~PowerSupplyItem()
@@ -74,14 +78,21 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     const QString lineVoltage2 = QStringLiteral("%1 V").arg(m_voltage_out_2, 0, 'f', 3);
     const QString lineCurrent2 = QStringLiteral("%1 A").arg(m_current_out_2, 0, 'f', 3);
 
+    const QString lineMaxCurrent1 = QStringLiteral("%1 A").arg(m_max_current_out_1, 0, 'f', 3);
+    const QString lineMaxCurrent2 = QStringLiteral("%1 A").arg(m_max_current_out_2, 0, 'f', 3);
+
 
     // Draw text
     painter->setPen(m_textColor);
     painter->drawText(QPointF(100,70), lineVoltage);
     painter->drawText(QPointF(100,120), lineCurrent);
-
     painter->drawText(QPointF(331,70), lineVoltage2);
     painter->drawText(QPointF(331,120), lineCurrent2);
+
+    painter->setPen(QPen(Qt::yellow));
+    painter->drawText(QPointF(100,160), lineMaxCurrent1);
+    painter->drawText(QPointF(331,160), lineMaxCurrent2);
+
     painter->setPen(QPen(Qt::lightGray));
     painter->drawText(QPointF(165,30),m_label);
 
@@ -103,8 +114,8 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->drawEllipse(QPointF(202,270),8,8);
     painter->drawEllipse(QPointF(250,270),8,8);
     if(m_is_out_1_active){
-    painter->setBrush(Qt::NoBrush);
-    painter->drawRect(QRect(QPoint(177,247),QPoint(273,288)));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(QRect(QPoint(177,247),QPoint(273,288)));
     }
 
     painter->setBrush(QBrush(m_out_2_color));
@@ -112,8 +123,8 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->drawEllipse(QPointF(350,270),8,8);
     painter->drawEllipse(QPointF(398,270),8,8);
     if(m_is_out_2_active){
-    painter->setBrush(Qt::NoBrush);
-    painter->drawRect(QRect(QPoint(321,247),QPoint(425,288)));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(QRect(QPoint(321,247),QPoint(425,288)));
     }
 
 }
@@ -129,6 +140,12 @@ void PowerSupplyItem::set_current_out_1(double amps)
 {
     if (qFuzzyCompare(m_current_out_1, amps)) return;
     m_current_out_1 = amps;
+    update();
+}
+
+void PowerSupplyItem::set_max_current_out_1(double amps)
+{
+    m_max_current_out_1 = amps;
     update();
 }
 
@@ -162,6 +179,12 @@ void PowerSupplyItem::set_current_out_2(double amps)
 {
     if (qFuzzyCompare(m_current_out_2, amps)) return;
     m_current_out_2 = amps;
+    update();
+}
+
+void PowerSupplyItem::set_max_current_out_2(double amps)
+{
+    m_max_current_out_2 = amps;
     update();
 }
 

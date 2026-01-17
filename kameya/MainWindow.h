@@ -1,17 +1,16 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
+
 #include <QMainWindow>
 #include <QShortcut>
 #include <QSettings>
 #include <QMessageBox>
 #include "power_supply_manager.h"
 #include "Sounder.h"
-#include "QThread"
 #include <QCloseEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <graphics_items/OpticTable.h>
-#include "Types.h"
 #include "QTimer"
 
 
@@ -31,9 +30,14 @@ public:
 
 
 private:
-    Ui::MainWindow     *ui;
+    Ui::MainWindow      *ui;
+    PowerSupplyManager  *m_powerManager;
+    QGraphicsScene      *m_sceneCalibr;
+    OpticTable          *m_bulbs_graphics_item;
+    QShortcut           *repeatLastNotification;
+    QShortcut           *open_log_dir;
+    QShortcut           *show_log;
     Sounder             m_sounder;
-    PowerSupplyManager *m_powerManager;
 
     void initializeVariables();
     void createObjects();
@@ -45,18 +49,13 @@ private:
     bool checkSafetyUser();
 
     int    m_current_lamp_index;
-
     QVector<double> bandProfileChannels;
     QVector<QLabel*> lamps;
     QHash <int, QString> m_pages;
-    QGraphicsScene *m_sceneCalibr;
-    OpticTable *ot;
-    QShortcut *repeatLastNotification;
-    QShortcut *open_log_dir;
-    QShortcut *show_log;
+
 
 private:
-    void operation_failed();
+    void operation_failed_voice_notification();
     void retest_all_powers();
 
 private slots:
@@ -82,4 +81,4 @@ private slots:
     void on_pushButton_update_clicked();
     void on_pushButton_open_log_clicked();
 };
-#endif // MAINWINDOW_H
+#endif // MAIN_WINDOW_H

@@ -5,6 +5,10 @@
 
 namespace global{
 
+// accuracy
+extern const double kVoltageZeroAccuracy;
+extern const double kCurrentTargetAccuracy;
+
 // file names and dirs
 extern const QString json_lamps_file_name;
 extern const QString path_to_log_dir;
