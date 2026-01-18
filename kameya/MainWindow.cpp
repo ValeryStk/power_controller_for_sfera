@@ -309,7 +309,12 @@ void MainWindow::testSlot()
         auto current_max_value = m_powerManager->getCurrentLimit(i);
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
-        if(current_voltage == 0 || current_voltage <= global::kVoltageZeroAccuracy){
+        auto power_num = lamp_pwr_out[1][0];
+        bool is_connected=false;
+        if(power_num==1)is_connected = first_power_state;
+        if(power_num==2)is_connected = second_power_state;
+        if(power_num==3)is_connected = third_power_state;
+        if((current_voltage <= global::kVoltageZeroAccuracy) && is_connected){
             bulbs_states[i] = bulb_state::OFF;
         }else if(qAbs(json_current_limit_value - current_present_value) < global::kCurrentTargetAccuracy){
             bulbs_states[i] = bulb_state::ON;

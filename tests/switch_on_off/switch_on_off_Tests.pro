@@ -8,5 +8,3 @@ INCLUDEPATH += ../../kameya
 HEADERS += switch_on_off_UnitTests.h\
 
 SOURCES += switch_on_off_UnitTests.cpp\
-
-
