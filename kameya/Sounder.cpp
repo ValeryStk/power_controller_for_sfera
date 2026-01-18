@@ -1,4 +1,5 @@
 #include "Sounder.h"
+
 #include "QDir"
 #include "QDebug"
 
@@ -57,7 +58,6 @@ void Sounder::createPlayer()
     mySounds_ = dir.entryList();
     for(int i=0;i<mySounds_.count();++i){
         QString url = urlPrefix + mySounds_.at(i);
-        //qDebug()<<url;
         m_playlist_->addMedia(QUrl(url));
     }
 }

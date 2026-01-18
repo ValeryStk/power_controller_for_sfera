@@ -10,7 +10,7 @@
 #include <QStyle>
 #include "math.h"
 #include <QGraphicsScene>
-#include "graphics_items/OpticTable.h"
+#include "graphics_items/bulbs_item.h"
 #include <chrono>
 #include <QPair>
 #include <memory>
@@ -452,7 +452,7 @@ void MainWindow::setUpScene()
         bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
     }
     m_sceneCalibr->setSceneRect(0, 0, 1000, 600);
-    m_bulbs_graphics_item = new OpticTable;
+    m_bulbs_graphics_item = new BulbsQGraphicsItem;
     m_bulbs_graphics_item->setZValue(1000);
     m_sceneCalibr->addItem(m_bulbs_graphics_item);
     m_sceneCalibr->update();

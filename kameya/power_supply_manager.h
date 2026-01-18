@@ -7,8 +7,14 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
-#include "Types.h"
 
+
+struct PowerUnitParams{
+    bool   isOn;
+    double V;
+    double I;
+    double Ilim;
+};
 
 //!
 //! \brief Предназначен для управления блоками питания

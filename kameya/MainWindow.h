@@ -10,7 +10,7 @@
 #include <QCloseEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <graphics_items/OpticTable.h>
+#include <graphics_items/bulbs_item.h>
 #include "QTimer"
 
 
@@ -33,7 +33,7 @@ private:
     Ui::MainWindow      *ui;
     PowerSupplyManager  *m_powerManager;
     QGraphicsScene      *m_sceneCalibr;
-    OpticTable          *m_bulbs_graphics_item;
+    BulbsQGraphicsItem          *m_bulbs_graphics_item;
     QShortcut           *repeatLastNotification;
     QShortcut           *open_log_dir;
     QShortcut           *show_log;

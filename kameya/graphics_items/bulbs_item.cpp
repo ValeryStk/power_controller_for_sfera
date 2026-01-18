@@ -1,6 +1,6 @@
-#include "OpticTable.h"
-#include "qdatetime.h"
+#include "bulbs_item.h"
 
+#include "qdatetime.h"
 #include <QLinearGradient>
 #include <QPainter>
 #include <QDebug>
@@ -12,7 +12,7 @@
 
 QVector<QColor> bulb_colors;
 
-OpticTable::OpticTable()
+BulbsQGraphicsItem::BulbsQGraphicsItem()
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
@@ -39,7 +39,7 @@ OpticTable::OpticTable()
     }
 }
 
-OpticTable::~OpticTable()
+BulbsQGraphicsItem::~BulbsQGraphicsItem()
 {
     QJsonObject jo;
     jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
@@ -51,7 +51,7 @@ OpticTable::~OpticTable()
     jsn::saveJsonObjectToFile(global::json_lamps_file_name,jo,QJsonDocument::Indented);
 }
 
-QRectF OpticTable::boundingRect() const
+QRectF BulbsQGraphicsItem::boundingRect() const
 {
     static QImage imgOn(":/guiPictures/bulb_on.png");
 
@@ -63,7 +63,7 @@ QRectF OpticTable::boundingRect() const
 }
 
 
-void OpticTable::paint(QPainter *painter,
+void BulbsQGraphicsItem::paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
                        QWidget *widget)
 {
@@ -73,7 +73,7 @@ void OpticTable::paint(QPainter *painter,
     drawLamps(painter);
 }
 
-void OpticTable::drawLamps(QPainter *painter)
+void BulbsQGraphicsItem::drawLamps(QPainter *painter)
 {
 
     static QImage imgOn(":/guiPictures/bulb_on.png");
@@ -171,7 +171,7 @@ void OpticTable::drawLamps(QPainter *painter)
     }
 }
 
-bool OpticTable::setBulbOff(int bi)
+bool BulbsQGraphicsItem::setBulbOff(int bi)
 {
     if(bi>bulb_state.size()-1||bi<0)return true;
     bool is_state_the_same = false;
@@ -184,7 +184,7 @@ bool OpticTable::setBulbOff(int bi)
     return is_state_the_same;
 }
 
-bool OpticTable::setBulbOn(int bi)
+bool BulbsQGraphicsItem::setBulbOn(int bi)
 {
     if(bi>bulb_state.size()-1||bi<0)return true;
     bool is_state_the_same = false;
@@ -200,7 +200,7 @@ bool OpticTable::setBulbOn(int bi)
     return is_state_the_same;
 }
 
-bool OpticTable::setBulbUndefined(int bi)
+bool BulbsQGraphicsItem::setBulbUndefined(int bi)
 {
     if(bi>bulb_state.size()-1||bi<0)return true;
     bool is_state_the_same = false;
@@ -213,14 +213,14 @@ bool OpticTable::setBulbUndefined(int bi)
     return is_state_the_same;
 }
 
-void OpticTable::set_current_lamp_index(const int index)
+void BulbsQGraphicsItem::set_current_lamp_index(const int index)
 {
     if(index < 0 || index > 5) return;
     m_current_lamp_index = index;
     update();
 }
 
-void OpticTable::set_bulb_states(QVector<enum class bulb_state> states)
+void BulbsQGraphicsItem::set_bulb_states(QVector<enum class bulb_state> states)
 {
     bulb_state = states;
     update();

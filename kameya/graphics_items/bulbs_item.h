@@ -1,16 +1,16 @@
-#ifndef OPTIC_TABLE_H
-#define OPTIC_TABLE_H
+#ifndef BULBS_QGRAPHICS_ITEM_H
+#define BULBS_QGRAPHICS_ITEM_H
 
 #include <QGraphicsItem>
 
 enum class bulb_state{ON,OFF,UNDEFINED};
 
-class OpticTable:public QGraphicsItem
+class BulbsQGraphicsItem:public QGraphicsItem
 {
 
 public:
-    OpticTable();
-    ~OpticTable()override;
+    BulbsQGraphicsItem();
+    ~BulbsQGraphicsItem()override;
 
 public:
 
@@ -34,4 +34,4 @@ private:
 
 };
 
-#endif // OPTIC_TABLE_H
+#endif // BULBS_QGRAPHICS_ITEM_H
