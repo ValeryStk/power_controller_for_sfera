@@ -3,7 +3,9 @@
 #include <QtGlobal>
 #include "json_utils.h"
 #include "commands_builder.h"
-#include "Windows.h"
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <synchapi.h>
 #include "text_log_constants.h"
 #include "config.h"
 

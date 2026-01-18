@@ -16,6 +16,7 @@ struct PowerUnitParams{
     double Ilim;
 };
 
+
 //!
 //! \brief Предназначен для управления блоками питания
 //!

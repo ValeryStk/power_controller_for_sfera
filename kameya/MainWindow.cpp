@@ -27,10 +27,6 @@
 #include <QtConcurrent/QtConcurrent>
 
 
-constexpr int NUMBER_OF_LAMPS = 6;
-constexpr int MAX_CURRENT_LAMP_INDEX = 5;
-constexpr int MIN_CURRENT_LAMP_INDEX = 0;
-
 constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[]  = "Включить одну лампу";
 constexpr char kSwitchOffLampsText[]   = "Выключить все лампы";
@@ -101,8 +97,8 @@ MainWindow::MainWindow(QWidget *parent)
         for(int i=0;i<NUMBER_OF_LAMPS;++i){
             bool isConnected = m_powerManager->isPowerOutConnected(i);
             PowerUnitParams result{false,0.000,0.000,0.000};
-            int power_num = lamp_pwr_out[i][0];
-            int out_num = lamp_pwr_out[i][1];
+            int power_num = get_power_num_by_index(i);
+            int out_num = get_power_out_by_index(i);
             if(isConnected){
                 result = m_powerManager->get_all_params_for_lamp_out(i);
                 QString v_i_line = QString("%1 %2 %3 %4").arg(i+1)
@@ -310,7 +306,8 @@ void MainWindow::testSlot()
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
         auto power_num = lamp_pwr_out[1][0];
-        bool is_connected=false;
+        bool is_connected = false;
+        bool is_undefined_lamps = false;
         if(power_num==1)is_connected = first_power_state;
         if(power_num==2)is_connected = second_power_state;
         if(power_num==3)is_connected = third_power_state;
@@ -320,7 +317,7 @@ void MainWindow::testSlot()
             bulbs_states[i] = bulb_state::ON;
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
-            m_sounder.playSound("notLoaded.mp3");
+            is_undefined_lamps = true;
         }
         if(i==0)psi1->set_max_current_out_1(current_max_value);
         if(i==1)psi1->set_max_current_out_2(current_max_value);
@@ -363,6 +360,8 @@ void MainWindow::testSlot()
         qInfo()<<"POWER 1: "<<first_power_state;
         qInfo()<<"POWER 2: "<<second_power_state;
         qInfo()<<"POWER 3: "<<third_power_state;
+        showMessageBox(QMessageBox::Warning,"Тест не пройден",
+                       "Блоки питания не готовы к работе.");
     }
     m_timer_to_update_power_states->start();
     ui->pushButton_update_power_states->setEnabled(true);

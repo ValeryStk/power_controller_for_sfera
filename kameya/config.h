@@ -3,6 +3,40 @@
 
 #include <QString>
 
+constexpr int NUMBER_OF_LAMPS = 6;
+constexpr int NUMBER_OF_POWER_SUPPLIES = 3;
+constexpr int MAX_CURRENT_LAMP_INDEX = 5;
+constexpr int MIN_CURRENT_LAMP_INDEX = 0;
+
+struct lamp{
+    QString color;
+    QString ip;
+    double max_current;
+    QString name;
+    int out;
+    double total_work_hours;
+};
+
+struct lamps_graphic_item_coords{
+    int x;
+    int y;
+};
+
+struct power_supply_properties{
+    QString name;
+    int x;
+    int y;
+};
+
+struct lamps_powers_config{
+    const int  max_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
+    const int  min_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
+    bool is_unclock = false;
+    lamp lamps_array[NUMBER_OF_LAMPS];
+    lamps_graphic_item_coords lamps_item_coords;
+    power_supply_properties powers[NUMBER_OF_POWER_SUPPLIES];
+};
+
 namespace global{
 
 // accuracy
