@@ -5,7 +5,7 @@
 #include <QShortcut>
 #include <QSettings>
 #include <QMessageBox>
-#include "Sounder.h"
+#include "sounder.h"
 #include <QCloseEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>

@@ -3,6 +3,7 @@
 
 #include "qsharedmemory.h"
 #include "qsystemsemaphore.h"
+#include "QMessageBox"
 
 void check_single_application_is_running(){
 QSystemSemaphore semaphore("<POWER_CONTROLLER>", 1);
@@ -21,7 +22,7 @@ QSystemSemaphore semaphore("<POWER_CONTROLLER>", 1);
       msgBox.setIcon(QMessageBox::Warning);
       msgBox.setText("Приложение уже запущено.\nВы можете запустить только один экземпляр приложения.");
       msgBox.exec();
-      return 0;
+      return;
 }
 }
 
