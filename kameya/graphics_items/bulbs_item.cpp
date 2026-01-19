@@ -1,6 +1,5 @@
 #include "bulbs_item.h"
 
-#include "qdatetime.h"
 #include <QLinearGradient>
 #include <QPainter>
 #include <QDebug>
@@ -8,34 +7,23 @@
 #include <QJsonArray>
 #include "QColor"
 #include "json_utils.h"
-#include "config.h"
 
-QVector<QColor> bulb_colors;
 
 BulbsQGraphicsItem::BulbsQGraphicsItem()
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
-    auto init_state = bulb_state::UNDEFINED;
-    bulb_state = {init_state,
-                  init_state,
-                  init_state,
-                  init_state,
-                  init_state,
-                  init_state
-                 };
-
-    m_current_lamp_index = 5;
-    m_bulb_on_time.resize(6);
-    bulb_colors.resize(6);
+    m_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
     QJsonObject jo;
     jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
-    auto x = jo["lamps_item_coords"].toObject().value("x").toInt();
-    auto y = jo["lamps_item_coords"].toObject().value("y").toInt();
+    auto coords = jo[global::kJsonKeyLampsCoordsObject].toObject();
+    auto x = coords.value(global::kJsonKeyX).toInt();
+    auto y = coords.value(global::kJsonKeyY).toInt();
     setPos(x,y);
     auto lamps = jo[global::kJsonKeyLampsArray].toArray();
-    for(int i=0;i<lamps.size();++i){
-        bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
+    for(int i=0;i<NUMBER_OF_LAMPS;++i){
+        bulb_colors[i] = QColor(lamps[i].toObject()[global::kJsonKeyColor].toString());
+        bulb_states[i] = bulb_state::UNDEFINED;
     }
 }
 
@@ -45,20 +33,18 @@ BulbsQGraphicsItem::~BulbsQGraphicsItem()
     jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
     auto pos = scenePos().toPoint();
     QJsonObject coords;
-    coords["x"] = pos.x();
-    coords["y"] = pos.y();
-    jo["lamps_item_coords"] = coords;
+    coords[global::kJsonKeyX] = pos.x();
+    coords[global::kJsonKeyY] = pos.y();
+    jo[global::kJsonKeyLampsCoordsObject] = coords;
     jsn::saveJsonObjectToFile(global::json_lamps_file_name,jo,QJsonDocument::Indented);
 }
 
 QRectF BulbsQGraphicsItem::boundingRect() const
 {
     static QImage imgOn(":/guiPictures/bulb_on.png");
-
     int spacing = imgOn.height() + 10;
-    int totalHeight = bulb_state.size() * spacing;
+    int totalHeight = NUMBER_OF_LAMPS * spacing;
     int totalWidth  = imgOn.width() + 100; // запас справа под время работы
-
     return QRectF(-10, -10, totalWidth+10, totalHeight+10);
 }
 
@@ -83,12 +69,12 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter)
     int spacing = imgOn.height() + 10;
     int radius = std::max(imgOn.width(), imgOn.height()) / 2 + 5;
 
-    for (int i = 0; i < bulb_state.size(); ++i) {
+    for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         int y = i * spacing;
 
         // Нарисовать фон-круг
         QBrush back_brush;
-        if(bulb_state[i]==bulb_state::ON){
+        if(bulb_states[i]==bulb_state::ON){
             back_brush = QBrush(Qt::lightGray);
         }else{
             back_brush = QBrush(Qt::darkGray);
@@ -99,7 +85,7 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter)
         int centerX = imgOn.width() / 2; int centerY = y + imgOn.height() / 2;
         painter->drawEllipse(QPoint(centerX, centerY), radius, radius);
 
-        switch (bulb_state[i]) {
+        switch (bulb_states[i]) {
         case bulb_state::ON:{
             painter->drawImage(0, y, imgOn);
             break;
@@ -149,7 +135,7 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter)
         }
 
         // --- вывод времени работы лампы справа ---
-        if (bulb_state[i] == bulb_state::ON && i < m_bulb_on_time.size()) {
+        if (bulb_states[i] == bulb_state::ON) {
             // вычисляем прошедшее время
             qint64 secs = m_bulb_on_time[i].secsTo(QDateTime::currentDateTime());
             int minutes = secs / 60;
@@ -173,27 +159,27 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter)
 
 bool BulbsQGraphicsItem::setBulbOff(int bi)
 {
-    Q_ASSERT_X(bi > bulb_state.size()-1 || bi < 0,
+    Q_ASSERT_X(bi > MAX_CURRENT_LAMP_INDEX || bi < 0,
                "bulbs_item",
                "setBulbOff index is out of range");
-    if(bi>bulb_state.size()-1||bi<0)return true;
+    if(bi > MAX_CURRENT_LAMP_INDEX || bi < 0)return true;
     m_current_lamp_index = bi;
-    if(bulb_state[bi] == bulb_state::OFF){
+    if(bulb_states[bi] == bulb_state::OFF){
         return true;
     }
-    bulb_state[bi] = bulb_state::OFF;
+    bulb_states[bi] = bulb_state::OFF;
     update();
     return false;
 }
 
 bool BulbsQGraphicsItem::setBulbOn(int bi)
 {
-    if(bi>bulb_state.size()-1||bi<0)return true;
+    if(bi > MAX_CURRENT_LAMP_INDEX || bi<0)return true;
     bool is_state_the_same = false;
-    if(bulb_state[bi] == bulb_state::ON){
+    if(bulb_states[bi] == bulb_state::ON){
         is_state_the_same = true;
     }
-    bulb_state[bi] = bulb_state::ON;
+    bulb_states[bi] = bulb_state::ON;
     m_current_lamp_index = bi;
     if(!is_state_the_same){
         m_bulb_on_time[bi] = QDateTime::currentDateTime();
@@ -204,12 +190,12 @@ bool BulbsQGraphicsItem::setBulbOn(int bi)
 
 bool BulbsQGraphicsItem::setBulbUndefined(int bi)
 {
-    if(bi>bulb_state.size()-1||bi<0)return true;
+    if(bi > MAX_CURRENT_LAMP_INDEX || bi<0)return true;
     bool is_state_the_same = false;
-    if(bulb_state[bi] == bulb_state::UNDEFINED){
+    if(bulb_states[bi] == bulb_state::UNDEFINED){
         is_state_the_same = true;
     }
-    bulb_state[bi] = bulb_state::UNDEFINED;
+    bulb_states[bi] = bulb_state::UNDEFINED;
     m_current_lamp_index = bi;
     update();
     return is_state_the_same;
@@ -217,14 +203,14 @@ bool BulbsQGraphicsItem::setBulbUndefined(int bi)
 
 void BulbsQGraphicsItem::set_current_lamp_index(const int index)
 {
-    if(index < 0 || index > 5) return;
+    if(index < 0 || index > MAX_CURRENT_LAMP_INDEX) return;
     m_current_lamp_index = index;
     update();
 }
 
-void BulbsQGraphicsItem::set_bulb_states(QVector<enum class bulb_state> states)
+void BulbsQGraphicsItem::set_bulb_states(enum class bulb_state states[])
 {
-    bulb_state = states;
+    std::copy(states, states + NUMBER_OF_LAMPS, bulb_states);
     update();
 }
 

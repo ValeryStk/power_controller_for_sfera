@@ -39,7 +39,7 @@ private:
     PowerSupplyItem     *psi1;
     PowerSupplyItem     *psi2;
     PowerSupplyItem     *psi3;
-    QTimer *m_timer_to_update_power_states;
+    QTimer              *m_timer_to_update_power_states;
 
     QShortcut           *repeatLastNotification;
     QShortcut           *open_log_dir;

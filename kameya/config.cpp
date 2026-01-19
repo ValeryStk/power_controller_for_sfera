@@ -1,6 +1,19 @@
 #include "config.h"
 
+#include "QApplication"
+#include "QDir"
+
 namespace global {
+
+// find power and out numbers for current_lamp_index
+constexpr int lamp_pwr_out[NUMBER_OF_LAMPS][2] = {{1,1},
+                                                  {1,2},
+                                                  {2,1},
+                                                  {2,2},
+                                                  {3,1},
+                                                  {3,2}};
+constexpr int POWER_PARAM = 0;
+constexpr int OUT_PARAM = 1;
 
 // accuracy
 extern const double kVoltageZeroAccuracy    = 0.005;
@@ -27,4 +40,21 @@ const char kJsonKeyIp[]                   = "ip";
 const char kJsonKeyMaxCurrent[]           = "max_current";
 const char kJsonKeyMaxOut[]               = "out";
 const char kJsonKeyTotalWorkHours[]       = "total_work_hours";
+
+int get_power_num_by_index(int index){
+    if(index<0||index>=NUMBER_OF_LAMPS)return-1;
+    return lamp_pwr_out[index][POWER_PARAM];
+}
+
+int get_power_out_by_index(int index){
+    if(index<0||index>=NUMBER_OF_LAMPS)return-1;
+    return lamp_pwr_out[index][OUT_PARAM];
+}
+
+void mayBe_create_log_dir()
+{
+    QString rootDir = QApplication::applicationDirPath() + global::path_to_logs_dir;
+    QDir().mkpath(rootDir);
+}
+
 }

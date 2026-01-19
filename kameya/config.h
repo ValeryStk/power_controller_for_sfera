@@ -68,6 +68,12 @@ extern const char kJsonKeyMaxCurrent[];
 extern const char kJsonKeyMaxOut[];
 extern const char kJsonKeyTotalWorkHours[];
 
+void mayBe_create_log_dir();
+
+int get_power_num_by_index(int index);
+
+int get_power_out_by_index(int index);
+
 }// end namespace global
 
 #endif // CONFIG_H

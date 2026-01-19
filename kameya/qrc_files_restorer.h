@@ -1,5 +1,6 @@
-#ifndef QRCFILESRESTORER_H
-#define QRCFILESRESTORER_H
+#ifndef QRC_FILES_RESTORER_H
+#define QRC_FILES_RESTORER_H
+
 #include "qstring.h"
 
 /*!
@@ -15,4 +16,4 @@ public:
 
 };
 
-#endif // QRCFILESRESTORER_H
+#endif // #include "qtextcodec.h"

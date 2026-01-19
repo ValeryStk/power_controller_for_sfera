@@ -30,23 +30,8 @@ constexpr char kSwitchOnOneLampText[]  = "Включить одну лампу";
 constexpr char kSwitchOffLampsText[]   = "Выключить все лампы";
 constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
 
-// find power and out numbers for current_lamp_index
-constexpr int lamp_pwr_out[NUMBER_OF_LAMPS][2] = {{1,1},
-                                                  {1,2},
-                                                  {2,1},
-                                                  {2,2},
-                                                  {3,1},
-                                                  {3,2}};
 
 namespace{
-int get_power_num_by_index(int index){
-    if(index<0||index>=NUMBER_OF_LAMPS)return-1;
-    return lamp_pwr_out[index][0];
-}
-int get_power_out_by_index(int index){
-    if(index<0||index>=NUMBER_OF_LAMPS)return-1;
-    return lamp_pwr_out[index][1];
-}
 
 void openFileByDefaultSoftware(const QString &filePath) {
     QUrl url = QUrl::fromLocalFile(filePath);
@@ -75,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    global::mayBe_create_log_dir();
     createObjects();
     initializeVariables();
     setUpGui();
@@ -90,8 +76,8 @@ MainWindow::MainWindow(QWidget *parent)
         for(int i=0;i<NUMBER_OF_LAMPS;++i){
             bool isConnected = m_powerManager->isPowerOutConnected(i);
             PowerUnitParams result{false,0.000,0.000,0.000};
-            int power_num = get_power_num_by_index(i);
-            int out_num = get_power_out_by_index(i);
+            int power_num = global::get_power_num_by_index(i);
+            int out_num = global::get_power_out_by_index(i);
             if(isConnected){
                 result = m_powerManager->get_all_params_for_lamp_out(i);
                 QString v_i_line = QString("%1 %2 %3 %4").arg(i+1)
@@ -180,7 +166,7 @@ void MainWindow::switch_on_all_lamps()
             m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
             m_bulbs_graphics_item->setBulbOn(i);
         }else{
-            auto power_num = get_power_num_by_index(i);
+            auto power_num = global::get_power_num_by_index(i);
             qWarning()<<QString(tlc::kOperationAllLampsSwitchOnFailed).arg(power_num);
             operation_failed_voice_notification();
             break;
@@ -204,7 +190,7 @@ void MainWindow::switch_off_all_lamps()
             m_powerManager->decreaseVoltageStepByStepToZero(i);
             m_bulbs_graphics_item->setBulbOff(i);
         }else{
-            auto power_num = get_power_num_by_index(i);
+            auto power_num = global::get_power_num_by_index(i);
             qWarning()<<QString(tlc::kOperationAllLampsSwitchOffFailed).arg(power_num);
             operation_failed_voice_notification();
             break;
@@ -265,8 +251,8 @@ void MainWindow::update_ps(int ps,
     }
 
     //m_current_lamp_index
-    int current_pwr_num = get_power_num_by_index(m_current_lamp_index);
-    int active_out = get_power_out_by_index(m_current_lamp_index);
+    int current_pwr_num = global::get_power_num_by_index(m_current_lamp_index);
+    int active_out = global::get_power_out_by_index(m_current_lamp_index);
     if(current_pwr_num == 1){
         ps_item = psi1;
     }else if(current_pwr_num == 2){
@@ -287,30 +273,27 @@ void MainWindow::testSlot()
 
     bool first_power_state =  m_powerManager->getPowerStatus(0);
     bool second_power_state = m_powerManager->getPowerStatus(2);
-    bool third_power_state = m_powerManager->getPowerStatus(4);
+    bool third_power_state =  m_powerManager->getPowerStatus(4);
 
     auto pwrs = m_powerManager->get_power_states();
     auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
-    QVector<bulb_state> bulbs_states(lamps.size());
-
-    for(int i=0; i<lamps.size(); ++i){
+    bulb_state bulbs_states[NUMBER_OF_LAMPS];
+    bool power_states[NUMBER_OF_POWER_SUPPLIES] = {first_power_state,
+                                                  second_power_state,
+                                                  third_power_state};
+    for(int i=0; i < NUMBER_OF_LAMPS; ++i){
         auto json_current_limit_value = lamps[i].toObject().value("max_current").toDouble();
         auto current_max_value = m_powerManager->getCurrentLimit(i);
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
-        auto power_num = lamp_pwr_out[1][0];
-        bool is_connected = false;
-        bool is_undefined_lamps = false;
-        if(power_num==1)is_connected = first_power_state;
-        if(power_num==2)is_connected = second_power_state;
-        if(power_num==3)is_connected = third_power_state;
+        auto power_num = global::get_power_num_by_index(i);
+        bool is_connected = power_states[power_num];
         if((current_voltage <= global::kVoltageZeroAccuracy) && is_connected){
             bulbs_states[i] = bulb_state::OFF;
         }else if(qAbs(json_current_limit_value - current_present_value) < global::kCurrentTargetAccuracy){
             bulbs_states[i] = bulb_state::ON;
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
-            is_undefined_lamps = true;
         }
         if(i==0)psi1->set_max_current_out_1(current_max_value);
         if(i==1)psi1->set_max_current_out_2(current_max_value);
@@ -606,7 +589,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 
     }else{
         operation_failed_voice_notification();
-        auto power_num = get_power_num_by_index(m_current_lamp_index);
+        auto power_num = global::get_power_num_by_index(m_current_lamp_index);
         qWarning()<<QString(tlc::kOperationSwitchOffOneLampFailed).arg(power_num);
     }
 }
@@ -642,9 +625,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 
     }else{
         operation_failed_voice_notification();
-        auto power_num = get_power_num_by_index(m_current_lamp_index);
+        auto power_num = global::get_power_num_by_index(m_current_lamp_index);
         qWarning()<<QString(tlc::kOperationSwitchOnOneLampFailed).arg(power_num);
     }
 }
-
-

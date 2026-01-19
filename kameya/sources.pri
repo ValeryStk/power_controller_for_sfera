@@ -10,9 +10,10 @@ HEADERS += \
     $$PWD/icon_generator.h \
     $$PWD/power_supply_manager.h\
     $$PWD/QCustomPlot.h \
-    $$PWD/QrcFilesRestorer.h \
     $$PWD/Sounder.h \
     $$PWD/json_utils.h\
+    $$PWD/qrc_files_restorer.h \
+    $$PWD/single_application.h \
     $$PWD/text_log_constants.h
 
 SOURCES += \
@@ -23,9 +24,9 @@ SOURCES += \
     $$PWD/icon_generator.cpp \
     $$PWD/power_supply_manager.cpp\
     $$PWD/QCustomPlot.cpp \
-    $$PWD/QrcFilesRestorer.cpp \
     $$PWD/Sounder.cpp \
     $$PWD/json_utils.cpp\
+    $$PWD/qrc_files_restorer.cpp \
     $$PWD/text_log_constants.cpp
 
 RESOURCES += \
