@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-    global::mayBe_create_log_dir();
-    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
     QApplication app(argc, argv);
     check_single_application_is_running();
+    global::mayBe_create_log_dir();
+    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
     qInstallMessageHandler(myMessageOutput);
     qInfo() << tlc::kStartTheLog;
     MainWindow w;

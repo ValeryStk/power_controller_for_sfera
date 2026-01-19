@@ -29,7 +29,7 @@ constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[]  = "Включить одну лампу";
 constexpr char kSwitchOffLampsText[]   = "Выключить все лампы";
 constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
-
+lamps_powers_config cfg;
 
 namespace{
 
@@ -61,11 +61,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     global::mayBe_create_log_dir();
+    global::get_config_struct(global::json_lamps_file_name,cfg);
     createObjects();
     initializeVariables();
     setUpGui();
     setUpScene();
     qApp->installEventFilter(this);
+    m_sounder.muteSoundNotifications(!cfg.is_sound);
+    ui->pushButton_sound->setChecked(!cfg.is_sound);
     m_sounder.playSound("safety.mp3");
 
     m_timer_to_update_power_states = new QTimer(this);
@@ -270,24 +273,22 @@ void MainWindow::update_ps(int ps,
 
 void MainWindow::testSlot()
 {
-
     bool first_power_state =  m_powerManager->getPowerStatus(0);
     bool second_power_state = m_powerManager->getPowerStatus(2);
     bool third_power_state =  m_powerManager->getPowerStatus(4);
 
-    auto pwrs = m_powerManager->get_power_states();
-    auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
     bulb_state bulbs_states[NUMBER_OF_LAMPS];
     bool power_states[NUMBER_OF_POWER_SUPPLIES] = {first_power_state,
                                                   second_power_state,
                                                   third_power_state};
     for(int i=0; i < NUMBER_OF_LAMPS; ++i){
-        auto json_current_limit_value = lamps[i].toObject().value("max_current").toDouble();
+        auto json_current_limit_value = cfg.lamps_array[i].max_current;
         auto current_max_value = m_powerManager->getCurrentLimit(i);
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
         auto power_num = global::get_power_num_by_index(i);
         bool is_connected = power_states[power_num];
+        qDebug()<<"is_connected: "<<i<<is_connected<<power_num;
         if((current_voltage <= global::kVoltageZeroAccuracy) && is_connected){
             bulbs_states[i] = bulb_state::OFF;
         }else if(qAbs(json_current_limit_value - current_present_value) < global::kCurrentTargetAccuracy){
@@ -331,7 +332,7 @@ void MainWindow::testSlot()
         qInfo()<<"ALL POWERS TEST IS OK.";
     }else{
         m_sounder.playSound("network_error.mp3");
-        ui->pushButton_Forward->setEnabled(pwrs[global::kJsonKeyIsUnlockKeyFlag].toBool());
+        ui->pushButton_Forward->setEnabled(cfg.is_unclock);
         qWarning()<<"ALL POWERS TEST IS FAILED.";
         qInfo()<<"POWER 1: "<<first_power_state;
         qInfo()<<"POWER 2: "<<second_power_state;

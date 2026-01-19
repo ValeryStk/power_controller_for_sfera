@@ -1,5 +1,6 @@
 {
     "is_unlock": true,
+    "is_sound":  false,
     "lamps": [
         {
             "color": "pink",

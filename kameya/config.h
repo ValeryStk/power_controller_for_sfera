@@ -31,6 +31,8 @@ struct power_supply_properties{
 struct lamps_powers_config{
     const int  max_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
     const int  min_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
+    bool is_json_config_valid = false;
+    bool is_sound = false;
     bool is_unclock = false;
     lamp lamps_array[NUMBER_OF_LAMPS];
     lamps_graphic_item_coords lamps_item_coords;
@@ -45,6 +47,7 @@ extern const double kCurrentTargetAccuracy;
 
 // file names and dirs
 extern const QString json_lamps_file_name;
+extern const QString json_lamps_qrc_file_name;
 extern const QString current_voltage_log_file_name;
 extern const QString path_to_logs_dir;
 extern const QString relative_path_to_logic_log_file;
@@ -58,6 +61,7 @@ extern const char kJsonKeyPowerSupply2_Object[];
 extern const char kJsonKeyPowerSupply3_Object[];
 
 // common json keys
+extern const char kJsonIsSoundFlag[];
 extern const char kJsonKeyIsUnlockKeyFlag[];
 extern const char kJsonKeyName[];
 extern const char kJsonKeyX[];
@@ -65,7 +69,7 @@ extern const char kJsonKeyY[];
 extern const char kJsonKeyColor[];
 extern const char kJsonKeyIp[];
 extern const char kJsonKeyMaxCurrent[];
-extern const char kJsonKeyMaxOut[];
+extern const char kJsonKeyOut[];
 extern const char kJsonKeyTotalWorkHours[];
 
 void mayBe_create_log_dir();
@@ -73,6 +77,9 @@ void mayBe_create_log_dir();
 int get_power_num_by_index(int index);
 
 int get_power_out_by_index(int index);
+
+void get_config_struct(const QString path_to_json_config,
+                       lamps_powers_config &cfg);
 
 }// end namespace global
 
