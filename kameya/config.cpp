@@ -26,4 +26,5 @@ const char kJsonKeyColor[]                = "color";
 const char kJsonKeyIp[]                   = "ip";
 const char kJsonKeyMaxCurrent[]           = "max_current";
 const char kJsonKeyMaxOut[]               = "out";
+const char kJsonKeyTotalWorkHours[]       = "total_work_hours";
 }

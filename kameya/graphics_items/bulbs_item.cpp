@@ -173,15 +173,17 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter)
 
 bool BulbsQGraphicsItem::setBulbOff(int bi)
 {
+    Q_ASSERT_X(bi > bulb_state.size()-1 || bi < 0,
+               "bulbs_item",
+               "setBulbOff index is out of range");
     if(bi>bulb_state.size()-1||bi<0)return true;
-    bool is_state_the_same = false;
+    m_current_lamp_index = bi;
     if(bulb_state[bi] == bulb_state::OFF){
-        is_state_the_same = true;
+        return true;
     }
     bulb_state[bi] = bulb_state::OFF;
-    m_current_lamp_index = bi;
     update();
-    return is_state_the_same;
+    return false;
 }
 
 bool BulbsQGraphicsItem::setBulbOn(int bi)

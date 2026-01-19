@@ -66,6 +66,7 @@ extern const char kJsonKeyColor[];
 extern const char kJsonKeyIp[];
 extern const char kJsonKeyMaxCurrent[];
 extern const char kJsonKeyMaxOut[];
+extern const char kJsonKeyTotalWorkHours[];
 
 }// end namespace global
 

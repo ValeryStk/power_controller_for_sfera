@@ -2,7 +2,6 @@
 #include "qmutex.h"
 #include "ui_MainWindow.h"
 
-#include "graphics_items/power_supply_item.h"
 #include "Version.h"
 #include <QProcess>
 #include <QDir>
@@ -10,7 +9,6 @@
 #include <QStyle>
 #include "math.h"
 #include <QGraphicsScene>
-#include "graphics_items/bulbs_item.h"
 #include <chrono>
 #include <QPair>
 #include <memory>
@@ -71,11 +69,6 @@ void append_v_i_to_log(const QString& filePath,
 
 } //namespace
 
-PowerSupplyItem* psi1;
-PowerSupplyItem* psi2;
-PowerSupplyItem* psi3;
-
-QTimer *m_timer_to_update_power_states;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

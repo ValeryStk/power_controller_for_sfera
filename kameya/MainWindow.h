@@ -5,12 +5,13 @@
 #include <QShortcut>
 #include <QSettings>
 #include <QMessageBox>
-#include "power_supply_manager.h"
 #include "Sounder.h"
 #include <QCloseEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <graphics_items/bulbs_item.h>
+#include "power_supply_manager.h"
+#include "graphics_items/bulbs_item.h"
+#include "graphics_items/power_supply_item.h"
 #include "QTimer"
 
 
@@ -22,6 +23,7 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    friend class bulbs_states_UnitTests;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -33,7 +35,12 @@ private:
     Ui::MainWindow      *ui;
     PowerSupplyManager  *m_powerManager;
     QGraphicsScene      *m_sceneCalibr;
-    BulbsQGraphicsItem          *m_bulbs_graphics_item;
+    BulbsQGraphicsItem  *m_bulbs_graphics_item;
+    PowerSupplyItem     *psi1;
+    PowerSupplyItem     *psi2;
+    PowerSupplyItem     *psi3;
+    QTimer *m_timer_to_update_power_states;
+
     QShortcut           *repeatLastNotification;
     QShortcut           *open_log_dir;
     QShortcut           *show_log;
