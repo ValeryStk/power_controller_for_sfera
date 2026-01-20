@@ -158,7 +158,9 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
 
     double currentValue = getCurrentValue(index);
     int dolbo_counter = 0;
+    int fail_counter  = 0;
     while(currentValue < target_current){
+        ++fail_counter;
         if(m_socket->state() != QTcpSocket::ConnectedState){
             qWarning()<<"Increasing lamp "<<index + 1 <<"failed because QTcpSocket::Unconnected";
             break;
@@ -170,11 +172,16 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
         }
         voltage = qAbs(voltage + 0.1);
         setVoltage(index,voltage);
-        Sleep(300);
+        Sleep(100);
         if(dolbo_counter == 10){
             qWarning()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<"  turget current --> "<<target_current;
             break;
         }
+        qDebug()<<"increasing voltage: "<<voltage;
+        if(fail_counter == 3 && voltage <= 0.1){
+            qWarning()<<"POWER "<<index<<" IS ON BUT VOLTAGE = ZERO";
+            break;
+        };
     }
 }
 
@@ -190,7 +197,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
         voltage = voltage - 0.1;
         if(voltage<0)voltage = 0;
         setVoltage(index,voltage);
-        Sleep(300);
+        Sleep(100);
         if(voltage<=0)break;
     }
 }

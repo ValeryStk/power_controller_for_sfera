@@ -67,7 +67,6 @@ private:
 
 private slots:
     void testSlot();
-    void openRootFolder();
     void update_ps( int ps,
                     int out,
                     bool isOn,

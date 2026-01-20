@@ -157,27 +157,32 @@ void MainWindow::retest_all_powers()
 
 void MainWindow::switch_on_all_lamps()
 {
-
     m_timer_to_update_power_states->stop();
     qInfo()<<tlc::kOperatinAllLampsSwitchOnName;
     auto pwrs = m_powerManager->get_power_states();
-    auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
 
-    for(int i=0;i<lamps.size();++i){
+    for(int i=0;i < NUMBER_OF_LAMPS; ++i){
         m_current_lamp_index = i;
         m_bulbs_graphics_item->set_current_lamp_index(i);
         if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
             m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
+            auto current = m_powerManager->getCurrentValue(i);
+            if(qAbs(cfg.lamps_array[i].max_current - current)<global::kCurrentTargetAccuracy){
             m_bulbs_graphics_item->setBulbOn(i);
+            }else{
+            m_bulbs_graphics_item->setBulbUndefined(i);
+            }
         }else{
             auto power_num = global::get_power_num_by_index(i);
             qWarning()<<QString(tlc::kOperationAllLampsSwitchOnFailed).arg(power_num);
             operation_failed_voice_notification();
+            m_bulbs_graphics_item->setBulbUndefined(i);
             break;
         }
         m_sceneCalibr->update();
         QApplication::processEvents();
     }
+    m_sceneCalibr->update();
     m_timer_to_update_power_states->start();
 }
 
@@ -204,16 +209,6 @@ void MainWindow::switch_off_all_lamps()
         QApplication::processEvents();
     }
     m_timer_to_update_power_states->start();
-}
-
-void MainWindow::openRootFolder()
-{
-    QString rootDir = QApplication::applicationDirPath() + global::path_to_logs_dir;
-    QDir().mkpath(rootDir);
-    QString explorer = "C:/Windows/explorer.exe";
-    QStringList args;
-    args << QDir::toNativeSeparators(rootDir);
-    QProcess::startDetached(explorer, args);
 }
 
 void MainWindow::update_ps(int ps,
@@ -482,11 +477,13 @@ void MainWindow::on_pushButton_Forward_clicked()
 
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Техника безопасности"){
             m_sounder.playSound("safety.mp3");
+            return;
         }
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Тестирование"){
-            m_sounder.playSound("startTest.mp3");
+            //m_sounder.playSound("startTest.mp3");
             ui->pushButton_Forward->setEnabled(false);
-            QTimer::singleShot(5000,this,SLOT(testSlot()));
+            QTimer::singleShot(1000,this,SLOT(testSlot()));
+            return;
         }
         if(m_pages.value(ui->stackedWidget->currentIndex())=="Калибровка"){
             m_sounder.playSound("startCalibration.mp3");
