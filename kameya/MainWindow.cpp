@@ -158,6 +158,7 @@ void MainWindow::retest_all_powers()
 void MainWindow::switch_on_all_lamps()
 {
 
+    m_timer_to_update_power_states->stop();
     qInfo()<<tlc::kOperatinAllLampsSwitchOnName;
     auto pwrs = m_powerManager->get_power_states();
     auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
@@ -176,12 +177,13 @@ void MainWindow::switch_on_all_lamps()
         }
         m_sceneCalibr->update();
         QApplication::processEvents();
-        Sleep(200);
     }
+    m_timer_to_update_power_states->start();
 }
 
 void MainWindow::switch_off_all_lamps()
 {
+    m_timer_to_update_power_states->stop();
     qInfo()<<tlc::kOperatinAllLampsSwitchOffName;
     auto pwrs = m_powerManager->get_power_states();
     auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
@@ -200,8 +202,8 @@ void MainWindow::switch_off_all_lamps()
         }
         m_sceneCalibr->update();
         QApplication::processEvents();
-        Sleep(200);
     }
+    m_timer_to_update_power_states->start();
 }
 
 void MainWindow::openRootFolder()
@@ -287,7 +289,7 @@ void MainWindow::testSlot()
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
         auto power_num = global::get_power_num_by_index(i);
-        bool is_connected = power_states[power_num];
+        bool is_connected = power_states[power_num-1];
         qDebug()<<"is_connected: "<<i<<is_connected<<power_num;
         if((current_voltage <= global::kVoltageZeroAccuracy) && is_connected){
             bulbs_states[i] = bulb_state::OFF;

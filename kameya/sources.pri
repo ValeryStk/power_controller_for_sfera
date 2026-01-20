@@ -2,6 +2,7 @@ QT += network multimediawidgets widgets printsupport svg
 CONFIG += resources_big
 
 HEADERS += \
+    $$PWD/Version.h \
     $$PWD/config.h \
     $$PWD/graphics_items/power_supply_item.h \
     $$PWD/commands_builder.h\
