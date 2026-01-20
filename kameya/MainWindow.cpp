@@ -298,6 +298,7 @@ void MainWindow::testSlot()
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
         }
+        qDebug()<<"current limit: "<<i<<current_max_value;
         if(i==0)psi1->set_max_current_out_1(current_max_value);
         if(i==1)psi1->set_max_current_out_2(current_max_value);
         if(i==2)psi2->set_max_current_out_1(current_max_value);

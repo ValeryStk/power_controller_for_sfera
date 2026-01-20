@@ -89,7 +89,10 @@ double PowerSupplyManager::getCurrentLimit(const quint16 index) {
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeGetCurrentLimitCommand(out));
     m_socket->waitForReadyRead();
-    return getValueFromMessage(QString::fromLocal8Bit(m_socket->readAll()));
+    auto message = QString::fromLocal8Bit(m_socket->readAll());
+    qDebug()<<message;
+    double value = getValueFromMessage(message);
+    return value;
 }
 
 double PowerSupplyManager::getCurrentValue(const quint16 index) {
@@ -246,6 +249,9 @@ double PowerSupplyManager::getValueFromMessage(const QString& msg) {
         QString temp = msg;
         temp.remove('\r').remove('\n').replace("V", "");
         return temp.toDouble();
+    } else if(msg.contains("I1")){
+        QString temp = msg;
+        temp.remove('\r').remove('\n').replace("I1", "");
     }
     return 0;
 }
