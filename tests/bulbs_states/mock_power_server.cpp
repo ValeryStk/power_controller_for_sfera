@@ -14,8 +14,18 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
         QByteArray data = clientSocket->readAll();
         qDebug() << "Получено:" << data;
         // Ответ клиенту
-        const char* res = "1\n";
-        clientSocket->write(res);
+        auto str = data.toStdString();
+        if(str == "OP1?\n"){
+            clientSocket->write("1\n");
+        }else if(str == "OP2?\n"){
+            clientSocket->write("1\n");
+        }else if(str == "I1?\n"){
+            clientSocket->write("I1 10.23\n");
+        }else if(str == "I2?\n"){
+            clientSocket->write("I1 10.22\n");
+        }else{
+            clientSocket->write("1\n");
+        }
         clientSocket->flush();
     });
 
