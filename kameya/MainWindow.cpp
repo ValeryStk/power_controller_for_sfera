@@ -497,9 +497,9 @@ void MainWindow::on_pushButton_Forward_clicked()
 void MainWindow::on_pushButton_open_log_clicked()
 {
     auto pathToLogicLog = QApplication::applicationDirPath()+global::relative_path_to_logic_log_file;
-    auto pathToCV_Log = QApplication::applicationDirPath()+global::relative_path_to_cv_log_file;
-    openFileByDefaultSoftware(pathToLogicLog);
+    auto pathToCV_Log = QApplication::applicationDirPath()+global::relative_path_to_cv_log_file; 
     openFileByDefaultSoftware(pathToCV_Log);
+    openFileByDefaultSoftware(pathToLogicLog);
 }
 
 
