@@ -24,7 +24,6 @@ PowerSupplyManager::PowerSupplyManager() {
 
 PowerSupplyManager::~PowerSupplyManager() {
     qInfo()<<tlc::kPowerManagerDestructor;
-    switchOffAllUnits();
     if (m_socket->state() == QAbstractSocket::ConnectedState)
         m_socket->disconnectFromHost();
     qInfo()<<tlc::kEndOfTheLog;
