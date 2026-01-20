@@ -249,9 +249,16 @@ double PowerSupplyManager::getValueFromMessage(const QString& msg) {
         QString temp = msg;
         temp.remove('\r').remove('\n').replace("V", "");
         return temp.toDouble();
-    } else if(msg.contains("I1")){
+    } else if(msg.contains("I1 ")){
         QString temp = msg;
-        temp.remove('\r').remove('\n').replace("I1", "");
+        temp.remove('\r').remove('\n').replace("I1 ", "");
+        return temp.toDouble();
+        qDebug()<<temp<<"--------------------------------->";
+    } else if(msg.contains("I2 ")){
+        QString temp = msg;
+        temp.remove('\r').remove('\n').replace("I2 ", "");
+        return temp.toDouble();
+        qDebug()<<temp<<"--------------------------------->";
     }
     return 0;
 }
