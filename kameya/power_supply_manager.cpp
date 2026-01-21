@@ -183,13 +183,13 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
             qDebug()<<"LAMP "<<index<<"SET MAX VOLTAGE: "<<MAX_VOLTAGE;
             for(int i=0;i<5;++i) {
                 setVoltage(index, MAX_VOLTAGE);
-                Sleep(100);
+                Sleep(250);
             }
             break;
         }
         voltage = voltage + VOLTAGE_INCREASE_STEP;
         setVoltage(index,voltage);
-        Sleep(200);
+        Sleep(250);
         if(fail_counter == 10 && voltage <= VOLTAGE_INCREASE_STEP){
             qWarning()<<"POWER "<<index<<" IS ON BUT VOLTAGE = ZERO";
             break;
@@ -215,7 +215,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
         if(voltage < 0)voltage = 0;
 
         setVoltage(index, voltage);
-        Sleep(100);
+        Sleep(250);
 
         voltage = getVoltage(index);
 
