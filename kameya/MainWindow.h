@@ -42,7 +42,6 @@ private:
     QTimer              *m_timer_to_update_power_states;
 
     QShortcut           *repeatLastNotification;
-    QShortcut           *open_log_dir;
     QShortcut           *show_log;
     Sounder             m_sounder;
 

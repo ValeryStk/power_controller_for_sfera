@@ -7,6 +7,8 @@
 
 namespace pwr {
 
+extern const QString voltage_protection = "OVP%1?";
+extern const QString current_protection = "OCP%1?";
 extern const QString deviceID = "*IDN?";
 extern const QString switchOnAll = "OPALL 1";
 extern const QString switchOffAll = "OPALL 0";
@@ -88,6 +90,16 @@ inline QByteArray makeGetVcommand(const uint16_t& unit) {
 
 inline QByteArray makeGetSwitchStateCommand(const uint16_t& unit) {
   return makeCommand(switchUnit, unit);
+}
+
+inline QByteArray makeGetProtectionVoltageValueCommand(const uint16_t& unit) {
+    QString unitStr = QString::number(unit);
+    QString commandStr = QString(voltage_protection).arg(unitStr);
+    return commandStr.toUtf8();
+}
+
+inline QByteArray makeGetProtectionCurrentValueCommand(const uint16_t& unit) {
+  return makeReadBackCommand(voltage_protection, unit);
 }
 
 } // end namespace pwr

@@ -39,6 +39,8 @@ class PowerSupplyManager: public QObject {
                        double value);
   double getCurrentLimit(const quint16 index);
   double getCurrentValue(const quint16 index);
+  double getVoltageProtectionValue(const quint16 index);
+
   PowerUnitParams get_all_params_for_lamp_out(const quint16 index);
 
 

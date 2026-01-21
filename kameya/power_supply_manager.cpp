@@ -90,7 +90,6 @@ double PowerSupplyManager::getCurrentLimit(const quint16 index) {
     m_socket->write(pwr::makeGetCurrentLimitCommand(out));
     m_socket->waitForReadyRead();
     auto message = QString::fromLocal8Bit(m_socket->readAll());
-    qDebug()<<message;
     double value = getValueFromMessage(message);
     return value;
 }
@@ -102,6 +101,18 @@ double PowerSupplyManager::getCurrentValue(const quint16 index) {
     m_socket->write(pwr::makeGetCurrentValueCommand(out));
     m_socket->waitForReadyRead();
     return getValueFromMessage(QString::fromLocal8Bit(m_socket->readAll()));
+}
+
+double PowerSupplyManager::getVoltageProtectionValue(const quint16 index)
+{
+    if (!isPowerOutConnected(index))
+        return 0;
+    int out = maybeReconnectHost(index);
+    m_socket->write(pwr::makeGetProtectionVoltageValueCommand(out));
+    m_socket->waitForReadyRead();
+    QString response = QString::fromLocal8Bit(m_socket->readAll());
+    response.remove('\r').remove('\n');
+    return response.toDouble();
 }
 
 PowerUnitParams PowerSupplyManager::get_all_params_for_lamp_out(const quint16 index)
@@ -155,50 +166,70 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
 {
     maybeReconnectHost(index);
     double target_current = m_powers[global::kJsonKeyLampsArray].toArray()[index].toObject().value("max_current").toDouble();
-
-    double currentValue = getCurrentValue(index);
-    int dolbo_counter = 0;
     int fail_counter  = 0;
-    while(currentValue < target_current){
+
+    while(getCurrentValue(index) < target_current){
         ++fail_counter;
         if(m_socket->state() != QTcpSocket::ConnectedState){
-            qWarning()<<"Increasing lamp "<<index + 1 <<"failed because QTcpSocket::Unconnected";
+            qWarning()<<"INCREASING LAMP "<<index + 1 <<"FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
             break;
         }
         double voltage = getVoltage(index);
-        currentValue = getCurrentValue(index);
-        if((target_current-currentValue)<=0.005){
-            ++dolbo_counter;
-        }
-        voltage = qAbs(voltage + 0.1);
-        setVoltage(index,voltage);
-        Sleep(100);
-        if(dolbo_counter == 10){
-            qWarning()<<"DOLBO COUNTER EXIT--->"<<"current value --> "<<currentValue<<"  turget current --> "<<target_current;
+        if(voltage < 0) voltage = 0;
+        double current = getCurrentValue(index);
+
+        if((target_current - current) <= global::kCurrentTargetAccuracy){
+            setVoltage(index, MAX_VOLTAGE);
+            qDebug()<<"LAMP "<<index<<"SET MAX VOLTAGE: "<<MAX_VOLTAGE;
+            for(int i=0;i<5;++i) {
+                setVoltage(index, MAX_VOLTAGE);
+                Sleep(100);
+            }
             break;
         }
-        qDebug()<<"increasing voltage: "<<voltage;
-        if(fail_counter == 3 && voltage <= 0.1){
+        voltage = voltage + VOLTAGE_INCREASE_STEP;
+        setVoltage(index,voltage);
+        Sleep(200);
+        if(fail_counter == 10 && voltage <= VOLTAGE_INCREASE_STEP){
             qWarning()<<"POWER "<<index<<" IS ON BUT VOLTAGE = ZERO";
             break;
         };
     }
+
 }
 
 void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
 {
     maybeReconnectHost(index);
-    while(true){
+    int fail_counter  = 0;
+    double start_voltage = getVoltage(index);
+    while(getVoltage(index) > global::kVoltageZeroAccuracy){
+        ++fail_counter;
         if(m_socket->state() != QTcpSocket::ConnectedState){
-            qWarning()<<"Decreasing lamp "<<index+1<<"failed because QTcpSocket::Unconnected";
+            qWarning()<<"DECREASING LAMP "<<index+1<<"FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
             break;
         }
+
         double voltage = getVoltage(index);
-        voltage = voltage - 0.1;
-        if(voltage<0)voltage = 0;
-        setVoltage(index,voltage);
+        voltage = voltage - VOLTAGE_DECREASE_STEP;
+        if(voltage < 0)voltage = 0;
+
+        setVoltage(index, voltage);
         Sleep(100);
-        if(voltage<=0)break;
+
+        voltage = getVoltage(index);
+
+        if(voltage <=global::kVoltageZeroAccuracy){
+            setVoltage(index,0);
+            break;
+        }
+        if(fail_counter == 3 && ((start_voltage - voltage) <= VOLTAGE_DECREASE_STEP)){
+            auto power_num = global::get_power_num_by_index(index);
+            auto out_num   = global::get_power_out_by_index(index);
+            QString message = "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
+            qWarning()<<message.arg(power_num).arg(out_num);
+            break;
+        };
     }
 }
 
@@ -260,12 +291,10 @@ double PowerSupplyManager::getValueFromMessage(const QString& msg) {
         QString temp = msg;
         temp.remove('\r').remove('\n').replace("I1 ", "");
         return temp.toDouble();
-        qDebug()<<temp<<"--------------------------------->";
     } else if(msg.contains("I2 ")){
         QString temp = msg;
         temp.remove('\r').remove('\n').replace("I2 ", "");
         return temp.toDouble();
-        qDebug()<<temp<<"--------------------------------->";
     }
     return 0;
 }

@@ -105,6 +105,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
+    m_timer_to_update_power_states->stop();
     m_sceneCalibr->removeItem(psi1);
     delete psi1;
     m_sceneCalibr->removeItem(psi2);
@@ -280,12 +281,14 @@ void MainWindow::testSlot()
                                                   third_power_state};
     for(int i=0; i < NUMBER_OF_LAMPS; ++i){
         auto json_current_limit_value = cfg.lamps_array[i].max_current;
+        auto voltage_protection_value = m_powerManager->getVoltageProtectionValue(i);
         auto current_max_value = m_powerManager->getCurrentLimit(i);
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
         auto power_num = global::get_power_num_by_index(i);
+        bool out_num = global::get_power_out_by_index(i);
         bool is_connected = power_states[power_num-1];
-        qDebug()<<"is_connected: "<<i<<is_connected<<power_num;
+
         if((current_voltage <= global::kVoltageZeroAccuracy) && is_connected){
             bulbs_states[i] = bulb_state::OFF;
         }else if(qAbs(json_current_limit_value - current_present_value) < global::kCurrentTargetAccuracy){
@@ -293,7 +296,9 @@ void MainWindow::testSlot()
         }else{
             bulbs_states[i] = bulb_state::UNDEFINED;
         }
-        qDebug()<<"current limit: "<<i<<current_max_value;
+        qDebug()<<"LAMP "<<i+1<<" VOLTAGE PROTECTION: "<<voltage_protection_value <<" Volts";
+        QString current_limit_message = "FACT CURRENT LIMIT %1 POWER %2 OUT %3 --> LAMP %4";
+        qDebug()<<current_limit_message.arg(current_max_value).arg(power_num).arg(out_num).arg(i+1);
         if(i==0)psi1->set_max_current_out_1(current_max_value);
         if(i==1)psi1->set_max_current_out_2(current_max_value);
         if(i==2)psi2->set_max_current_out_1(current_max_value);
@@ -363,13 +368,13 @@ void MainWindow::createObjects()
     m_sceneCalibr = new QGraphicsScene;
 
     repeatLastNotification = new QShortcut(this);
-    open_log_dir = new QShortcut(this);;
     show_log = new QShortcut(this);
 
     repeatLastNotification->setKey(Qt::CTRL + Qt::Key_R);
-    open_log_dir->setKey(Qt::CTRL + Qt::Key_L);
-    QObject::connect(repeatLastNotification,SIGNAL(activated()),&m_sounder,SLOT(playLastSound()));
-    QObject::connect(open_log_dir,SIGNAL(activated()),this,SLOT(openRootFolder()));
+    show_log->setKey(Qt::CTRL + Qt::Key_L);
+
+    connect(repeatLastNotification,SIGNAL(activated()),&m_sounder,SLOT(playLastSound()));
+    connect(show_log,SIGNAL(activated()),this,SLOT(on_pushButton_open_log_clicked()));
     connect(ui->pushButton_repeat_last_sound,SIGNAL(clicked()),&m_sounder,SLOT(playLastSound()));
 }
 

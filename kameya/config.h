@@ -7,6 +7,10 @@ constexpr int NUMBER_OF_LAMPS = 6;
 constexpr int NUMBER_OF_POWER_SUPPLIES = 3;
 constexpr int MAX_CURRENT_LAMP_INDEX = 5;
 constexpr int MIN_CURRENT_LAMP_INDEX = 0;
+constexpr int MAX_VOLTAGE = 25;
+constexpr int MAX_CURRENT_LIMIT = 11;
+constexpr double VOLTAGE_INCREASE_STEP = 0.25;
+constexpr double VOLTAGE_DECREASE_STEP = 0.25;
 
 struct lamp{
     QString color;
@@ -31,6 +35,10 @@ struct power_supply_properties{
 struct lamps_powers_config{
     const int  max_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
     const int  min_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
+    const int  max_voltage = MAX_VOLTAGE;
+    const int  max_current_limit = MAX_CURRENT_LIMIT;
+    const double  voltage_increasing_step = VOLTAGE_INCREASE_STEP;
+    const double  voltage_decreasing_step = VOLTAGE_DECREASE_STEP;
     bool is_json_config_valid = false;
     bool is_sound = false;
     bool is_unclock = false;
