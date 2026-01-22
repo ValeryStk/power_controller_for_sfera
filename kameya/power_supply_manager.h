@@ -28,24 +28,40 @@ class PowerSupplyManager: public QObject {
   ~PowerSupplyManager();
   QJsonObject get_power_states();
   QString getID();
-  void checkPowersConection();
-  bool getPowerStatus(const quint16 index);
 
-  double getVoltage(const quint16 index);
+  void checkPowersConection();
+
+  bool getPowerStatus(const quint16 index,
+                      bool is_wait=false);
+
+  double getVoltage(const quint16 index,
+                    bool is_wait=false);
+
   void setVoltage(const quint16 index,
-                  double value);
+                  double value,
+                  bool is_wait=false);
 
   void setCurrentLimit(const quint16 index,
-                       double value);
-  double getCurrentLimit(const quint16 index);
-  double getCurrentValue(const quint16 index);
-  double getVoltageProtectionValue(const quint16 index);
+                       double value,
+                       bool is_wait=false);
+
+  double getCurrentLimit(const quint16 index,
+                         bool is_wait=false);
+
+  double getCurrentValue(const quint16 index,
+                         bool is_wait=false);
+
+  double getVoltageProtectionValue(const quint16 index,
+                                   bool is_wait=false);
 
   PowerUnitParams get_all_params_for_lamp_out(const quint16 index);
 
 
-  void switchOnUnit(const quint16 index);
-  void switchOffUnit(const quint16 unit);
+  void switchOnUnit(const quint16 index,
+                    bool is_wait=false);
+
+  void switchOffUnit(const quint16 unit,
+                     bool is_whait = false);
 
   void switchOnAllUnits();
   void switchOffAllUnits();

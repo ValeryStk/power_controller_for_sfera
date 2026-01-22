@@ -281,10 +281,12 @@ void MainWindow::testSlot()
                                                   third_power_state};
     for(int i=0; i < NUMBER_OF_LAMPS; ++i){
         auto json_current_limit_value = cfg.lamps_array[i].max_current;
+
         auto voltage_protection_value = m_powerManager->getVoltageProtectionValue(i);
         auto current_max_value = m_powerManager->getCurrentLimit(i);
         auto current_present_value = m_powerManager->getCurrentValue(i);
         auto current_voltage = m_powerManager->getVoltage(i);
+
         auto power_num = global::get_power_num_by_index(i);
         bool out_num = global::get_power_out_by_index(i);
         bool is_connected = power_states[power_num-1];

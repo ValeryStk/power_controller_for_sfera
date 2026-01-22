@@ -11,6 +11,9 @@ constexpr int MAX_VOLTAGE = 25;
 constexpr int MAX_CURRENT_LIMIT = 11;
 constexpr double VOLTAGE_INCREASE_STEP = 0.25;
 constexpr double VOLTAGE_DECREASE_STEP = 0.25;
+// WAIT INTERVAL is used to prevent a lot of requests. Power supply can't handle
+// all requests whithout WAIT INTERVAL
+constexpr double WAIT_INTERVAL = 250;
 
 struct lamp{
     QString color;
@@ -33,6 +36,7 @@ struct power_supply_properties{
 };
 
 struct lamps_powers_config{
+    const double wait_interval = WAIT_INTERVAL;
     const int  max_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
     const int  min_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
     const int  max_voltage = MAX_VOLTAGE;

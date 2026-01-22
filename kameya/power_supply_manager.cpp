@@ -11,6 +11,12 @@
 
 constexpr int host_port = 9221;
 
+namespace{
+void wait(){
+   Sleep(WAIT_INTERVAL);
+}
+}// end namespace
+
 PowerSupplyManager::PowerSupplyManager() {
     qInfo()<<tlc::kPowerManagerConstructor;
     m_socket = new QTcpSocket;
@@ -55,35 +61,42 @@ void PowerSupplyManager::loadJsonConfig() {
     }
 }
 
-double PowerSupplyManager::getVoltage(const quint16 index) {
+double PowerSupplyManager::getVoltage(const quint16 index,
+                                      bool is_wait) {
     if (!isPowerOutConnected(index))
         return 0;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeGetVoltageValueCommand(out));
     m_socket->waitForReadyRead();
     QString response = QString::fromLocal8Bit(m_socket->readAll());
+    if(is_wait)wait();
     return getValueFromMessage(response);
 }
 
 void PowerSupplyManager::setVoltage(const quint16 index,
-                                    double value) {
+                                    double value,
+                                    bool is_wait) {
     if (!isPowerOutConnected(index))
         return;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeSetVcommand(out, value));
     m_socket->waitForBytesWritten();
+    if(is_wait)wait();
 }
 
 void PowerSupplyManager::setCurrentLimit(const quint16 index,
-                                         double value) {
+                                         double value,
+                                         bool is_wait) {
     if (!isPowerOutConnected(index))
         return;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeSetCurrentLimitCommand(out, value));
     m_socket->waitForBytesWritten();
+    if(is_wait)wait();
 }
 
-double PowerSupplyManager::getCurrentLimit(const quint16 index) {
+double PowerSupplyManager::getCurrentLimit(const quint16 index,
+                                           bool is_wait) {
     if (!isPowerOutConnected(index))
         return 0;
     int out = maybeReconnectHost(index);
@@ -91,19 +104,24 @@ double PowerSupplyManager::getCurrentLimit(const quint16 index) {
     m_socket->waitForReadyRead();
     auto message = QString::fromLocal8Bit(m_socket->readAll());
     double value = getValueFromMessage(message);
+    if(is_wait)wait();
     return value;
 }
 
-double PowerSupplyManager::getCurrentValue(const quint16 index) {
+double PowerSupplyManager::getCurrentValue(const quint16 index,
+                                           bool is_wait) {
     if (!isPowerOutConnected(index))
         return 0;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeGetCurrentValueCommand(out));
     m_socket->waitForReadyRead();
-    return getValueFromMessage(QString::fromLocal8Bit(m_socket->readAll()));
+    double value = getValueFromMessage(QString::fromLocal8Bit(m_socket->readAll()));
+    if(is_wait)wait();
+    return value;
 }
 
-double PowerSupplyManager::getVoltageProtectionValue(const quint16 index)
+double PowerSupplyManager::getVoltageProtectionValue(const quint16 index,
+                                                     bool is_wait)
 {
     if (!isPowerOutConnected(index))
         return 0;
@@ -112,42 +130,53 @@ double PowerSupplyManager::getVoltageProtectionValue(const quint16 index)
     m_socket->waitForReadyRead();
     QString response = QString::fromLocal8Bit(m_socket->readAll());
     response.remove('\r').remove('\n');
+    if(is_wait)wait();
     return response.toDouble();
 }
 
 PowerUnitParams PowerSupplyManager::get_all_params_for_lamp_out(const quint16 index)
 {
 
-    return {getPowerStatus(index),
-            getVoltage(index),
-            getCurrentValue(index),
-            getCurrentLimit(index)};
+    bool is_out_switched_on = getPowerStatus(index);
+    double voltage = getVoltage(index);
+    double current = getCurrentValue(index);
+    double current_limit = getCurrentLimit(index);
+    return {is_out_switched_on,
+            voltage,
+            current,
+            current_limit};
 }
 
-bool PowerSupplyManager::getPowerStatus(const quint16 index) {
+bool PowerSupplyManager::getPowerStatus(const quint16 index,
+                                        bool is_wait) {
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeGetSwitchStateCommand(out));
     m_socket->waitForReadyRead();
     QString temp = QString::fromLocal8Bit(m_socket->readAll());
     temp.remove('\r').remove('\n');
     auto result = (bool)temp.toInt();
+    if(is_wait)wait();
     return result;
 }
 
-void PowerSupplyManager::switchOnUnit(const quint16 index) {
+void PowerSupplyManager::switchOnUnit(const quint16 index,
+                                      bool is_wait) {
     if (!isPowerOutConnected(index))
         return;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeSwitchOnUnitCommand(out));
     m_socket->waitForBytesWritten();
+    if(is_wait)wait();
 }
 
-void PowerSupplyManager::switchOffUnit(const quint16 index) {
+void PowerSupplyManager::switchOffUnit(const quint16 index,
+                                       bool is_whait) {
     if (!isPowerOutConnected(index))
         return;
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeSwitchOffUnitCommand(out));
     m_socket->waitForBytesWritten();
+    if(is_whait)wait();
 }
 
 void PowerSupplyManager::switchOnAllUnits() {
@@ -168,30 +197,33 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     double target_current = m_powers[global::kJsonKeyLampsArray].toArray()[index].toObject().value("max_current").toDouble();
     int fail_counter  = 0;
 
-    while(getCurrentValue(index) < target_current){
+    while(getCurrentValue(index,true) < target_current){
         ++fail_counter;
         if(m_socket->state() != QTcpSocket::ConnectedState){
             qWarning()<<"INCREASING LAMP "<<index + 1 <<"FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
             break;
         }
-        double voltage = getVoltage(index);
+        double voltage = getVoltage(index,true);
         if(voltage < 0) voltage = 0;
-        double current = getCurrentValue(index);
+
+        double current = getCurrentValue(index,true);
 
         if((target_current - current) <= global::kCurrentTargetAccuracy){
             setVoltage(index, MAX_VOLTAGE);
             qDebug()<<"LAMP "<<index<<"SET MAX VOLTAGE: "<<MAX_VOLTAGE;
             for(int i=0;i<5;++i) {
-                setVoltage(index, MAX_VOLTAGE);
-                Sleep(250);
+                setVoltage(index, MAX_VOLTAGE, true);
             }
             break;
         }
         voltage = voltage + VOLTAGE_INCREASE_STEP;
-        setVoltage(index,voltage);
-        Sleep(250);
-        if(fail_counter == 10 && voltage <= VOLTAGE_INCREASE_STEP){
-            qWarning()<<"POWER "<<index<<" IS ON BUT VOLTAGE = ZERO";
+        setVoltage(index,voltage,true);
+        if(fail_counter == 10 && getVoltage(index,true) <= VOLTAGE_INCREASE_STEP){
+            QString warning = "POWER %1 IS ON BUT VOLTAGE (%2) IS LESS THAN VOLTAGE INCREASE STEP (%3)";
+            QString message = warning.arg(global::get_power_num_by_index(index))
+                                     .arg(getVoltage(index,true))
+                                     .arg(VOLTAGE_INCREASE_STEP);
+            qWarning()<<message;
             break;
         };
     }
@@ -215,7 +247,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
         if(voltage < 0)voltage = 0;
 
         setVoltage(index, voltage);
-        Sleep(250);
+        wait();
 
         voltage = getVoltage(index);
 
@@ -350,7 +382,7 @@ void PowerSupplyManager::setInitialParams() {
         if (isPowerOutConnected(i)) {
             double max_current = m_powers[global::kJsonKeyLampsArray].toArray()[i].toObject().value("max_current").toDouble();
             setCurrentLimit(i, max_current);
-            Sleep(500);
+            wait();
         }
     }
 }
