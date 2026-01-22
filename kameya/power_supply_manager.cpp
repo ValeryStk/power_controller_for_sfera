@@ -198,9 +198,14 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
     int fail_counter  = 0;
 
     while(getCurrentValue(index,true) < target_current){
+
         ++fail_counter;
         if(m_socket->state() != QTcpSocket::ConnectedState){
             qWarning()<<"INCREASING LAMP "<<index + 1 <<"FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
+            emit lamp_state_changed_to_ub(index);
+            emit power_state_changed(global::get_power_num_by_index(index),
+                                     global::get_power_out_by_index(index),
+                                     false);
             break;
         }
         double voltage = getVoltage(index,true);
@@ -211,19 +216,25 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(const quint16 i
         if((target_current - current) <= global::kCurrentTargetAccuracy){
             setVoltage(index, MAX_VOLTAGE);
             qDebug()<<"LAMP "<<index<<"SET MAX VOLTAGE: "<<MAX_VOLTAGE;
-            for(int i=0;i<5;++i) {
+            for(int i=0; i<TRY_AGAIN_COUNTER; ++i) {
                 setVoltage(index, MAX_VOLTAGE, true);
             }
+            emit lamp_state_changed(index,
+                                    getVoltage(index,true),
+                                    getCurrentValue(index,true));
             break;
         }
+
         voltage = voltage + VOLTAGE_INCREASE_STEP;
         setVoltage(index,voltage,true);
+
         if(fail_counter == 10 && getVoltage(index,true) <= VOLTAGE_INCREASE_STEP){
             QString warning = "POWER %1 IS ON BUT VOLTAGE (%2) IS LESS THAN VOLTAGE INCREASE STEP (%3)";
             QString message = warning.arg(global::get_power_num_by_index(index))
                                      .arg(getVoltage(index,true))
                                      .arg(VOLTAGE_INCREASE_STEP);
             qWarning()<<message;
+            emit lamp_state_changed_to_ub(index);
             break;
         };
     }
@@ -234,25 +245,27 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index)
 {
     maybeReconnectHost(index);
     int fail_counter  = 0;
-    double start_voltage = getVoltage(index);
-    while(getVoltage(index) > global::kVoltageZeroAccuracy){
+    double start_voltage = getVoltage(index, true);
+    while(getVoltage(index,true) > global::kVoltageZeroAccuracy){
         ++fail_counter;
         if(m_socket->state() != QTcpSocket::ConnectedState){
             qWarning()<<"DECREASING LAMP "<<index+1<<"FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
+            emit lamp_state_changed_to_ub(index);
+            emit power_state_changed(global::get_power_num_by_index(index),
+                                     global::get_power_out_by_index(index),
+                                     false);
             break;
         }
 
-        double voltage = getVoltage(index);
+        double voltage = getVoltage(index,true);
         voltage = voltage - VOLTAGE_DECREASE_STEP;
         if(voltage < 0)voltage = 0;
 
-        setVoltage(index, voltage);
-        wait();
-
-        voltage = getVoltage(index);
+        setVoltage(index, voltage, true);
+        voltage = getVoltage(index,true);
 
         if(voltage <=global::kVoltageZeroAccuracy){
-            setVoltage(index,0);
+            setVoltage(index, 0, true);
             break;
         }
         if(fail_counter == 3 && ((start_voltage - voltage) <= VOLTAGE_DECREASE_STEP)){
