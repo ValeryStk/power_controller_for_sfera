@@ -29,6 +29,9 @@ constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[]  = "Включить одну лампу";
 constexpr char kSwitchOffLampsText[]   = "Выключить все лампы";
 constexpr char kSwitchOffOneLampText[] = "Выключить одну лампу";
+
+constexpr int MAX_Z_INDEX = 1000;
+
 lamps_powers_config cfg;
 
 namespace{
@@ -53,6 +56,10 @@ void append_v_i_to_log(const QString& filePath,
 };
 
 } //namespace
+
+
+QVector<QPair<PowerSupplyItem*,QString>> psis;
+
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -106,12 +113,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
     m_timer_to_update_power_states->stop();
-    m_sceneCalibr->removeItem(psi1);
-    delete psi1;
-    m_sceneCalibr->removeItem(psi2);
-    delete psi2;
-    m_sceneCalibr->removeItem(psi3);
-    delete psi3;
+    for(int i=0;i<psis.size();++i){
+        m_sceneCalibr->removeItem(psis[i].first);
+        delete psis[i].first;
+    }
     m_sceneCalibr->removeItem(m_bulbs_graphics_item);
     delete m_bulbs_graphics_item;
     m_powerManager->deleteLater();
@@ -169,9 +174,9 @@ void MainWindow::switch_on_all_lamps()
             m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
             auto current = m_powerManager->getCurrentValue(i);
             if(qAbs(cfg.lamps_array[i].max_current - current)<global::kCurrentTargetAccuracy){
-            m_bulbs_graphics_item->setBulbOn(i);
+                m_bulbs_graphics_item->setBulbOn(i);
             }else{
-            m_bulbs_graphics_item->setBulbUndefined(i);
+                m_bulbs_graphics_item->setBulbUndefined(i);
             }
         }else{
             auto power_num = global::get_power_num_by_index(i);
@@ -192,9 +197,8 @@ void MainWindow::switch_off_all_lamps()
     m_timer_to_update_power_states->stop();
     qInfo()<<tlc::kOperatinAllLampsSwitchOffName;
     auto pwrs = m_powerManager->get_power_states();
-    auto lamps = pwrs[global::kJsonKeyLampsArray].toArray();
 
-    for(int i=lamps.size()-1; i>=0; --i){
+    for(int i=MAX_CURRENT_LAMP_INDEX; i>=0; --i){
         m_current_lamp_index = i;
         m_bulbs_graphics_item->set_current_lamp_index(i);
         if(m_powerManager->isPowerOutConnected(m_current_lamp_index)){
@@ -218,26 +222,14 @@ void MainWindow::update_ps(int ps,
                            double voltage,
                            double current)
 {
+    if(ps>3 || ps<0) return;
     PowerSupplyItem* ps_item = nullptr;
-    psi1->set_all_outs_unactive();
-    psi2->set_all_outs_unactive();
-    psi3->set_all_outs_unactive();
-
-    switch (ps) {
-    case 1:
-        ps_item = psi1;
-        break;
-    case 2:
-        ps_item = psi2;
-        break;
-    case 3:
-        ps_item = psi3;
-        break;
-    default:return;
+    for(int i=0;i<psis.size();++i){
+        psis[i].first->set_all_outs_unactive();
     }
+    ps_item = psis[ps-1].first;
 
     if(ps_item == nullptr)return;
-
 
     if(out == 1){
         ps_item->set_voltage_out_1(voltage);
@@ -254,13 +246,7 @@ void MainWindow::update_ps(int ps,
     //m_current_lamp_index
     int current_pwr_num = global::get_power_num_by_index(m_current_lamp_index);
     int active_out = global::get_power_out_by_index(m_current_lamp_index);
-    if(current_pwr_num == 1){
-        ps_item = psi1;
-    }else if(current_pwr_num == 2){
-        ps_item = psi2;
-    }else if (current_pwr_num == 3) {
-        ps_item = psi3;
-    }
+    ps_item = psis[current_pwr_num-1].first;
     if(active_out == 1){
         ps_item->set_out_1_active();
     }
@@ -277,18 +263,18 @@ void MainWindow::testSlot()
 
     bulb_state bulbs_states[NUMBER_OF_LAMPS];
     bool power_states[NUMBER_OF_POWER_SUPPLIES] = {first_power_state,
-                                                  second_power_state,
-                                                  third_power_state};
+                                                   second_power_state,
+                                                   third_power_state};
     for(int i=0; i < NUMBER_OF_LAMPS; ++i){
         auto json_current_limit_value = cfg.lamps_array[i].max_current;
 
-        auto voltage_protection_value = m_powerManager->getVoltageProtectionValue(i);
-        auto current_max_value = m_powerManager->getCurrentLimit(i);
-        auto current_present_value = m_powerManager->getCurrentValue(i);
-        auto current_voltage = m_powerManager->getVoltage(i);
+        double voltage_protection_value = m_powerManager->getVoltageProtectionValue(i);
+        double current_max_value = m_powerManager->getCurrentLimit(i);
+        double current_present_value = m_powerManager->getCurrentValue(i);
+        double current_voltage = m_powerManager->getVoltage(i);
 
-        auto power_num = global::get_power_num_by_index(i);
-        bool out_num = global::get_power_out_by_index(i);
+        int  power_num = global::get_power_num_by_index(i);
+        int  out_num = global::get_power_out_by_index(i);
         bool is_connected = power_states[power_num-1];
 
         if((current_voltage <= global::kVoltageZeroAccuracy) && is_connected){
@@ -301,12 +287,11 @@ void MainWindow::testSlot()
         qDebug()<<"LAMP "<<i+1<<" VOLTAGE PROTECTION: "<<voltage_protection_value <<" Volts";
         QString current_limit_message = "FACT CURRENT LIMIT %1 POWER %2 OUT %3 --> LAMP %4";
         qDebug()<<current_limit_message.arg(current_max_value).arg(power_num).arg(out_num).arg(i+1);
-        if(i==0)psi1->set_max_current_out_1(current_max_value);
-        if(i==1)psi1->set_max_current_out_2(current_max_value);
-        if(i==2)psi2->set_max_current_out_1(current_max_value);
-        if(i==3)psi2->set_max_current_out_2(current_max_value);
-        if(i==4)psi3->set_max_current_out_1(current_max_value);
-        if(i==5)psi3->set_max_current_out_2(current_max_value);
+        if(out_num==1){
+        psis[power_num-1].first->set_max_current_out_1(current_max_value);
+        }else if(out_num ==2){
+        psis[power_num-1].first->set_max_current_out_2(current_max_value);
+        }
     }
 
     m_bulbs_graphics_item->set_bulb_states(bulbs_states);
@@ -424,35 +409,35 @@ void MainWindow::setUpGui()
 void MainWindow::setUpScene()
 {
     ui->graphicsView->setScene(m_sceneCalibr);
-    QVector<QColor> bulb_colors;
-    bulb_colors.resize(6);
-    QJsonObject jo;
-    jo = m_powerManager->get_power_states();
-    auto lamps = jo[global::kJsonKeyLampsArray].toArray();
-    for(int i=0;i<lamps.size();++i){
-        bulb_colors[i] = QColor(lamps[i].toObject()["color"].toString());
+    psis = {{nullptr,"ps1"},
+            {nullptr, "psi2"},
+            {nullptr, "psi3"}};
+    const QString svg_power_path = ":/guiPictures/PS.svg";
+
+    for(int i=0;i<psis.size();++i){
+        psis[i].first = new PowerSupplyItem(svg_power_path,
+                                            cfg.powers[i].name,
+                                            psis[i].second);
+    }
+
+    for(int i=0; i<NUMBER_OF_LAMPS; ++i){
+        auto color = QColor(cfg.lamps_array[i].color);
+        int power_index = global::get_power_num_by_index(i)-1;
+        int out_number = global::get_power_out_by_index(i);
+
+        psis[power_index].first->setScale(0.8);
+        if(out_number==1){
+            psis[power_index].first->set_out_1_color(color);
+        }else{
+            psis[power_index].first->set_out_2_color(color);
+        }
+        m_sceneCalibr->addItem(psis[power_index].first);
     }
     m_sceneCalibr->setSceneRect(0, 0, 1000, 600);
     m_bulbs_graphics_item = new BulbsQGraphicsItem;
-    m_bulbs_graphics_item->setZValue(1000);
+    m_bulbs_graphics_item->setZValue(MAX_Z_INDEX);
     m_sceneCalibr->addItem(m_bulbs_graphics_item);
     m_sceneCalibr->update();
-    psi1 = new PowerSupplyItem(":/guiPictures/PS.svg",jo["ps1"].toObject().value("name").toString(),"ps1");
-    psi1->setScale(0.8);
-    psi1->set_out_1_color(QColor(bulb_colors[0]));
-    psi1->set_out_2_color(QColor(bulb_colors[1]));
-    m_sceneCalibr->addItem(psi1);
-    psi2 = new PowerSupplyItem(":/guiPictures/PS.svg",jo["ps2"].toObject().value("name").toString(),"ps2");
-    psi2->setScale(0.8);
-    psi2->set_out_1_color(QColor(bulb_colors[2]));
-    psi2->set_out_2_color(QColor(bulb_colors[3]));
-    m_sceneCalibr->addItem(psi2);
-    psi3 = new PowerSupplyItem(":/guiPictures/PS.svg",jo["ps3"].toObject().value("name").toString(),"ps3");
-    psi3->setScale(0.8);
-    psi3->set_out_1_color(QColor(bulb_colors[4]));
-    psi3->set_out_2_color(QColor(bulb_colors[5]));
-    m_sceneCalibr->addItem(psi3);
-
 }
 
 
@@ -504,7 +489,7 @@ void MainWindow::on_pushButton_Forward_clicked()
 void MainWindow::on_pushButton_open_log_clicked()
 {
     auto pathToLogicLog = QApplication::applicationDirPath()+global::relative_path_to_logic_log_file;
-    auto pathToCV_Log = QApplication::applicationDirPath()+global::relative_path_to_cv_log_file; 
+    auto pathToCV_Log = QApplication::applicationDirPath()+global::relative_path_to_cv_log_file;
     openFileByDefaultSoftware(pathToCV_Log);
     openFileByDefaultSoftware(pathToLogicLog);
 }
