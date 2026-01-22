@@ -69,7 +69,7 @@ private slots:
 
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
-    void on_comboBox__mode_currentIndexChanged(int index);
+    void on_comboBox_mode_currentIndexChanged(int index);
     void on_pushButton_sound_toggled(bool checked);
     void on_pushButton_update_power_states_clicked();
     void on_pushButton_update_clicked();

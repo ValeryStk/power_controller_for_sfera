@@ -11,6 +11,8 @@ constexpr int MAX_VOLTAGE = 25;
 constexpr int MAX_CURRENT_LIMIT = 11;
 constexpr double VOLTAGE_INCREASE_STEP = 0.25;
 constexpr double VOLTAGE_DECREASE_STEP = 0.25;
+constexpr int POWER_SUPPLIES_UPDATE_INTERVAL = 1000;
+
 // WAIT INTERVAL is used to prevent a lot of requests. Power supply can't handle
 // all requests whithout WAIT INTERVAL
 constexpr double WAIT_INTERVAL = 250;
@@ -38,6 +40,7 @@ struct power_supply_properties{
 };
 
 struct lamps_powers_config{
+    int power_supplies_update_interval = POWER_SUPPLIES_UPDATE_INTERVAL;
     int fail_counter_limit = FAIL_COUNTER_LIMIT;
     int try_again_counter = TRY_AGAIN_COUNTER;
     const double wait_interval = WAIT_INTERVAL;

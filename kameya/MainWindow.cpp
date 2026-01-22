@@ -39,7 +39,8 @@ namespace{
 
 void openFileByDefaultSoftware(const QString &filePath) {
     QUrl url = QUrl::fromLocalFile(filePath);
-    QDesktopServices::openUrl(url); }
+    QDesktopServices::openUrl(url);
+}
 
 
 void append_v_i_to_log(const QString& filePath,
@@ -80,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_sounder.playSound("safety.mp3");
 
     m_timer_to_update_power_states = new QTimer(this);
-    m_timer_to_update_power_states->setInterval(1000);
+    m_timer_to_update_power_states->setInterval(POWER_SUPPLIES_UPDATE_INTERVAL);
 
     connect(m_timer_to_update_power_states, &QTimer::timeout, this, [this]() {
 
@@ -377,14 +378,12 @@ void MainWindow::setUpGui()
     ui->centralwidget->setStyleSheet("background-color:#2E2F30;color:lightgrey");
     ui->pushButton_Backward->setVisible(false);
     ui->stackedWidget->setCurrentIndex(0);
-    ui->comboBox__mode->addItem("Все лампы");
-    auto pwrs = m_powerManager->get_power_states().value(global::kJsonKeyLampsArray).toArray();
-    for(int i=0;i<pwrs.size();++i){
-        QString str_color = pwrs[i].toObject().value("color").toString();
+    ui->comboBox_mode->addItem("Все лампы");
+    for(int i=0;i<NUMBER_OF_LAMPS;++i){
+        QString str_color = cfg.lamps_array[i].color;
         QColor color(str_color);
         auto icon = iut::createIcon(color.red(),color.green(),color.blue());
-        ui->comboBox__mode->addItem(icon,pwrs[i].toObject().value("name").toString());
-
+        ui->comboBox_mode->addItem(icon,cfg.lamps_array[i].name);
     }
     ui->pushButton_switchOffOneLamp->setIcon(QIcon(":/guiPictures/trending_down.svg"));
     ui->pushButton_switchOffOneLamp->setIconSize(QSize(64,64));
@@ -494,7 +493,7 @@ void MainWindow::on_checkBox_cooling_for_big_sphere_stateChanged(int arg1)
     };
 }
 
-void MainWindow::on_comboBox__mode_currentIndexChanged(int index)
+void MainWindow::on_comboBox_mode_currentIndexChanged(int index)
 {
     static bool is_first_start_index = true;
     if(is_first_start_index){
@@ -549,7 +548,7 @@ void MainWindow::on_pushButton_update_clicked()
 void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 {
 
-    if(ui->comboBox__mode->currentIndex()==0){
+    if(ui->comboBox_mode->currentIndex()==0){
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
         QTimer::singleShot(1000,this,&MainWindow::switch_off_all_lamps);
         return;
@@ -583,7 +582,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked()
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked()
 {
 
-    if(ui->comboBox__mode->currentIndex()==0){
+    if(ui->comboBox_mode->currentIndex()==0){
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
         QTimer::singleShot(1000,this,&MainWindow::switch_on_all_lamps);
         return;
