@@ -19,8 +19,8 @@ constexpr int POWER_PARAM = 0;
 constexpr int OUT_PARAM = 1;
 
 // accuracy
-extern const double kVoltageZeroAccuracy    = 0.005;
-extern const double kCurrentTargetAccuracy  = 0.03;
+const double kVoltageZeroAccuracy    = 0.005;
+const double kCurrentTargetAccuracy  = 0.03;
 
 const QString json_lamps_file_name            = "ir_lamps.json";
 const QString json_lamps_qrc_file_name        = ":/4restoring/ir_lamps.json";
