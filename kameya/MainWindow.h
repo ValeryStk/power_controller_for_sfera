@@ -11,7 +11,6 @@
 #include <QKeyEvent>
 #include "power_supply_manager.h"
 #include "graphics_items/bulbs_item.h"
-#include "graphics_items/power_supply_item.h"
 #include "QTimer"
 
 
@@ -30,15 +29,11 @@ public:
     ~MainWindow() override;
     void closeEvent(QCloseEvent*event)override;
 
-
 private:
     Ui::MainWindow      *ui;
     PowerSupplyManager  *m_powerManager;
     QGraphicsScene      *m_sceneCalibr;
     BulbsQGraphicsItem  *m_bulbs_graphics_item;
-    PowerSupplyItem     *psi1;
-    PowerSupplyItem     *psi2;
-    PowerSupplyItem     *psi3;
     QTimer              *m_timer_to_update_power_states;
 
     QShortcut           *repeatLastNotification;
@@ -72,18 +67,17 @@ private slots:
                     double voltage,
                     double current);
 
-    void on_pushButton_Backward_clicked();
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
-
-    void on_pushButton_switchOffOneLamp_clicked();
-    void on_pushButton_switch_on_one_lamp_clicked();
     void on_comboBox__mode_currentIndexChanged(int index);
-    void switch_on_all_lamps();
-    void switch_off_all_lamps();
     void on_pushButton_sound_toggled(bool checked);
     void on_pushButton_update_power_states_clicked();
     void on_pushButton_update_clicked();
     void on_pushButton_open_log_clicked();
+
+    void switch_on_all_lamps();
+    void switch_off_all_lamps();
+    void on_pushButton_switchOffOneLamp_clicked();
+    void on_pushButton_switch_on_one_lamp_clicked();
 };
 #endif // MAIN_WINDOW_H

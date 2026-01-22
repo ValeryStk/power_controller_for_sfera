@@ -22,6 +22,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include "icon_generator.h"
+#include "graphics_items/power_supply_item.h"
 #include <QtConcurrent/QtConcurrent>
 
 
@@ -442,14 +443,6 @@ void MainWindow::setUpScene()
 
 
 // GUI handlers
-void MainWindow::on_pushButton_Backward_clicked()
-{
-    if(ui->stackedWidget->currentIndex()>0){
-        ui->stackedWidget->setCurrentIndex(ui->stackedWidget->currentIndex()-1);
-        ui->label_TitlePage->setText(m_pages.value(ui->stackedWidget->currentIndex()));
-    }
-}
-
 void MainWindow::on_pushButton_Forward_clicked()
 {
     static bool isEnd = false;
@@ -493,7 +486,6 @@ void MainWindow::on_pushButton_open_log_clicked()
     openFileByDefaultSoftware(pathToCV_Log);
     openFileByDefaultSoftware(pathToLogicLog);
 }
-
 
 void MainWindow::on_checkBox_cooling_for_big_sphere_stateChanged(int arg1)
 {
