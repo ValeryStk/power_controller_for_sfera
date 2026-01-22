@@ -8,6 +8,11 @@
 #include "QColor"
 #include "json_utils.h"
 
+namespace {
+bool is_index_invalid(const int index){
+    return (index < 0 || index > MAX_CURRENT_LAMP_INDEX);
+};
+}//end namespace
 
 BulbsQGraphicsItem::BulbsQGraphicsItem()
 {
@@ -50,8 +55,8 @@ QRectF BulbsQGraphicsItem::boundingRect() const
 
 
 void BulbsQGraphicsItem::paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option,
-                       QWidget *widget)
+                               const QStyleOptionGraphicsItem *option,
+                               QWidget *widget)
 {
     Q_UNUSED(option)
     Q_UNUSED(widget)
@@ -159,10 +164,7 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter)
 
 bool BulbsQGraphicsItem::setBulbOff(int bi)
 {
-    Q_ASSERT_X(bi > MAX_CURRENT_LAMP_INDEX || bi < 0,
-               "bulbs_item",
-               "setBulbOff index is out of range");
-    if(bi > MAX_CURRENT_LAMP_INDEX || bi < 0)return true;
+    if(is_index_invalid(bi))return true;
     m_current_lamp_index = bi;
     if(bulb_states[bi] == bulb_state::OFF){
         return true;
@@ -174,36 +176,32 @@ bool BulbsQGraphicsItem::setBulbOff(int bi)
 
 bool BulbsQGraphicsItem::setBulbOn(int bi)
 {
-    if(bi > MAX_CURRENT_LAMP_INDEX || bi<0)return true;
-    bool is_state_the_same = false;
+    if(is_index_invalid(bi))return true;
+    m_current_lamp_index = bi;
     if(bulb_states[bi] == bulb_state::ON){
-        is_state_the_same = true;
+        return true;
     }
     bulb_states[bi] = bulb_state::ON;
-    m_current_lamp_index = bi;
-    if(!is_state_the_same){
-        m_bulb_on_time[bi] = QDateTime::currentDateTime();
-    }
+    m_bulb_on_time[bi] = QDateTime::currentDateTime();
     update();
-    return is_state_the_same;
+    return false;
 }
 
 bool BulbsQGraphicsItem::setBulbUndefined(int bi)
 {
-    if(bi > MAX_CURRENT_LAMP_INDEX || bi<0)return true;
-    bool is_state_the_same = false;
+    if(is_index_invalid(bi)) return true;
+    m_current_lamp_index = bi;
     if(bulb_states[bi] == bulb_state::UNDEFINED){
-        is_state_the_same = true;
+        return true;
     }
     bulb_states[bi] = bulb_state::UNDEFINED;
-    m_current_lamp_index = bi;
     update();
-    return is_state_the_same;
+    return false;
 }
 
 void BulbsQGraphicsItem::set_current_lamp_index(const int index)
 {
-    if(index < 0 || index > MAX_CURRENT_LAMP_INDEX) return;
+    if(is_index_invalid(index)) return;
     m_current_lamp_index = index;
     update();
 }
@@ -213,4 +211,3 @@ void BulbsQGraphicsItem::set_bulb_states(enum class bulb_state states[])
     std::copy(states, states + NUMBER_OF_LAMPS, bulb_states);
     update();
 }
-
