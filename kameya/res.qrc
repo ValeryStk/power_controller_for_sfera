@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>sounds/accuracy_fail.mp3</file>
-        <file>sounds/calculation.mp3</file>
-        <file>sounds/calibration_data_ready.mp3</file>
         <file>sounds/checkWarnings.mp3</file>
         <file>sounds/finishCalibration.mp3</file>
         <file>sounds/lamps_is_switched_on.mp3</file>
@@ -22,12 +20,8 @@
         <file>guiPictures/bulb_on.png</file>
         <file>guiPictures/CheckBox_checked.png</file>
         <file>guiPictures/CheckBox_unchecked.png</file>
-        <file>guiPictures/open-file-button.png</file>
-        <file>guiPictures/open-file-button_hover.png</file>
-        <file>guiPictures/open-file-button_pressed.png</file>
         <file>sounds/dontForgetCooling.mp3</file>
         <file>sounds/audioNotificationsOff.mp3</file>
-        <file>sounds/calibrationFinish.mp3</file>
         <file>sounds/oneLampWasSwitchedOff.mp3</file>
         <file>sounds/switchOffLamp.mp3</file>
         <file>4restoring/ir_lamps.json</file>
