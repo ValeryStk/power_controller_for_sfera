@@ -26,7 +26,7 @@ void json_config_to_struct_UnitTests::cleanup() {
 
 void json_config_to_struct_UnitTests::json_to_struct_test() {
     lamps_powers_config cfg;
-    global::get_config_struct(global::json_lamps_qrc_file_name, cfg);
+    global::get_config_struct(cfg);
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         qDebug() << cfg.lamps_array[i].name;
     }

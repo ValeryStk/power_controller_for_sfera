@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     global::mayBe_create_log_dir();
-    global::get_config_struct(global::json_lamps_file_name, cfg);
+    global::get_config_struct(cfg);
     createObjects();
     initializeVariables();
     setUpGui();

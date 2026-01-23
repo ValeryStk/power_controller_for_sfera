@@ -40,6 +40,9 @@ struct power_supply_properties {
 };
 
 struct lamps_powers_config {
+    bool is_json_config_valid = false;
+    bool is_sound = false;
+    bool is_unclock = false;
     int power_supplies_update_interval = POWER_SUPPLIES_UPDATE_INTERVAL;
     int fail_counter_limit = FAIL_COUNTER_LIMIT;
     int try_again_counter = TRY_AGAIN_COUNTER;
@@ -50,9 +53,6 @@ struct lamps_powers_config {
     const int max_current_limit = MAX_CURRENT_LIMIT;
     const double voltage_increasing_step = VOLTAGE_INCREASE_STEP;
     const double voltage_decreasing_step = VOLTAGE_DECREASE_STEP;
-    bool is_json_config_valid = false;
-    bool is_sound = false;
-    bool is_unclock = false;
     lamp lamps_array[NUMBER_OF_LAMPS];
     lamps_graphic_item_coords lamps_item_coords;
     power_supply_properties powers[NUMBER_OF_POWER_SUPPLIES];
@@ -99,6 +99,8 @@ int get_power_out_by_index(int index);
 
 void get_config_struct(const QString path_to_json_config,
                        lamps_powers_config &cfg);
+
+void get_config_struct(lamps_powers_config &cfg);
 
 }  // end namespace global
 

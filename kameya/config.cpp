@@ -60,16 +60,18 @@ void mayBe_create_log_dir() {
 
 void get_config_struct(const QString path_to_json_config,
                        lamps_powers_config& cfg) {
+    cfg.is_json_config_valid = false;
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(json_lamps_file_name, jo);
+    bool result = jsn::getJsonObjectFromFile(path_to_json_config, jo);
+    if (result == false) return;
     cfg.is_sound = jo[kJsonIsSoundFlag].toBool();
     cfg.is_unclock = jo[kJsonKeyIsUnlockKeyFlag].toBool();
+
     QJsonArray lamps = jo[kJsonKeyLampsArray].toArray();
-    bool is_valid = true;
     if (lamps.size() != NUMBER_OF_LAMPS) {
-        cfg.is_json_config_valid = false;
         return;
     };
+
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         QJsonObject jlamp = lamps[i].toObject();
         lamp lmp;
@@ -96,7 +98,11 @@ void get_config_struct(const QString path_to_json_config,
         cfg.powers[i].x = jpowers[i].toObject()[kJsonKeyX].toInt();
         cfg.powers[i].y = jpowers[i].toObject()[kJsonKeyY].toInt();
     }
-    cfg.is_json_config_valid = is_valid;
+    cfg.is_json_config_valid = true;
+}
+
+void get_config_struct(lamps_powers_config& cfg) {
+    get_config_struct(json_lamps_file_name, cfg);
 }
 
 }  // end namespace global
