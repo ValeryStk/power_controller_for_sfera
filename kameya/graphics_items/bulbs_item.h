@@ -1,21 +1,19 @@
 #ifndef BULBS_QGRAPHICS_ITEM_H
 #define BULBS_QGRAPHICS_ITEM_H
 
-#include <QGraphicsItem>
 #include <QDateTime>
+#include <QGraphicsItem>
+
 #include "config.h"
 
-enum class bulb_state{ON,OFF,UNDEFINED};
+enum class bulb_state { ON, OFF, UNDEFINED };
 
-class BulbsQGraphicsItem:public QGraphicsItem
-{
-
+class BulbsQGraphicsItem : public QGraphicsItem {
 public:
     BulbsQGraphicsItem();
-    ~BulbsQGraphicsItem()override;
+    ~BulbsQGraphicsItem() override;
 
 public:
-
     virtual QRectF boundingRect() const override;
     virtual void paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
@@ -30,9 +28,9 @@ public:
 private:
     void drawLamps(QPainter *painter);
     int m_current_lamp_index = 0;
-    bulb_state bulb_states    [NUMBER_OF_LAMPS];
-    QColor     bulb_colors    [NUMBER_OF_LAMPS];
-    QDateTime  m_bulb_on_time [NUMBER_OF_LAMPS];
+    bulb_state bulb_states[NUMBER_OF_LAMPS];
+    QColor bulb_colors[NUMBER_OF_LAMPS];
+    QDateTime m_bulb_on_time[NUMBER_OF_LAMPS];
 };
 
-#endif // BULBS_QGRAPHICS_ITEM_H
+#endif  // BULBS_QGRAPHICS_ITEM_H
