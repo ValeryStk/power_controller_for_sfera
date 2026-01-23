@@ -1,4 +1,4 @@
-#include "Sounder.h"
+#include "sounder.h"
 
 #include "QDebug"
 #include "QDir"
