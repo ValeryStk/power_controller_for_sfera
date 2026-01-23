@@ -1,7 +1,7 @@
 #ifndef TEXT_LOG_CONSTANTS_H
 #define TEXT_LOG_CONSTANTS_H
 
-namespace tlc{
+namespace tlc {
 
 extern const char kPowerManagerConstructor[];
 extern const char kPowerManagerDestructor[];
@@ -27,6 +27,6 @@ extern const char kOperationSwitchOnResultFailed[];
 
 extern const char kFailedLampIndex[];
 
-}
+}  // namespace tlc
 
-#endif // TEXT_LOG_CONSTANTS_H
+#endif  // TEXT_LOG_CONSTANTS_H

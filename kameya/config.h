@@ -16,10 +16,10 @@ constexpr int POWER_SUPPLIES_UPDATE_INTERVAL = 1000;
 // WAIT INTERVAL is used to prevent a lot of requests. Power supply can't handle
 // all requests whithout WAIT INTERVAL
 constexpr double WAIT_INTERVAL = 250;
-constexpr int    TRY_AGAIN_COUNTER = 5;
-constexpr int    FAIL_COUNTER_LIMIT = 10;
+constexpr int TRY_AGAIN_COUNTER = 5;
+constexpr int FAIL_COUNTER_LIMIT = 10;
 
-struct lamp{
+struct lamp {
     QString color;
     QString ip;
     double max_current;
@@ -28,28 +28,28 @@ struct lamp{
     double total_work_hours;
 };
 
-struct lamps_graphic_item_coords{
+struct lamps_graphic_item_coords {
     int x;
     int y;
 };
 
-struct power_supply_properties{
+struct power_supply_properties {
     QString name;
     int x;
     int y;
 };
 
-struct lamps_powers_config{
+struct lamps_powers_config {
     int power_supplies_update_interval = POWER_SUPPLIES_UPDATE_INTERVAL;
     int fail_counter_limit = FAIL_COUNTER_LIMIT;
     int try_again_counter = TRY_AGAIN_COUNTER;
     const double wait_interval = WAIT_INTERVAL;
-    const int  max_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
-    const int  min_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
-    const int  max_voltage = MAX_VOLTAGE;
-    const int  max_current_limit = MAX_CURRENT_LIMIT;
-    const double  voltage_increasing_step = VOLTAGE_INCREASE_STEP;
-    const double  voltage_decreasing_step = VOLTAGE_DECREASE_STEP;
+    const int max_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
+    const int min_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
+    const int max_voltage = MAX_VOLTAGE;
+    const int max_current_limit = MAX_CURRENT_LIMIT;
+    const double voltage_increasing_step = VOLTAGE_INCREASE_STEP;
+    const double voltage_decreasing_step = VOLTAGE_DECREASE_STEP;
     bool is_json_config_valid = false;
     bool is_sound = false;
     bool is_unclock = false;
@@ -58,7 +58,7 @@ struct lamps_powers_config{
     power_supply_properties powers[NUMBER_OF_POWER_SUPPLIES];
 };
 
-namespace global{
+namespace global {
 
 // accuracy
 extern const double kVoltageZeroAccuracy;
@@ -100,6 +100,6 @@ int get_power_out_by_index(int index);
 void get_config_struct(const QString path_to_json_config,
                        lamps_powers_config &cfg);
 
-}// end namespace global
+}  // end namespace global
 
-#endif // CONFIG_H
+#endif  // CONFIG_H

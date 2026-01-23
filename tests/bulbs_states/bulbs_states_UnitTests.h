@@ -4,8 +4,7 @@
 #include <QObject>
 #include <QtTest>
 
-class bulbs_states_UnitTests : public QObject
-{
+class bulbs_states_UnitTests : public QObject {
     Q_OBJECT
 
 public:
@@ -17,7 +16,6 @@ private slots:
     void init();
     void cleanup();
     void bulbs_items_test();
-
 };
 
-#endif // UNITTESTS_H
+#endif  // UNITTESTS_H

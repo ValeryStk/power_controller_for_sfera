@@ -1,13 +1,14 @@
-#include <QApplication>
 #include <MainWindow.h>
-#include "single_application.h"
-#include "qrc_files_restorer.h"
-#include "config.h"
-#include "text_log_constants.h"
-#include "logger.h"
 
-int main(int argc, char *argv[])
-{
+#include <QApplication>
+
+#include "config.h"
+#include "logger.h"
+#include "qrc_files_restorer.h"
+#include "single_application.h"
+#include "text_log_constants.h"
+
+int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif

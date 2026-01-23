@@ -4,8 +4,7 @@
 #include <QObject>
 #include <QtTest>
 
-class json_config_to_struct_UnitTests : public QObject
-{
+class json_config_to_struct_UnitTests : public QObject {
     Q_OBJECT
 
 public:
@@ -17,7 +16,6 @@ private slots:
     void init();
     void cleanup();
     void json_to_struct_test();
-
 };
 
-#endif // UNITTESTS_H
+#endif  // UNITTESTS_H

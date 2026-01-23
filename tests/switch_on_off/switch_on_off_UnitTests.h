@@ -4,8 +4,7 @@
 #include <QObject>
 #include <QtTest>
 
-class switch_on_off_UnitTests : public QObject
-{
+class switch_on_off_UnitTests : public QObject {
     Q_OBJECT
 
 public:
@@ -17,7 +16,6 @@ private slots:
     void init();
     void cleanup();
     void switch_on_off_test();
-
 };
 
-#endif // UNITTESTS_H
+#endif  // UNITTESTS_H

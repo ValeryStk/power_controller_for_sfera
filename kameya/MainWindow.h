@@ -1,59 +1,56 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
-#include <QMainWindow>
-#include <QShortcut>
-#include <QSettings>
-#include <QMessageBox>
-#include "sounder.h"
 #include <QCloseEvent>
-#include <QMouseEvent>
 #include <QKeyEvent>
-#include "power_supply_manager.h"
-#include "graphics_items/bulbs_item.h"
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QSettings>
+#include <QShortcut>
+
 #include "QTimer"
-
-
+#include "graphics_items/bulbs_item.h"
+#include "power_supply_manager.h"
+#include "sounder.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui {
+class MainWindow;
+}
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
     friend class bulbs_states_UnitTests;
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
-    void closeEvent(QCloseEvent*event)override;
+    void closeEvent(QCloseEvent *event) override;
 
 private:
-    Ui::MainWindow      *ui;
-    PowerSupplyManager  *m_powerManager;
-    QGraphicsScene      *m_sceneCalibr;
-    BulbsQGraphicsItem  *m_bulbs_graphics_item;
-    QTimer              *m_timer_to_update_power_states;
+    Ui::MainWindow *ui;
+    PowerSupplyManager *m_powerManager;
+    QGraphicsScene *m_sceneCalibr;
+    BulbsQGraphicsItem *m_bulbs_graphics_item;
+    QTimer *m_timer_to_update_power_states;
 
-    QShortcut           *repeatLastNotification;
-    QShortcut           *show_log;
-    Sounder             m_sounder;
+    QShortcut *repeatLastNotification;
+    QShortcut *show_log;
+    Sounder m_sounder;
 
     void initializeVariables();
     void createObjects();
     void setUpGui();
     void setUpScene();
-    void showMessageBox  (QMessageBox::Icon ico,
-                          QString titleText,
-                          QString text);
+    void showMessageBox(QMessageBox::Icon ico, QString titleText, QString text);
     bool checkSafetyUser();
 
-    int    m_current_lamp_index;
+    int m_current_lamp_index;
     QVector<double> bandProfileChannels;
-    QVector<QLabel*> lamps;
-    QHash <int, QString> m_pages;
-
+    QVector<QLabel *> lamps;
+    QHash<int, QString> m_pages;
 
 private:
     void operation_failed_voice_notification();
@@ -61,11 +58,7 @@ private:
 
 private slots:
     void testSlot();
-    void update_ps( int ps,
-                    int out,
-                    bool isOn,
-                    double voltage,
-                    double current);
+    void update_ps(int ps, int out, bool isOn, double voltage, double current);
 
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
@@ -80,4 +73,4 @@ private slots:
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
 };
-#endif // MAIN_WINDOW_H
+#endif  // MAIN_WINDOW_H

@@ -13,5 +13,4 @@ protected:
     void incomingConnection(qintptr socketDescriptor) override;
 };
 
-#endif // MOCK_POWER_SERVER_H
-
+#endif  // MOCK_POWER_SERVER_H

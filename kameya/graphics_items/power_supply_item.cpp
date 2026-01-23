@@ -1,25 +1,21 @@
 // PowerSupplyItem.cpp
 #include "power_supply_item.h"
 
+#include <QDebug>
+#include <QFontMetricsF>
+#include <QJsonObject>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <QSvgRenderer>
-#include <QFontMetricsF>
 #include <QToolTip>
-#include <QDebug>
-#include <QJsonObject>
-#include "json_utils.h"
+
 #include "config.h"
+#include "json_utils.h"
 #include "qjsonarray.h"
 
-
-PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
-                                 const QString& name,
-                                 const QString& obj_name):
-                                 m_label(name),
-                                 m_object_name(obj_name)
-{
-
+PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
+                                 const QString& obj_name)
+    : m_label(name), m_object_name(obj_name) {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
 
@@ -27,43 +23,43 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
         loadSvg(svgPath);
     }
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
+    jsn::getJsonObjectFromFile(global::json_lamps_file_name, jo);
     auto x = jo[m_object_name].toObject().value("x").toInt();
     auto y = jo[m_object_name].toObject().value("y").toInt();
-    setPos(x,y);
+    setPos(x, y);
 
     m_max_current_out_1 = 0.0;
     m_max_current_out_2 = 0.0;
 }
 
-PowerSupplyItem::~PowerSupplyItem()
-{
+PowerSupplyItem::~PowerSupplyItem() {
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::json_lamps_file_name,jo);
+    jsn::getJsonObjectFromFile(global::json_lamps_file_name, jo);
     auto pos = scenePos().toPoint();
     QJsonObject coords = jo[m_object_name].toObject();
     coords["x"] = pos.x();
     coords["y"] = pos.y();
     jo[m_object_name] = coords;
-    jsn::saveJsonObjectToFile(global::json_lamps_file_name,jo,QJsonDocument::Indented);
+    jsn::saveJsonObjectToFile(global::json_lamps_file_name, jo,
+                              QJsonDocument::Indented);
 }
 
-bool PowerSupplyItem::loadSvg(const QString& svgPath)
-{
+bool PowerSupplyItem::loadSvg(const QString& svgPath) {
     setSharedRenderer(new QSvgRenderer(svgPath));
     m_cachedBounds = QGraphicsSvgItem::boundingRect();
     update();
     return renderer() && renderer()->isValid();
 }
 
-QRectF PowerSupplyItem::boundingRect() const
-{
+QRectF PowerSupplyItem::boundingRect() const {
     // Use SVG bounds; could be expanded if overlay exceeds it
-    return m_cachedBounds.isEmpty() ? QGraphicsSvgItem::boundingRect() : m_cachedBounds;
+    return m_cachedBounds.isEmpty() ? QGraphicsSvgItem::boundingRect()
+                                    : m_cachedBounds;
 }
 
-void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
-{
+void PowerSupplyItem::paint(QPainter* painter,
+                            const QStyleOptionGraphicsItem* option,
+                            QWidget* widget) {
     // First, paint the SVG
     QGraphicsSvgItem::paint(painter, option, widget);
 
@@ -73,29 +69,34 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->setFont(m_font);
 
     // Lines: label, voltage, current, state
-    const QString lineVoltage = QStringLiteral("%1 V").arg(m_voltage_out_1, 0, 'f', 3);
-    const QString lineCurrent = QStringLiteral("%1 A").arg(m_current_out_1, 0, 'f', 3);
+    const QString lineVoltage =
+        QStringLiteral("%1 V").arg(m_voltage_out_1, 0, 'f', 3);
+    const QString lineCurrent =
+        QStringLiteral("%1 A").arg(m_current_out_1, 0, 'f', 3);
 
-    const QString lineVoltage2 = QStringLiteral("%1 V").arg(m_voltage_out_2, 0, 'f', 3);
-    const QString lineCurrent2 = QStringLiteral("%1 A").arg(m_current_out_2, 0, 'f', 3);
+    const QString lineVoltage2 =
+        QStringLiteral("%1 V").arg(m_voltage_out_2, 0, 'f', 3);
+    const QString lineCurrent2 =
+        QStringLiteral("%1 A").arg(m_current_out_2, 0, 'f', 3);
 
-    const QString lineMaxCurrent1 = QStringLiteral("%1 A").arg(m_max_current_out_1, 0, 'f', 3);
-    const QString lineMaxCurrent2 = QStringLiteral("%1 A").arg(m_max_current_out_2, 0, 'f', 3);
-
+    const QString lineMaxCurrent1 =
+        QStringLiteral("%1 A").arg(m_max_current_out_1, 0, 'f', 3);
+    const QString lineMaxCurrent2 =
+        QStringLiteral("%1 A").arg(m_max_current_out_2, 0, 'f', 3);
 
     // Draw text
     painter->setPen(m_textColor);
-    painter->drawText(QPointF(100,70), lineVoltage);
-    painter->drawText(QPointF(100,120), lineCurrent);
-    painter->drawText(QPointF(331,70), lineVoltage2);
-    painter->drawText(QPointF(331,120), lineCurrent2);
+    painter->drawText(QPointF(100, 70), lineVoltage);
+    painter->drawText(QPointF(100, 120), lineCurrent);
+    painter->drawText(QPointF(331, 70), lineVoltage2);
+    painter->drawText(QPointF(331, 120), lineCurrent2);
 
     painter->setPen(QPen(Qt::yellow));
-    painter->drawText(QPointF(100,160), lineMaxCurrent1);
-    painter->drawText(QPointF(331,160), lineMaxCurrent2);
+    painter->drawText(QPointF(100, 160), lineMaxCurrent1);
+    painter->drawText(QPointF(331, 160), lineMaxCurrent2);
 
     painter->setPen(QPen(Qt::lightGray));
-    painter->drawText(QPointF(165,30),m_label);
+    painter->drawText(QPointF(165, 30), m_label);
 
     // State line with color
     QColor stateColor = m_enabled_out_1 ? m_enabledColorOn : m_enabledColorOff;
@@ -111,114 +112,98 @@ void PowerSupplyItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->drawEllipse(circleCenter2, r, r);
 
     painter->setBrush(QBrush(m_out_1_color));
-    painter->setPen(QPen(m_out_1_color,5));
-    painter->drawEllipse(QPointF(202,270),8,8);
-    painter->drawEllipse(QPointF(250,270),8,8);
-    if(m_is_out_1_active){
+    painter->setPen(QPen(m_out_1_color, 5));
+    painter->drawEllipse(QPointF(202, 270), 8, 8);
+    painter->drawEllipse(QPointF(250, 270), 8, 8);
+    if (m_is_out_1_active) {
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(QRect(QPoint(177,247),QPoint(273,288)));
+        painter->drawRect(QRect(QPoint(177, 247), QPoint(273, 288)));
     }
 
     painter->setBrush(QBrush(m_out_2_color));
-    painter->setPen(QPen(m_out_2_color,5));
-    painter->drawEllipse(QPointF(350,270),8,8);
-    painter->drawEllipse(QPointF(398,270),8,8);
-    if(m_is_out_2_active){
+    painter->setPen(QPen(m_out_2_color, 5));
+    painter->drawEllipse(QPointF(350, 270), 8, 8);
+    painter->drawEllipse(QPointF(398, 270), 8, 8);
+    if (m_is_out_2_active) {
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(QRect(QPoint(321,247),QPoint(425,288)));
+        painter->drawRect(QRect(QPoint(321, 247), QPoint(425, 288)));
     }
-
 }
 
-void PowerSupplyItem::set_voltage_out_1(double volts)
-{
+void PowerSupplyItem::set_voltage_out_1(double volts) {
     if (qFuzzyCompare(m_voltage_out_1, volts)) return;
     m_voltage_out_1 = volts;
     update();
 }
 
-void PowerSupplyItem::set_current_out_1(double amps)
-{
+void PowerSupplyItem::set_current_out_1(double amps) {
     if (qFuzzyCompare(m_current_out_1, amps)) return;
     m_current_out_1 = amps;
     update();
 }
 
-void PowerSupplyItem::set_max_current_out_1(double amps)
-{
+void PowerSupplyItem::set_max_current_out_1(double amps) {
     m_max_current_out_1 = amps;
     update();
 }
 
-void PowerSupplyItem::set_enabled_out_1(bool on)
-{
+void PowerSupplyItem::set_enabled_out_1(bool on) {
     if (m_enabled_out_1 == on) return;
     m_enabled_out_1 = on;
     update();
 }
 
-void PowerSupplyItem::set_out_1_color(const QColor &color)
-{
+void PowerSupplyItem::set_out_1_color(const QColor& color) {
     m_out_1_color = color;
     update();
 }
 
-void PowerSupplyItem::set_out_1_active()
-{
+void PowerSupplyItem::set_out_1_active() {
     m_is_out_1_active = true;
     update();
 }
 
-void PowerSupplyItem::set_voltage_out_2(double volts)
-{
+void PowerSupplyItem::set_voltage_out_2(double volts) {
     if (qFuzzyCompare(m_voltage_out_2, volts)) return;
     m_voltage_out_2 = volts;
     update();
 }
 
-void PowerSupplyItem::set_current_out_2(double amps)
-{
+void PowerSupplyItem::set_current_out_2(double amps) {
     if (qFuzzyCompare(m_current_out_2, amps)) return;
     m_current_out_2 = amps;
     update();
 }
 
-void PowerSupplyItem::set_max_current_out_2(double amps)
-{
+void PowerSupplyItem::set_max_current_out_2(double amps) {
     m_max_current_out_2 = amps;
     update();
 }
 
-void PowerSupplyItem::set_enabled_out_2(bool on)
-{
+void PowerSupplyItem::set_enabled_out_2(bool on) {
     if (m_enabled_out_2 == on) return;
     m_enabled_out_2 = on;
     update();
 }
 
-void PowerSupplyItem::set_out_2_color(const QColor &color)
-{
+void PowerSupplyItem::set_out_2_color(const QColor& color) {
     m_out_2_color = color;
     update();
 }
 
-void PowerSupplyItem::set_out_2_active()
-{
+void PowerSupplyItem::set_out_2_active() {
     m_is_out_2_active = true;
     update();
 }
 
-void PowerSupplyItem::set_all_outs_unactive()
-{
+void PowerSupplyItem::set_all_outs_unactive() {
     m_is_out_1_active = false;
     m_is_out_2_active = false;
     update();
 }
 
-void PowerSupplyItem::setLabel(const QString& name)
-{
+void PowerSupplyItem::setLabel(const QString& name) {
     if (m_label == name) return;
     m_label = name;
     update();
 }
-

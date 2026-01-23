@@ -1,48 +1,35 @@
 #include "bulbs_states_UnitTests.h"
 
-#include "MainWindow.h"
-#include "logger.h"
-#include "ui_MainWindow.h"
-#include "mock_power_server.h"
-#include "qrc_files_restorer.h"
 #include <QDebug>
 
+#include "MainWindow.h"
+#include "logger.h"
+#include "mock_power_server.h"
+#include "qrc_files_restorer.h"
+#include "ui_MainWindow.h"
 
-namespace{
+namespace {}  // end namespace
 
+bulbs_states_UnitTests::bulbs_states_UnitTests() {}
 
-} // end namespace
-
-
-bulbs_states_UnitTests::bulbs_states_UnitTests()
-{
-}
-
-void bulbs_states_UnitTests::initTestCase()
-{
+void bulbs_states_UnitTests::initTestCase() {
     // Инициализация перед запуском всех тестов
     QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
-
 }
 
-void bulbs_states_UnitTests::cleanupTestCase()
-{
+void bulbs_states_UnitTests::cleanupTestCase() {
     // Очистка после выполнения всех тестов
 }
 
-void bulbs_states_UnitTests::init()
-{
+void bulbs_states_UnitTests::init() {
     // Инициализация перед каждым тестом
-
 }
 
-void bulbs_states_UnitTests::cleanup()
-{
+void bulbs_states_UnitTests::cleanup() {
     // Очистка после каждого теста
 }
 
-void bulbs_states_UnitTests::bulbs_items_test()
-{
+void bulbs_states_UnitTests::bulbs_items_test() {
     int argc = 0;
     QApplication app(argc, nullptr);
     QThread serverThread;
@@ -57,12 +44,14 @@ void bulbs_states_UnitTests::bulbs_items_test()
         if (!server->listen(bindAddress, 9221)) {
             qDebug() << "Не удалось запустить сервер!";
         } else {
-            qDebug() << "MockPowerServer слушает на IP:" << bindAddress.toString()
+            qDebug() << "MockPowerServer слушает на IP:"
+                     << bindAddress.toString()
                      << "порт:" << server->serverPort();
         }
     });
 
-    QObject::connect(&serverThread, &QThread::finished, server, &QObject::deleteLater);
+    QObject::connect(&serverThread, &QThread::finished, server,
+                     &QObject::deleteLater);
     serverThread.start();
     QPixmap pixmap = QPixmap::fromImage(QImage(":/guiPictures/bug.svg"));
     QCursor customCursor(pixmap);
@@ -72,7 +61,5 @@ void bulbs_states_UnitTests::bulbs_items_test()
     main_window->show();
     app.exec();
 }
-
-
 
 QTEST_MAIN(bulbs_states_UnitTests)
