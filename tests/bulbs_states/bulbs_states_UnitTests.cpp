@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "ui_MainWindow.h"
 #include "mock_power_server.h"
+#include "qrc_files_restorer.h"
 #include <QDebug>
 
 
@@ -20,6 +21,7 @@ bulbs_states_UnitTests::bulbs_states_UnitTests()
 void bulbs_states_UnitTests::initTestCase()
 {
     // Инициализация перед запуском всех тестов
+    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
 
 }
 

@@ -409,9 +409,9 @@ void MainWindow::setUpGui()
 void MainWindow::setUpScene()
 {
     ui->graphicsView->setScene(m_sceneCalibr);
-    psis = {{nullptr,"ps1"},
-            {nullptr, "psi2"},
-            {nullptr, "psi3"}};
+    psis = {{nullptr, global::kJsonKeyPowerSupply1_Object},
+            {nullptr, global::kJsonKeyPowerSupply2_Object},
+            {nullptr, global::kJsonKeyPowerSupply3_Object}};
     const QString svg_power_path = ":/guiPictures/PS.svg";
 
     for(int i=0;i<psis.size();++i){

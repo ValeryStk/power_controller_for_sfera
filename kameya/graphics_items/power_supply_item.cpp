@@ -15,8 +15,9 @@
 
 PowerSupplyItem::PowerSupplyItem(const QString& svgPath,
                                  const QString& name,
-                                 const QString& obj_name):m_label(name),
-    m_object_name(obj_name)
+                                 const QString& obj_name):
+                                 m_label(name),
+                                 m_object_name(obj_name)
 {
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
