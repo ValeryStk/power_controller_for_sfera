@@ -6,8 +6,8 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QMouseEvent>
-#include <QSettings>
 #include <QShortcut>
+#include <QThread>
 #include <QTimer>
 
 #include "graphics_items/bulbs_item.h"
@@ -35,6 +35,7 @@ private:
     QGraphicsScene *m_sceneCalibr;
     BulbsQGraphicsItem *m_bulbs_graphics_item;
     QTimer *m_timer_to_update_power_states;
+    QThread *m_powers_manager_thread;
 
     QShortcut *repeatLastNotification;
     QShortcut *show_log;

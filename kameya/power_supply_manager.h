@@ -73,11 +73,12 @@ private:
 signals:
     void lamp_state_changed_to_ub(int lamp_index);
     void lamp_state_changed(int lamp_index, double voltage, double current);
-
     void power_state_changed(int power_index, int power_out, bool is_on);
 
 private slots:
     void errorInSocket(QAbstractSocket::SocketError error);
+    void switch_on_one_lamp(const int index);
+    void switch_off_one_lamp(const int index);
 };
 
 #endif  // POWER_SUPPLY_MANAGER_H

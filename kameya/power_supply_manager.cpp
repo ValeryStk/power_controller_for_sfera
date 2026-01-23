@@ -298,34 +298,25 @@ void PowerSupplyManager::errorInSocket(QAbstractSocket::SocketError error) {
     }
 }
 
+void PowerSupplyManager::switch_on_one_lamp(const int index) { Q_UNUSED(index) }
+
+void PowerSupplyManager::switch_off_one_lamp(const int index) {
+    Q_UNUSED(index)
+}
+
 double PowerSupplyManager::getValueFromMessage(const QString& msg) {
-    // qDebug()<<"power_msg: "<<msg;
-    if (msg.contains("V1")) {
-        QString temp = msg;
-        temp.remove('\r').remove('\n').replace("V1 ", "");
-        return temp.toDouble();
-    } else if (msg.contains("V2")) {
-        QString temp = msg;
-        temp.remove('\r').remove('\n').replace("V2 ", "");
-        return temp.toDouble();
-    } else if (msg.contains("A")) {
-        QString temp = msg;
-        temp.remove('\r').remove('\n').replace("A", "");
-        return temp.toDouble();
-    } else if (msg.contains("V")) {
-        QString temp = msg;
-        temp.remove('\r').remove('\n').replace("V", "");
-        return temp.toDouble();
-    } else if (msg.contains("I1 ")) {
-        QString temp = msg;
-        temp.remove('\r').remove('\n').replace("I1 ", "");
-        return temp.toDouble();
-    } else if (msg.contains("I2 ")) {
-        QString temp = msg;
-        temp.remove('\r').remove('\n').replace("I2 ", "");
-        return temp.toDouble();
+    static const QStringList prefixes = {"V1", "V2", "A", "V", "I1", "I2"};
+
+    QString temp = msg;
+    temp.remove('\r').remove('\n').remove(' ');
+
+    for (const auto& prefix : prefixes) {
+        if (temp.startsWith(prefix)) {
+            return temp.midRef(prefix.length()).toDouble();
+        }
     }
-    return 0;
+
+    return 0.0;
 }
 
 void PowerSupplyManager::getIpAndOutForIndex(const int index, QString& ip,

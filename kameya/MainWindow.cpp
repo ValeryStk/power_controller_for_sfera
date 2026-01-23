@@ -334,7 +334,10 @@ void MainWindow::initializeVariables() {
 }
 
 void MainWindow::createObjects() {
+    m_powers_manager_thread = new QThread;
     m_powerManager = new PowerSupplyManager;
+    m_powerManager->moveToThread(m_powers_manager_thread);
+    m_powers_manager_thread->start();
     m_sceneCalibr = new QGraphicsScene;
 
     repeatLastNotification = new QShortcut(this);
@@ -357,8 +360,7 @@ void MainWindow::setUpGui() {
     QString appTitle = "POWER CONTROLLER ";
     appTitle.append(VER_PRODUCTVERSION_STR);
     setWindowTitle(appTitle);
-    ui->label_TitlePage->setText(
-        m_pages.value(ui->stackedWidget->currentIndex()));
+    ui->label_TitlePage->setText(m_pages.value(0));
     ui->centralwidget->setStyleSheet(
         "background-color:#2E2F30;color:lightgrey");
     ui->pushButton_Backward->setVisible(false);
