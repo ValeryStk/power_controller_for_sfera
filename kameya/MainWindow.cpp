@@ -404,6 +404,7 @@ void MainWindow::setUpScene() {
     for (int i = 0; i < psis.size(); ++i) {
         psis[i].first = new PowerSupplyItem(svg_power_path, cfg.powers[i].name,
                                             psis[i].second);
+        m_sceneCalibr->addItem(psis[i].first);
     }
 
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
@@ -417,7 +418,6 @@ void MainWindow::setUpScene() {
         } else {
             psis[power_index].first->set_out_2_color(color);
         }
-        m_sceneCalibr->addItem(psis[power_index].first);
     }
     m_sceneCalibr->setSceneRect(0, 0, 1000, 600);
     m_bulbs_graphics_item = new BulbsQGraphicsItem;

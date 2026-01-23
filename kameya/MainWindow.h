@@ -8,8 +8,8 @@
 #include <QMouseEvent>
 #include <QSettings>
 #include <QShortcut>
+#include <QTimer>
 
-#include "QTimer"
 #include "graphics_items/bulbs_item.h"
 #include "power_supply_manager.h"
 #include "sounder.h"
