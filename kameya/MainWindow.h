@@ -32,10 +32,10 @@ public:
 private:
     Ui::MainWindow *ui;
     PowerSupplyManager *m_powerManager;
+    QThread *m_powers_manager_thread;
     QGraphicsScene *m_sceneCalibr;
     BulbsQGraphicsItem *m_bulbs_graphics_item;
     QTimer *m_timer_to_update_power_states;
-    QThread *m_powers_manager_thread;
 
     QShortcut *repeatLastNotification;
     QShortcut *show_log;
@@ -59,6 +59,7 @@ private:
 
 private slots:
     void testSlot();
+    void update_lamp_state(int lamp_index, double voltage, double current);
     void update_ps(int ps, int out, bool isOn, double voltage, double current);
 
     void on_pushButton_Forward_clicked();
@@ -73,5 +74,7 @@ private slots:
     void switch_off_all_lamps();
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
+signals:
+    void make_one_lamp_on(int);
 };
 #endif  // MAIN_WINDOW_H

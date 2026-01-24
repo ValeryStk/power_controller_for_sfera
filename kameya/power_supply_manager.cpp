@@ -1,6 +1,7 @@
 #include "power_supply_manager.h"
 
 #include <QtGlobal>
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <synchapi.h>
@@ -18,14 +19,6 @@ void wait() { Sleep(WAIT_INTERVAL); }
 
 PowerSupplyManager::PowerSupplyManager() {
     qInfo() << tlc::kPowerManagerConstructor;
-    m_socket = new QTcpSocket;
-    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            SLOT(errorInSocket(QAbstractSocket::SocketError)),
-            Qt::DirectConnection);
-    loadJsonConfig();
-    checkPowersConection();
-    setInitialParams();
-    switchOnAllUnits();
 }
 
 PowerSupplyManager::~PowerSupplyManager() {
@@ -297,10 +290,31 @@ void PowerSupplyManager::errorInSocket(QAbstractSocket::SocketError error) {
     }
 }
 
-void PowerSupplyManager::switch_on_one_lamp(const int index) { Q_UNUSED(index) }
+void PowerSupplyManager::switch_on_one_lamp(const int index) {
+    qDebug() << "*************** CHECK SWITCH ON ONE LAMP ROUTE "
+                "***********************";
+    increaseVoltageStepByStepToCurrentLimit(index);
+}
 
 void PowerSupplyManager::switch_off_one_lamp(const int index) {
     Q_UNUSED(index)
+}
+
+void PowerSupplyManager::initSocket() {
+    m_socket = new QTcpSocket(this);
+    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(errorInSocket(QAbstractSocket::SocketError)),
+            Qt::DirectConnection);
+    connect(this, SIGNAL(make_one_lamp_off(int)), this,
+            SLOT(switch_off_one_lamp(int)), Qt::DirectConnection);
+    connect(this, SIGNAL(make_one_lamp_on(int)), this,
+            SLOT(switch_on_one_lamp(int)), Qt::DirectConnection);
+    qDebug() << "SOCKET IN NEW CONTEXT**************************************";
+    loadJsonConfig();
+    checkPowersConection();
+    setInitialParams();
+    switchOnAllUnits();
+    emit socketInitialized();
 }
 
 void PowerSupplyManager::getIpAndOutForIndex(const int index, QString& ip,

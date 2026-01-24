@@ -101,6 +101,12 @@ MainWindow::MainWindow(QWidget* parent)
         }
         m_sceneCalibr->update();
     });
+
+    // void lamp_state_changed(int lamp_index, double voltage, double current);
+    connect(this, SIGNAL(make_one_lamp_on(int)), m_powerManager,
+            SIGNAL(make_one_lamp_on(int)));
+    connect(m_powerManager, SIGNAL(lamp_state_changed(int, double, double)),
+            this, SLOT(update_lamp_state(int, double, double)));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -146,7 +152,6 @@ void MainWindow::operation_failed_voice_notification() {
 
 void MainWindow::retest_all_powers() {
     qInfo() << tlc::kOperationUpdateAllPowersStates;
-    m_timer_to_update_power_states->stop();
     QTimer::singleShot(5000, this, SLOT(testSlot()));
 }
 
@@ -242,8 +247,9 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
 }
 
 void MainWindow::testSlot() {
-    bool first_power_state = m_powerManager->getPowerStatus(0);
-    bool second_power_state = m_powerManager->getPowerStatus(2);
+    m_timer_to_update_power_states->stop();
+    bool first_power_state = m_powerManager->getPowerStatus(0, true);
+    bool second_power_state = m_powerManager->getPowerStatus(2, true);
     bool third_power_state = m_powerManager->getPowerStatus(4);
 
     bulb_state bulbs_states[NUMBER_OF_LAMPS];
@@ -334,10 +340,15 @@ void MainWindow::initializeVariables() {
 }
 
 void MainWindow::createObjects() {
-    m_powers_manager_thread = new QThread;
     m_powerManager = new PowerSupplyManager;
+    m_powers_manager_thread = new QThread;
     m_powerManager->moveToThread(m_powers_manager_thread);
+    connect(m_powers_manager_thread, &QThread::started, m_powerManager,
+            &PowerSupplyManager::initSocket);
+    connect(m_powers_manager_thread, &QThread::finished, m_powerManager,
+            &QObject::deleteLater);
     m_powers_manager_thread->start();
+
     m_sceneCalibr = new QGraphicsScene;
 
     repeatLastNotification = new QShortcut(this);
@@ -372,18 +383,15 @@ void MainWindow::setUpGui() {
         auto icon = iut::createIcon(color.red(), color.green(), color.blue());
         ui->comboBox_mode->addItem(icon, cfg.lamps_array[i].name);
     }
-    ui->pushButton_switchOffOneLamp->setIcon(
-        QIcon(":/svg/trending_down.svg"));
+    ui->pushButton_switchOffOneLamp->setIcon(QIcon(":/svg/trending_down.svg"));
     ui->pushButton_switchOffOneLamp->setIconSize(QSize(64, 64));
     ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
 
-    ui->pushButton_switch_on_one_lamp->setIcon(
-        QIcon(":/svg/trending_up.svg"));
+    ui->pushButton_switch_on_one_lamp->setIcon(QIcon(":/svg/trending_up.svg"));
     ui->pushButton_switch_on_one_lamp->setIconSize(QSize(64, 64));
     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
 
-    ui->pushButton_update_power_states->setIcon(
-        QIcon(":/svg/update.svg"));
+    ui->pushButton_update_power_states->setIcon(QIcon(":/svg/update.svg"));
     ui->pushButton_update_power_states->setIconSize(QSize(64, 64));
 
     ui->pushButton_update->setIcon(QIcon(":/svg/update.svg"));
@@ -455,13 +463,15 @@ void MainWindow::on_pushButton_Forward_clicked() {
             "Тестирование") {
             // m_sounder.playSound("startTest.mp3");
             ui->pushButton_Forward->setEnabled(false);
-            QTimer::singleShot(1000, this, SLOT(testSlot()));
+            // QTimer::singleShot(1000, this, SLOT(testSlot()));
+            ui->pushButton_Forward->setEnabled(true);
             return;
         }
         if (m_pages.value(ui->stackedWidget->currentIndex()) == "Калибровка") {
             m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
-            m_timer_to_update_power_states->start();
+            // m_timer_to_update_power_states->start();
+
             ui->pushButton_Forward->setVisible(false);
         }
     }
@@ -532,7 +542,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         QTimer::singleShot(1000, this, &MainWindow::switch_off_all_lamps);
         return;
     }
-
+    m_timer_to_update_power_states->stop();
     qInfo() << tlc::kOperationSwitchOffOneLampName;
     if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
         if (m_bulbs_graphics_item->setBulbOff(m_current_lamp_index)) {
@@ -556,6 +566,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         qWarning()
             << QString(tlc::kOperationSwitchOffOneLampFailed).arg(power_num);
     }
+    m_timer_to_update_power_states->stop();
 }
 
 // Обработчик нажатия на кнопку включения лампы ON
@@ -566,6 +577,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         return;
     }
 
+    m_timer_to_update_power_states->stop();
     qInfo() << tlc::kOperationSwitchOnOneLampName;
     if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
         if (m_bulbs_graphics_item->setBulbOn(m_current_lamp_index)) {
@@ -573,17 +585,10 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
 
         } else {
             m_sounder.playSound("switchOnOneLamp.mp3");
-            m_powerManager->increaseVoltageStepByStepToCurrentLimit(
-                m_current_lamp_index);
+            /*m_powerManager->increaseVoltageStepByStepToCurrentLimit(
+                m_current_lamp_index);*/
+            emit make_one_lamp_on(m_current_lamp_index);
         };
-
-        if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
-            if (ui->checkBox_auto_up_down->isChecked()) {
-                ++m_current_lamp_index;
-            }
-        }
-        m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
-        m_sceneCalibr->update();
 
     } else {
         operation_failed_voice_notification();
@@ -591,4 +596,18 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         qWarning()
             << QString(tlc::kOperationSwitchOnOneLampFailed).arg(power_num);
     }
+}
+
+void MainWindow::update_lamp_state(int lamp_index, double voltage,
+                                   double current) {
+    if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
+        if (ui->checkBox_auto_up_down->isChecked()) {
+            ++m_current_lamp_index;
+        }
+    }
+    m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
+    m_sceneCalibr->update();
+    qDebug() << "YAHOOOOOOOOOOOOOOOOOOOOO --------------->" << lamp_index
+             << voltage << current;
+    // m_timer_to_update_power_states->start();
 }

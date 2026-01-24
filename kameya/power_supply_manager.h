@@ -78,6 +78,7 @@ public:
 
 private:
     QTcpSocket* m_socket;
+
     QHostAddress m_hostAddress;
     QJsonObject m_powers;
 
@@ -88,14 +89,21 @@ private:
     void setInitialParams();
 
 signals:
+    // commands signals
+    void make_one_lamp_on(int);
+    void make_one_lamp_off(int);
+    // states changed signals
     void lamp_state_changed_to_ub(int lamp_index);
     void lamp_state_changed(int lamp_index, double voltage, double current);
     void power_state_changed(int power_index, int power_out, bool is_on);
+    void socketInitialized();
 
 private slots:
     void errorInSocket(QAbstractSocket::SocketError error);
     void switch_on_one_lamp(const int index);
     void switch_off_one_lamp(const int index);
+public slots:
+    void initSocket();
 };
 
 #endif  // POWER_SUPPLY_MANAGER_H
