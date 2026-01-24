@@ -21,7 +21,8 @@ PowerSupplyManager::PowerSupplyManager() {
     qInfo() << tlc::kPowerManagerConstructor;
     m_socket = new QTcpSocket;
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            SLOT(errorInSocket(QAbstractSocket::SocketError)));
+            SLOT(errorInSocket(QAbstractSocket::SocketError)),
+            Qt::DirectConnection);
     loadJsonConfig();
     checkPowersConection();
     setInitialParams();
