@@ -27,6 +27,10 @@ extern const char kOperationSwitchOnResultFailed[];
 
 extern const char kFailedLampIndex[];
 
+extern const char kFailIncreasingProcessSocketUnconnected[];
+extern const char kFailDecreasingProcessSocketUnconnected[];
+extern const char kFailDecreasingProcessVoltageUnchaged[];
+
 }  // namespace tlc
 
 #endif  // TEXT_LOG_CONSTANTS_H

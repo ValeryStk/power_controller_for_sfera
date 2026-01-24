@@ -1,6 +1,7 @@
-#include "text_log_constants.h"
+#include "text_log_constants.h"  // IWYU pragma: keep
 
 namespace tlc {
+
 const char kPowerManagerConstructor[] = "power manager constructor";
 const char kPowerManagerDestructor[] = "power manager destructor";
 
@@ -32,5 +33,11 @@ const char kOperationSwitchOffResultFailed[] =
 const char kOperationSwitchOnResultFailed[] =
     "SWITCH ON  OPERATION FAILED (TARGET CURRENT IS NOT REACHED (%1))";
 const char kFailedLampIndex[] = "FAILED LAMP: %1";
+const char kFailIncreasingProcessSocketUnconnected[] =
+    "INCREASING LAMP %1 FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
+const char kFailDecreasingProcessSocketUnconnected[] =
+    "DECREASING LAMP %1 FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
+const char kFailDecreasingProcessVoltageUnchaged[] =
+    "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
 
 }  // end namespace tlc

@@ -1,14 +1,13 @@
 #include "power_supply_manager.h"
 
 #include <QtGlobal>
-
-#include "commands_builder.h"
-#include "json_utils.h"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <synchapi.h>
 
+#include "commands_builder.h"
 #include "config.h"
+#include "json_utils.h"
 #include "text_log_constants.h"
 
 constexpr int host_port = 9221;
@@ -175,15 +174,15 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
     double target_current = m_powers[global::kJsonKeyLampsArray]
                                 .toArray()[index]
                                 .toObject()
-                                .value("max_current")
+                                .value(global::kJsonKeyMaxCurrent)
                                 .toDouble();
     int fail_counter = 0;
 
     while (getCurrentValue(index, true) < target_current) {
         ++fail_counter;
         if (m_socket->state() != QTcpSocket::ConnectedState) {
-            qWarning() << "INCREASING LAMP " << index + 1
-                       << "FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
+            qWarning() << QString(tlc::kFailIncreasingProcessSocketUnconnected)
+                              .arg(index + 1);
             emit lamp_state_changed_to_ub(index);
             emit power_state_changed(global::get_power_num_by_index(index),
                                      global::get_power_out_by_index(index),
@@ -226,17 +225,17 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
 
 void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
     maybeReconnectHost(index);
+    auto power_num = global::get_power_num_by_index(index);
+    auto out_num = global::get_power_out_by_index(index);
     int fail_counter = 0;
     double start_voltage = getVoltage(index, true);
     while (getVoltage(index, true) > global::kVoltageZeroAccuracy) {
         ++fail_counter;
         if (m_socket->state() != QTcpSocket::ConnectedState) {
-            qWarning() << "DECREASING LAMP " << index + 1
-                       << "FAILED BECAUSE QTCPSOCKET::UNCONNECTED";
+            qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
+                              .arg(index + 1);
             emit lamp_state_changed_to_ub(index);
-            emit power_state_changed(global::get_power_num_by_index(index),
-                                     global::get_power_out_by_index(index),
-                                     false);
+            emit power_state_changed(power_num, out_num, false);
             break;
         }
 
@@ -253,8 +252,6 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
         }
         if (fail_counter == 3 &&
             ((start_voltage - voltage) <= VOLTAGE_DECREASE_STEP)) {
-            auto power_num = global::get_power_num_by_index(index);
-            auto out_num = global::get_power_out_by_index(index);
             QString message =
                 "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
             qWarning() << message.arg(power_num).arg(out_num);

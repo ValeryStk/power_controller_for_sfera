@@ -58,6 +58,7 @@ void bulbs_states_UnitTests::bulbs_items_test() {
     QApplication::setOverrideCursor(customCursor);
     qInstallMessageHandler(myMessageOutput);
     MainWindow *main_window = new MainWindow;
+    main_window->setWindowTitle("BULB STATES TEST");
     main_window->show();
     app.exec();
 }
