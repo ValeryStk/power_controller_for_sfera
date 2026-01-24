@@ -15,14 +15,14 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
         qDebug() << "Получено:" << data;
         // Ответ клиенту
         auto str = data.toStdString();
-        if (str == "OP1?\n") {
+        if (str == "OP1?\n" || str == "OP2?\n") {
             clientSocket->write("1\n");
-        } else if (str == "OP2?\n") {
-            clientSocket->write("1\n");
-        } else if (str == "I1?\n") {
-            clientSocket->write("I1 10.23\n");
-        } else if (str == "I2?\n") {
-            clientSocket->write("I1 10.22\n");
+        } else if (str == "I1?\n" || str == "I2?\n") {
+            clientSocket->write("I1 10.0\n");
+        } else if (str == "I1O?\n" || str == "I2O?\n") {
+            clientSocket->write("A 5.0\n");
+        } else if (str == "V1O?\n" || str == "V2O?\n") {
+            clientSocket->write("V 24.0\n");
         } else {
             clientSocket->write("1\n");
         }

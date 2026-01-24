@@ -63,11 +63,13 @@ public:
         static const QStringList prefixes = {"V1", "V2", "A", "V", "I1", "I2"};
 
         QString temp = msg;
-        temp.remove('\r').remove('\n').remove(' ');
 
         for (const auto& prefix : prefixes) {
             if (temp.startsWith(prefix)) {
-                return temp.midRef(prefix.length()).toDouble();
+                temp.remove('\r').remove('\n').remove(' ').remove(prefix);
+                bool isOk = false;
+                double result = temp.toDouble(&isOk);
+                return result;
             }
         }
 
