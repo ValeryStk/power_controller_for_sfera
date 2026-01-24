@@ -5,8 +5,7 @@
 #include "MainWindow.h"
 #include "logger.h"
 #include "mock_power_server.h"
-#include "qrc_files_restorer.h"
-#include "ui_MainWindow.h"
+#include "ui_MainWindow.h"  // IWYU pragma: keep
 
 namespace {}  // end namespace
 
@@ -14,7 +13,8 @@ bulbs_states_UnitTests::bulbs_states_UnitTests() {}
 
 void bulbs_states_UnitTests::initTestCase() {
     // Инициализация перед запуском всех тестов
-    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
+    QFileInfo fi(global::config_json_file_name);
+    QFile::copy(":/mock/mock_config.json", global::config_json_file_name);
 }
 
 void bulbs_states_UnitTests::cleanupTestCase() {
@@ -39,7 +39,6 @@ void bulbs_states_UnitTests::bulbs_items_test() {
     server->moveToThread(&serverThread);
 
     QObject::connect(&serverThread, &QThread::started, [server]() {
-        // Сервер слушает только на IP 192.168.0.100
         QHostAddress bindAddress("127.0.0.1");
         if (!server->listen(bindAddress, 9221)) {
             qDebug() << "Не удалось запустить сервер!";
@@ -53,7 +52,7 @@ void bulbs_states_UnitTests::bulbs_items_test() {
     QObject::connect(&serverThread, &QThread::finished, server,
                      &QObject::deleteLater);
     serverThread.start();
-    QPixmap pixmap = QPixmap::fromImage(QImage(":/guiPictures/bug.svg"));
+    QPixmap pixmap = QPixmap::fromImage(QImage(":/svg/bug.svg"));
     QCursor customCursor(pixmap);
     QApplication::setOverrideCursor(customCursor);
     qInstallMessageHandler(myMessageOutput);

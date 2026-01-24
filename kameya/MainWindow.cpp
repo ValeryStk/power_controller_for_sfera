@@ -373,26 +373,26 @@ void MainWindow::setUpGui() {
         ui->comboBox_mode->addItem(icon, cfg.lamps_array[i].name);
     }
     ui->pushButton_switchOffOneLamp->setIcon(
-        QIcon(":/guiPictures/trending_down.svg"));
+        QIcon(":/svg/trending_down.svg"));
     ui->pushButton_switchOffOneLamp->setIconSize(QSize(64, 64));
     ui->pushButton_switchOffOneLamp->setText(kSwitchOffLampsText);
 
     ui->pushButton_switch_on_one_lamp->setIcon(
-        QIcon(":/guiPictures/trending_up.svg"));
+        QIcon(":/svg/trending_up.svg"));
     ui->pushButton_switch_on_one_lamp->setIconSize(QSize(64, 64));
     ui->pushButton_switch_on_one_lamp->setText(kSwitchOnAllLampsText);
 
     ui->pushButton_update_power_states->setIcon(
-        QIcon(":/guiPictures/update.svg"));
+        QIcon(":/svg/update.svg"));
     ui->pushButton_update_power_states->setIconSize(QSize(64, 64));
 
-    ui->pushButton_update->setIcon(QIcon(":/guiPictures/update.svg"));
+    ui->pushButton_update->setIcon(QIcon(":/svg/update.svg"));
     ui->pushButton_update->setIconSize(QSize(64, 64));
 
-    ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
+    ui->pushButton_sound->setIcon(QIcon(":/svg/volume_up.svg"));
     ui->pushButton_sound->setIconSize(QSize(64, 64));
 
-    ui->pushButton_open_log->setIcon(QIcon(":/guiPictures/log.svg"));
+    ui->pushButton_open_log->setIcon(QIcon(":/svg/log.svg"));
     ui->pushButton_open_log->setIconSize(QSize(64, 64));
 }
 
@@ -401,7 +401,7 @@ void MainWindow::setUpScene() {
     psis = {{nullptr, global::kJsonKeyPowerSupply1_Object},
             {nullptr, global::kJsonKeyPowerSupply2_Object},
             {nullptr, global::kJsonKeyPowerSupply3_Object}};
-    const QString svg_power_path = ":/guiPictures/PS.svg";
+    const QString svg_power_path = ":/svg/PS.svg";
 
     for (int i = 0; i < psis.size(); ++i) {
         psis[i].first = new PowerSupplyItem(svg_power_path, cfg.powers[i].name,
@@ -506,12 +506,12 @@ void MainWindow::on_pushButton_sound_toggled(bool checked) {
     if (checked) {
         m_sounder.playSound("audioNotificationsOff.mp3");
         m_sounder.muteSoundNotifications(checked);
-        ui->pushButton_sound->setIcon(QIcon(":/guiPictures/no_sound.svg"));
+        ui->pushButton_sound->setIcon(QIcon(":/svg/no_sound.svg"));
 
     } else {
         m_sounder.muteSoundNotifications(checked);
         m_sounder.playSound("soundOn.mp3");
-        ui->pushButton_sound->setIcon(QIcon(":/guiPictures/volume_up.svg"));
+        ui->pushButton_sound->setIcon(QIcon(":/svg/volume_up.svg"));
     }
 }
 

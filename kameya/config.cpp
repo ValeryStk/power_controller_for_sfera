@@ -18,8 +18,8 @@ constexpr int OUT_PARAM = 1;
 const double kVoltageZeroAccuracy = 0.005;
 const double kCurrentTargetAccuracy = 0.03;
 
-const QString json_lamps_file_name = "ir_lamps.json";
-const QString json_lamps_qrc_file_name = ":/4restoring/ir_lamps.json";
+const QString config_json_file_name = "config.json";
+const QString config_json_qrc_full_path = ":/4restoring/config.json";
 const QString current_voltage_log_file_name = "cv.log";
 const QString path_to_logs_dir = "/_logs";
 const QString relative_path_to_logic_log_file = "/_logs/logic.log";
@@ -102,7 +102,7 @@ void get_config_struct(const QString path_to_json_config,
 }
 
 void get_config_struct(lamps_powers_config& cfg) {
-    get_config_struct(json_lamps_file_name, cfg);
+    get_config_struct(config_json_file_name, cfg);
 }
 
 }  // end namespace global

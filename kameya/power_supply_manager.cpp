@@ -45,7 +45,8 @@ QString PowerSupplyManager::getID() {
 
 void PowerSupplyManager::loadJsonConfig() {
     qInfo() << "Load lamps.json config";
-    bool is_json_valid = jsn::getJsonObjectFromFile("ir_lamps.json", m_powers);
+    bool is_json_valid =
+        jsn::getJsonObjectFromFile(global::config_json_file_name, m_powers);
     if (!is_json_valid) {
         qCritical() << "json config is not loaded";
         return;
@@ -300,21 +301,6 @@ void PowerSupplyManager::switch_on_one_lamp(const int index) { Q_UNUSED(index) }
 
 void PowerSupplyManager::switch_off_one_lamp(const int index) {
     Q_UNUSED(index)
-}
-
-double PowerSupplyManager::getValueFromMessage(const QString& msg) {
-    static const QStringList prefixes = {"V1", "V2", "A", "V", "I1", "I2"};
-
-    QString temp = msg;
-    temp.remove('\r').remove('\n').remove(' ');
-
-    for (const auto& prefix : prefixes) {
-        if (temp.startsWith(prefix)) {
-            return temp.midRef(prefix.length()).toDouble();
-        }
-    }
-
-    return 0.0;
 }
 
 void PowerSupplyManager::getIpAndOutForIndex(const int index, QString& ip,

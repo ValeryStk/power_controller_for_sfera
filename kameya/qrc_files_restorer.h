@@ -1,7 +1,7 @@
 #ifndef QRC_FILES_RESTORER_H
 #define QRC_FILES_RESTORER_H
 
-#include "qstring.h"
+class QString;
 
 /*!
     \brief Класс является объектом, необходимым для восстановления файлов в
@@ -12,7 +12,6 @@
 */
 class QrcFilesRestorer {
 public:
-    QrcFilesRestorer(QString path2Qrc);
     static void restoreFilesFromQrc(QString path2Qrc);
 };
 

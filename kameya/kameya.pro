@@ -6,3 +6,4 @@ include(sources.pri)
 
 SOURCES += \
     $$PWD/main.cpp\
+

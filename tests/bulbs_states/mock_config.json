@@ -1,0 +1,73 @@
+{
+    "is_sound": false,
+    "is_unlock": true,
+    "lamps": [
+        {
+            "color": "pink",
+            "ip": "127.0.0.1",
+            "max_current": 10,
+            "name": "лампа 1",
+            "out": 1,
+            "total_work_hours": 0
+        },
+        {
+            "color": "blue",
+            "ip": "127.0.0.1",
+            "max_current": 10.001,
+            "name": "лампа 2",
+            "out": 2,
+            "total_work_hours": 0
+        },
+        {
+            "color": "red",
+            "ip": "127.0.0.1",
+            "max_current": 10.002,
+            "name": "лампа 3",
+            "out": 1,
+            "total_work_hours": 0
+        },
+        {
+            "color": "yellow",
+            "ip": "127.0.0.1",
+            "max_current": 10.003,
+            "name": "лампа 4",
+            "out": 2,
+            "total_work_hours": 0
+        },
+        {
+            "color": "green",
+            "ip": "127.0.0.1",
+            "max_current": 10.004,
+            "name": "лампа 5",
+            "out": 1,
+            "total_work_hours": 0
+        },
+        {
+            "color": "brown",
+            "ip": "127.0.0.1",
+            "max_current": 10.005,
+            "name": "лампа 6",
+            "out": 2,
+            "total_work_hours": 0
+        }
+    ],
+    "lamps_item_coords": {
+        "x": 1084,
+        "y": 72
+    },
+    "ps1": {
+        "name": "БП-1 127.0.0.1",
+        "x": -257,
+        "y": 1
+    },
+    "ps2": {
+        "name": "БП-2 127.0.0.1",
+        "x": 241,
+        "y": 1
+    },
+    "ps3": {
+        "name": "БП-3 127.0.0.1",
+        "x": 239,
+        "y": 307
+    }
+}

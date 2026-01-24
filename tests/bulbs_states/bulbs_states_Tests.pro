@@ -7,3 +7,6 @@ HEADERS += bulbs_states_UnitTests.h\
 
 SOURCES += bulbs_states_UnitTests.cpp\
     mock_power_server.cpp
+
+RESOURCES += \
+    mock_res.qrc

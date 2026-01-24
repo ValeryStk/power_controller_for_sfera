@@ -1,6 +1,8 @@
 QT += network multimediawidgets widgets printsupport svg
 CONFIG += resources_big
 
+include(restore_res.pri)
+
 HEADERS += \
     $$PWD/version.h \
     $$PWD/config.h \

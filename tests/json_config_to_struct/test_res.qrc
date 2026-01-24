@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>test_lamps_correct.json</file>
+    </qresource>
+</RCC>

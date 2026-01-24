@@ -65,8 +65,8 @@ extern const double kVoltageZeroAccuracy;
 extern const double kCurrentTargetAccuracy;
 
 // file names and dirs
-extern const QString json_lamps_file_name;
-extern const QString json_lamps_qrc_file_name;
+extern const QString config_json_file_name;
+extern const QString config_json_qrc_full_path;
 extern const QString current_voltage_log_file_name;
 extern const QString path_to_logs_dir;
 extern const QString relative_path_to_logic_log_file;

@@ -135,11 +135,11 @@ width:50px;
 height:50px;
 }
 QCheckBox::indicator:unchecked {
-    image: url(:/guiPictures/CheckBox_unchecked.png);
+    image: url(:/svg/CheckBox_unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(:/guiPictures/CheckBox_checked.png);
+    image: url(:/svg/CheckBox_checked.png);
 }
 
 
@@ -176,11 +176,11 @@ height:50px;
 }
 
 QCheckBox::indicator:unchecked {
-    image: url(:/guiPictures/CheckBox_unchecked.png);
+    image: url(:/svg/CheckBox_unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(:/guiPictures/CheckBox_checked.png);
+    image: url(:/svg/CheckBox_checked.png);
 }</string>
           </property>
           <property name="text">
@@ -207,11 +207,11 @@ width:50px;
 height:50px;
 }
 QCheckBox::indicator:unchecked {
-    image: url(:/guiPictures/CheckBox_unchecked.png);
+    image: url(:/svg/CheckBox_unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(:/guiPictures/CheckBox_checked.png);
+    image: url(:/svg/CheckBox_checked.png);
 }</string>
           </property>
           <property name="text">

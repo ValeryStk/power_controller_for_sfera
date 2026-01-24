@@ -20,6 +20,7 @@ struct PowerUnitParams {
 //!
 class PowerSupplyManager : public QObject {
     Q_OBJECT
+    friend class MockPowerServer;
 
 public:
     PowerSupplyManager();
@@ -58,13 +59,27 @@ public:
 
     bool isPowerOutConnected(const int index);
 
+    static double getValueFromMessage(const QString& msg) {
+        static const QStringList prefixes = {"V1", "V2", "A", "V", "I1", "I2"};
+
+        QString temp = msg;
+        temp.remove('\r').remove('\n').remove(' ');
+
+        for (const auto& prefix : prefixes) {
+            if (temp.startsWith(prefix)) {
+                return temp.midRef(prefix.length()).toDouble();
+            }
+        }
+
+        return 0.0;
+    };
+
 private:
     QTcpSocket* m_socket;
     QHostAddress m_hostAddress;
     QJsonObject m_powers;
 
     void loadJsonConfig();
-    double getValueFromMessage(const QString& msg);
     void getIpAndOutForIndex(const int index, QString& ip, int& out);
     int getPowerOutsSize() const;
     int maybeReconnectHost(const int index);

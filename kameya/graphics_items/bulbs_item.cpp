@@ -20,7 +20,7 @@ BulbsQGraphicsItem::BulbsQGraphicsItem() {
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
     m_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::json_lamps_file_name, jo);
+    jsn::getJsonObjectFromFile(global::config_json_file_name, jo);
     auto coords = jo[global::kJsonKeyLampsCoordsObject].toObject();
     auto x = coords.value(global::kJsonKeyX).toInt();
     auto y = coords.value(global::kJsonKeyY).toInt();
@@ -35,18 +35,18 @@ BulbsQGraphicsItem::BulbsQGraphicsItem() {
 
 BulbsQGraphicsItem::~BulbsQGraphicsItem() {
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::json_lamps_file_name, jo);
+    jsn::getJsonObjectFromFile(global::config_json_file_name, jo);
     auto pos = scenePos().toPoint();
     QJsonObject coords;
     coords[global::kJsonKeyX] = pos.x();
     coords[global::kJsonKeyY] = pos.y();
     jo[global::kJsonKeyLampsCoordsObject] = coords;
-    jsn::saveJsonObjectToFile(global::json_lamps_file_name, jo,
+    jsn::saveJsonObjectToFile(global::config_json_file_name, jo,
                               QJsonDocument::Indented);
 }
 
 QRectF BulbsQGraphicsItem::boundingRect() const {
-    static QImage imgOn(":/guiPictures/bulb_on.png");
+    static QImage imgOn(":/svg/bulb_on.png");
     int spacing = imgOn.height() + 10;
     int totalHeight = NUMBER_OF_LAMPS * spacing;
     int totalWidth = imgOn.width() + 100;  // запас справа под время работы
@@ -63,9 +63,9 @@ void BulbsQGraphicsItem::paint(QPainter *painter,
 }
 
 void BulbsQGraphicsItem::drawLamps(QPainter *painter) {
-    static QImage imgOn(":/guiPictures/bulb_on.png");
-    static QImage imgOff(":/guiPictures/bulb_off.png");
-    static QImage imgUndefined(":/guiPictures/bulb_undefined.png");
+    static QImage imgOn(":/svg/bulb_on.png");
+    static QImage imgOff(":/svg/bulb_off.png");
+    static QImage imgUndefined(":/svg/bulb_undefined.png");
 
     int spacing = imgOn.height() + 10;
     int radius = std::max(imgOn.width(), imgOn.height()) / 2 + 5;

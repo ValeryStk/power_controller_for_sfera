@@ -16,31 +16,30 @@
         <file>sounds/testProblem.mp3</file>
         <file>sounds/timeOutCase.mp3</file>
         <file>sounds/welcome.mp3</file>
-        <file>guiPictures/bulb_off.png</file>
-        <file>guiPictures/bulb_on.png</file>
-        <file>guiPictures/CheckBox_checked.png</file>
-        <file>guiPictures/CheckBox_unchecked.png</file>
+        <file>svg/bulb_off.png</file>
+        <file>svg/bulb_on.png</file>
+        <file>svg/CheckBox_checked.png</file>
+        <file>svg/CheckBox_unchecked.png</file>
         <file>sounds/dontForgetCooling.mp3</file>
         <file>sounds/audioNotificationsOff.mp3</file>
         <file>sounds/oneLampWasSwitchedOff.mp3</file>
         <file>sounds/switchOffLamp.mp3</file>
-        <file>4restoring/ir_lamps.json</file>
         <file>sounds/switchOnOneLamp.mp3</file>
-        <file>guiPictures/bulb_undefined.png</file>
+        <file>svg/bulb_undefined.png</file>
         <file>sounds/soundOn.mp3</file>
         <file>sounds/lamp_is_already_off.mp3</file>
         <file>sounds/lamp_is_already_on.mp3</file>
-        <file>guiPictures/trending_down.svg</file>
-        <file>guiPictures/trending_up.svg</file>
+        <file>svg/trending_down.svg</file>
+        <file>svg/trending_up.svg</file>
         <file>sounds/run_all_lamps_to_off_state.mp3</file>
         <file>sounds/run_all_lamps_to_on_state.mp3</file>
         <file>sounds/lamp_in_undefined_state_is_founded.mp3</file>
-        <file>guiPictures/no_sound.svg</file>
-        <file>guiPictures/volume_up.svg</file>
-        <file>guiPictures/PS.svg</file>
-        <file>guiPictures/update.svg</file>
+        <file>svg/no_sound.svg</file>
+        <file>svg/volume_up.svg</file>
+        <file>svg/PS.svg</file>
+        <file>svg/update.svg</file>
         <file>sounds/operation_failed.mp3</file>
-        <file>guiPictures/log.svg</file>
-        <file>guiPictures/bug.svg</file>
+        <file>svg/log.svg</file>
+        <file>svg/bug.svg</file>
     </qresource>
 </RCC>

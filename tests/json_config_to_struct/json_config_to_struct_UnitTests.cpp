@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "config.h"
+#include "qrc_files_restorer.h"
 
 namespace {}  // end namespace
 
@@ -10,6 +11,8 @@ json_config_to_struct_UnitTests::json_config_to_struct_UnitTests() {}
 
 void json_config_to_struct_UnitTests::initTestCase() {
     // Инициализация перед запуском всех тестов
+    QrcFilesRestorer::restoreFilesFromQrc(":/");
+    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring/");
 }
 
 void json_config_to_struct_UnitTests::cleanupTestCase() {

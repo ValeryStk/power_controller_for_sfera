@@ -23,7 +23,7 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
         loadSvg(svgPath);
     }
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::json_lamps_file_name, jo);
+    jsn::getJsonObjectFromFile(global::config_json_file_name, jo);
     auto x = jo[m_object_name].toObject().value("x").toInt();
     auto y = jo[m_object_name].toObject().value("y").toInt();
     setPos(x, y);
@@ -34,13 +34,13 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
 
 PowerSupplyItem::~PowerSupplyItem() {
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::json_lamps_file_name, jo);
+    jsn::getJsonObjectFromFile(global::config_json_file_name, jo);
     auto pos = scenePos().toPoint();
     QJsonObject coords = jo[m_object_name].toObject();
     coords["x"] = pos.x();
     coords["y"] = pos.y();
     jo[m_object_name] = coords;
-    jsn::saveJsonObjectToFile(global::json_lamps_file_name, jo,
+    jsn::saveJsonObjectToFile(global::config_json_file_name, jo,
                               QJsonDocument::Indented);
 }
 
