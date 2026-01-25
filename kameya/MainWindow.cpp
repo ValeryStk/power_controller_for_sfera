@@ -20,6 +20,7 @@
 #include <synchapi.h>
 
 #include <QDesktopServices>
+#include <QMetaType>
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 
@@ -27,6 +28,10 @@
 #include "graphics_items/power_supply_item.h"
 #include "icon_generator.h"
 #include "text_log_constants.h"
+
+PowerUnitParams initial_struct;
+Q_DECLARE_METATYPE(QVector<PowerUnitParams>)
+PowerUnitParams powers_outs_states[NUMBER_OF_LAMPS];
 
 constexpr char kSwitchOnAllLampsText[] = "Включить все лампы";
 constexpr char kSwitchOnOneLampText[] = "Включить одну лампу";
@@ -63,6 +68,7 @@ QVector<QPair<PowerSupplyItem*, QString>> psis;
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    qRegisterMetaType<QVector<PowerUnitParams>>();
     global::mayBe_create_log_dir();
     global::get_config_struct(cfg);
     createObjects();
@@ -107,6 +113,8 @@ MainWindow::MainWindow(QWidget* parent)
             SIGNAL(make_one_lamp_on(int)));
     connect(m_powerManager, SIGNAL(lamp_state_changed(int, double, double)),
             this, SLOT(update_lamp_state(int, double, double)));
+    connect(m_powerManager, SIGNAL(test_finished(QVector<PowerUnitParams>)),
+            this, SLOT(testSlot(QVector<PowerUnitParams>)));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -152,7 +160,6 @@ void MainWindow::operation_failed_voice_notification() {
 
 void MainWindow::retest_all_powers() {
     qInfo() << tlc::kOperationUpdateAllPowersStates;
-    QTimer::singleShot(5000, this, SLOT(testSlot()));
 }
 
 void MainWindow::switch_on_all_lamps() {
@@ -246,23 +253,22 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
     }
 }
 
-void MainWindow::testSlot() {
+void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
+    qDebug()
+        << "ALL POWERS TEST RESULT -------------------------------------->";
     m_timer_to_update_power_states->stop();
-    bool first_power_state = m_powerManager->getPowerStatus(0, true);
-    bool second_power_state = m_powerManager->getPowerStatus(2, true);
-    bool third_power_state = m_powerManager->getPowerStatus(4);
+    bool first_power_state = powers_outs_states[0].isOn;
+    bool second_power_state = powers_outs_states[2].isOn;
+    bool third_power_state = powers_outs_states[4].isOn;
 
     bulb_state bulbs_states[NUMBER_OF_LAMPS];
     bool power_states[NUMBER_OF_POWER_SUPPLIES] = {
         first_power_state, second_power_state, third_power_state};
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         auto json_current_limit_value = cfg.lamps_array[i].max_current;
-
-        double voltage_protection_value =
-            m_powerManager->getVoltageProtectionValue(i);
-        double current_max_value = m_powerManager->getCurrentLimit(i);
-        double current_present_value = m_powerManager->getCurrentValue(i);
-        double current_voltage = m_powerManager->getVoltage(i);
+        double current_max_value = powers_outs_states[i].Ilim;
+        double current_present_value = powers_outs_states[i].I;
+        double current_voltage = powers_outs_states[i].V;
 
         int power_num = global::get_power_num_by_index(i);
         int out_num = global::get_power_out_by_index(i);
@@ -276,9 +282,6 @@ void MainWindow::testSlot() {
         } else {
             bulbs_states[i] = bulb_state::UNDEFINED;
         }
-        qDebug() << "LAMP " << i + 1
-                 << " VOLTAGE PROTECTION: " << voltage_protection_value
-                 << " Volts";
         QString current_limit_message =
             "FACT CURRENT LIMIT %1 POWER %2 OUT %3 --> LAMP %4";
         qDebug() << current_limit_message.arg(current_max_value)
@@ -327,7 +330,7 @@ void MainWindow::testSlot() {
         showMessageBox(QMessageBox::Warning, "Тест не пройден",
                        "Блоки питания не готовы к работе.");
     }
-    m_timer_to_update_power_states->start();
+    // m_timer_to_update_power_states->start();
     ui->pushButton_update_power_states->setEnabled(true);
     ui->pushButton_update->setEnabled(true);
 }

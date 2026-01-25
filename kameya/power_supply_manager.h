@@ -9,10 +9,11 @@
 #include <QTcpSocket>
 
 struct PowerUnitParams {
-    bool isOn;
-    double V;
-    double I;
-    double Ilim;
+    bool isOn = false;
+    double V = 0.0;
+    double I = 0.0;
+    double Ilim = 0.0;
+    int lamp_index = 0;
 };
 
 //!
@@ -90,9 +91,13 @@ private:
 
 signals:
     // commands signals
+    void test_all();
     void make_one_lamp_on(int);
     void make_one_lamp_off(int);
+
     // states changed signals
+    void states_changed(QVector<PowerUnitParams>);
+    void test_finished(QVector<PowerUnitParams>);
     void lamp_state_changed_to_ub(int lamp_index);
     void lamp_state_changed(int lamp_index, double voltage, double current);
     void power_state_changed(int power_index, int power_out, bool is_on);
@@ -102,6 +107,7 @@ private slots:
     void errorInSocket(QAbstractSocket::SocketError error);
     void switch_on_one_lamp(const int index);
     void switch_off_one_lamp(const int index);
+    void test_all_powers();
 public slots:
     void initSocket();
 };

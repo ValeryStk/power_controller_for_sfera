@@ -116,11 +116,11 @@ double PowerSupplyManager::getVoltageProtectionValue(const quint16 index,
 
 PowerUnitParams PowerSupplyManager::get_all_params_for_lamp_out(
     const quint16 index) {
-    bool is_out_switched_on = getPowerStatus(index);
-    double voltage = getVoltage(index);
-    double current = getCurrentValue(index);
-    double current_limit = getCurrentLimit(index);
-    return {is_out_switched_on, voltage, current, current_limit};
+    bool is_out_switched_on = getPowerStatus(index, true);
+    double voltage = getVoltage(index, true);
+    double current = getCurrentValue(index, true);
+    double current_limit = getCurrentLimit(index, true);
+    return {is_out_switched_on, voltage, current, current_limit, index};
 }
 
 bool PowerSupplyManager::getPowerStatus(const quint16 index, bool is_wait) {
@@ -190,7 +190,8 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
 
         if ((target_current - current) <= global::kCurrentTargetAccuracy) {
             setVoltage(index, MAX_VOLTAGE);
-            qDebug() << "LAMP " << index << "SET MAX VOLTAGE: " << MAX_VOLTAGE;
+            qDebug() << "LAMP " << index + 1
+                     << "SET MAX VOLTAGE: " << MAX_VOLTAGE;
             for (int i = 0; i < TRY_AGAIN_COUNTER; ++i) {
                 setVoltage(index, MAX_VOLTAGE, true);
             }
@@ -300,6 +301,14 @@ void PowerSupplyManager::switch_off_one_lamp(const int index) {
     Q_UNUSED(index)
 }
 
+void PowerSupplyManager::test_all_powers() {
+    QVector<PowerUnitParams> test_result(NUMBER_OF_LAMPS);
+    for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
+        test_result[i] = get_all_params_for_lamp_out(i);
+    }
+    emit test_finished(test_result);
+}
+
 void PowerSupplyManager::initSocket() {
     m_socket = new QTcpSocket(this);
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)),
@@ -314,7 +323,7 @@ void PowerSupplyManager::initSocket() {
     checkPowersConection();
     setInitialParams();
     switchOnAllUnits();
-    emit socketInitialized();
+    test_all_powers();
 }
 
 void PowerSupplyManager::getIpAndOutForIndex(const int index, QString& ip,

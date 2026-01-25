@@ -58,7 +58,7 @@ private:
     void retest_all_powers();
 
 private slots:
-    void testSlot();
+    void testSlot(QVector<PowerUnitParams> powers_states);
     void update_lamp_state(int lamp_index, double voltage, double current);
     void update_ps(int ps, int out, bool isOn, double voltage, double current);
 
