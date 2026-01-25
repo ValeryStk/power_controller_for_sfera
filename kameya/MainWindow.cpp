@@ -114,6 +114,7 @@ MainWindow::MainWindow(QWidget* parent)
             SIGNAL(make_one_lamp_on(int)));
     connect(m_powerManager, SIGNAL(lamp_state_changed(int, double, double)),
             this, SLOT(update_lamp_state(int, double, double)));
+
     connect(m_powerManager, SIGNAL(test_finished(QVector<PowerUnitParams>)),
             this, SLOT(testSlot(QVector<PowerUnitParams>)));
 }
@@ -277,6 +278,7 @@ void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
         double current_max_value = powers_outs_states[i].Ilim;
         double current_present_value = powers_outs_states[i].I;
         double current_voltage = powers_outs_states[i].V;
+        bool isOn = powers_outs_states[i].isOn;
 
         int power_num = global::get_power_num_by_index(i);
         int out_num = global::get_power_out_by_index(i);
@@ -298,8 +300,14 @@ void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
                         .arg(i + 1);
         if (out_num == 1) {
             psis[power_num - 1].first->set_max_current_out_1(current_max_value);
+            psis[power_num - 1].first->set_current_out_1(current_present_value);
+            psis[power_num - 1].first->set_voltage_out_1(current_voltage);
+            psis[power_num - 1].first->set_enabled_out_1(isOn);
         } else if (out_num == 2) {
             psis[power_num - 1].first->set_max_current_out_2(current_max_value);
+            psis[power_num - 1].first->set_current_out_2(current_present_value);
+            psis[power_num - 1].first->set_voltage_out_2(current_voltage);
+            psis[power_num - 1].first->set_enabled_out_2(isOn);
         }
     }
 
