@@ -40,10 +40,6 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
                     &ok);
             qDebug() << "V value: " << value;
             if (ok) {
-                if (V > value) {
-                    value = 0;
-                    I = 0;
-                }
                 V = value;
             }
         } else {

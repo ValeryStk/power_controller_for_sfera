@@ -171,9 +171,12 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
                                 .value(global::kJsonKeyMaxCurrent)
                                 .toDouble();
     int fail_counter = 0;
+    double last_current_value = 0.0;
+    double last_voltage_value = 0.0;
 
-    while (getCurrentValue(index, true) < target_current) {
+    while (last_current_value < target_current) {
         ++fail_counter;
+
         if (m_socket->state() != QTcpSocket::ConnectedState) {
             qWarning() << QString(tlc::kFailIncreasingProcessSocketUnconnected)
                               .arg(index + 1);
@@ -181,30 +184,29 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
             emit power_state_changed(global::get_power_num_by_index(index),
                                      global::get_power_out_by_index(index),
                                      false);
-            break;
+            return;
         }
-        double voltage = getVoltage(index, true);
-        if (voltage < 0) voltage = 0;
+        last_current_value = getCurrentValue(index, true);
+        last_voltage_value = getVoltage(index, true);
+        if (last_voltage_value < 0) last_voltage_value = 0;
 
-        double current = getCurrentValue(index, true);
-
-        if ((target_current - current) <= global::kCurrentTargetAccuracy) {
+        if ((target_current - last_current_value) <=
+            global::kCurrentTargetAccuracy) {
             setVoltage(index, MAX_VOLTAGE);
             qDebug() << "LAMP " << index + 1
                      << "SET MAX VOLTAGE: " << MAX_VOLTAGE;
             for (int i = 0; i < TRY_AGAIN_COUNTER; ++i) {
                 setVoltage(index, MAX_VOLTAGE, true);
             }
-            emit lamp_state_changed(index, getVoltage(index, true),
-                                    getCurrentValue(index, true));
+            last_voltage_value = getVoltage(index, true);
+            last_current_value = getCurrentValue(index, true);
             break;
         }
 
-        voltage = voltage + VOLTAGE_INCREASE_STEP;
-        setVoltage(index, voltage, true);
-
-        if (fail_counter == 10 &&
-            getVoltage(index, true) <= VOLTAGE_INCREASE_STEP) {
+        double new_voltage_value = last_voltage_value + VOLTAGE_INCREASE_STEP;
+        setVoltage(index, new_voltage_value, true);
+        last_voltage_value = getVoltage(index, true);
+        if (fail_counter == 10 && last_voltage_value <= VOLTAGE_INCREASE_STEP) {
             QString warning =
                 "POWER %1 IS ON BUT VOLTAGE (%2) IS LESS THAN VOLTAGE INCREASE "
                 "STEP (%3)";
@@ -213,9 +215,11 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
                                   .arg(VOLTAGE_INCREASE_STEP);
             qWarning() << message;
             emit lamp_state_changed_to_ub(index);
-            break;
+            return;
         };
     }
+
+    emit lamp_state_changed(index, last_voltage_value, last_current_value);
 }
 
 void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {

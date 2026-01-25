@@ -64,6 +64,7 @@ void append_v_i_to_log(const QString& filePath, const QString& line) {
 }  // namespace
 
 QVector<QPair<PowerSupplyItem*, QString>> psis;
+std::map<int, std::function<void()>> set_active_power_out;
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -149,6 +150,13 @@ bool MainWindow::checkSafetyUser() {
         return true;
     else
         return false;
+}
+
+void MainWindow::setActivePowerOut() {
+    for (int i = 0; i < psis.size(); ++i) {
+        psis[i].first->set_all_outs_unactive();
+    }
+    set_active_power_out[m_current_lamp_index]();
 }
 
 void MainWindow::operation_failed_voice_notification() {
@@ -428,8 +436,14 @@ void MainWindow::setUpScene() {
         psis[power_index].first->setScale(0.8);
         if (out_number == 1) {
             psis[power_index].first->set_out_1_color(color);
+            set_active_power_out[i] = [=]() {
+                psis[power_index].first->set_out_1_active();
+            };
         } else {
             psis[power_index].first->set_out_2_color(color);
+            set_active_power_out[i] = [=]() {
+                psis[power_index].first->set_out_2_active();
+            };
         }
     }
     m_sceneCalibr->setSceneRect(0, 0, 1000, 600);
@@ -437,6 +451,7 @@ void MainWindow::setUpScene() {
     m_bulbs_graphics_item->setZValue(MAX_Z_INDEX);
     m_sceneCalibr->addItem(m_bulbs_graphics_item);
     m_sceneCalibr->update();
+    setActivePowerOut();
 }
 
 // GUI handlers
@@ -512,7 +527,9 @@ void MainWindow::on_comboBox_mode_currentIndexChanged(int index) {
     m_current_lamp_index = index - 1;
 
     m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
+
     m_sceneCalibr->update();
+    setActivePowerOut();
 }
 
 void MainWindow::on_pushButton_sound_toggled(bool checked) {
@@ -610,7 +627,7 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
     }
     m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
     m_sceneCalibr->update();
-    qDebug() << "YAHOOOOOOOOOOOOOOOOOOOOO --------------->" << lamp_index
-             << voltage << current;
-    // m_timer_to_update_power_states->start();
+    update_ps(global::get_power_num_by_index(lamp_index),
+              global::get_power_out_by_index(lamp_index), true, voltage,
+              current);
 }

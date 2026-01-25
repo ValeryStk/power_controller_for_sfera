@@ -47,6 +47,7 @@ private:
     void setUpScene();
     void showMessageBox(QMessageBox::Icon ico, QString titleText, QString text);
     bool checkSafetyUser();
+    void setActivePowerOut();
 
     int m_current_lamp_index;
     QVector<double> bandProfileChannels;
