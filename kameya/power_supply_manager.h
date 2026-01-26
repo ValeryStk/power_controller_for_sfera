@@ -94,6 +94,8 @@ signals:
     void test_all();
     void make_one_lamp_on(int);
     void make_one_lamp_off(int);
+    void make_all_lamps_on();
+    void make_all_lamps_off();
 
     // states changed signals
     void states_changed(QVector<PowerUnitParams>);
@@ -108,6 +110,8 @@ private slots:
     void errorInSocket(QAbstractSocket::SocketError error);
     void switch_on_one_lamp(const int index);
     void switch_off_one_lamp(const int index);
+    void switch_on_all_lamps();
+    void switch_off_all_lamps();
     void test_all_powers();
 public slots:
     void initSocket();

@@ -310,6 +310,20 @@ void PowerSupplyManager::switch_off_one_lamp(const int index) {
     decreaseVoltageStepByStepToZero(index);
 }
 
+void PowerSupplyManager::switch_on_all_lamps() {
+    qDebug() << "ALL LAMPS ON PROCESS STARTED..........";
+    for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
+        increaseVoltageStepByStepToCurrentLimit(i);
+    };
+}
+
+void PowerSupplyManager::switch_off_all_lamps() {
+    qDebug() << "ALL LAMPS OFF PROCESS STARTED..........";
+    for (int i = MAX_CURRENT_LAMP_INDEX; i >= 0; --i) {
+        decreaseVoltageStepByStepToZero(i);
+    };
+}
+
 void PowerSupplyManager::test_all_powers() {
     QVector<PowerUnitParams> test_result(NUMBER_OF_LAMPS);
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
@@ -328,6 +342,10 @@ void PowerSupplyManager::initSocket() {
             SLOT(switch_off_one_lamp(int)), Qt::DirectConnection);
     connect(this, SIGNAL(make_one_lamp_on(int)), this,
             SLOT(switch_on_one_lamp(int)), Qt::DirectConnection);
+    connect(this, SIGNAL(make_all_lamps_off()), this,
+            SLOT(switch_off_all_lamps()), Qt::DirectConnection);
+    connect(this, SIGNAL(make_all_lamps_on()), this,
+            SLOT(switch_on_all_lamps()), Qt::DirectConnection);
     qDebug() << "SOCKET IN NEW CONTEXT**************************************";
     loadJsonConfig();
     checkPowersConection();

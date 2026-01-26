@@ -120,6 +120,10 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_powerManager,
             SIGNAL(lamp_state_changed_to_ub(int, double, double, bool)),
             SLOT(handle_undone_process(int, double, double, bool)));
+    connect(this, SIGNAL(make_all_lamps_off()), m_powerManager,
+            SIGNAL(make_all_lamps_off()));
+    connect(this, SIGNAL(make_all_lamps_on()), m_powerManager,
+            SIGNAL(make_all_lamps_on()));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -269,6 +273,8 @@ void MainWindow::handle_undone_process(int index, double voltage,
     int pwr_num = global::get_power_num_by_index(index);
     int pwr_out = global::get_power_out_by_index(index);
     update_ps(pwr_num, pwr_out, voltage, current, is_on);
+    m_current_lamp_index = index;
+    setActivePowerOut();
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
@@ -578,7 +584,8 @@ void MainWindow::on_pushButton_update_clicked() {
 void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
-        QTimer::singleShot(1000, this, &MainWindow::switch_off_all_lamps);
+        m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS;
+        emit make_all_lamps_off();
         return;
     }
 
@@ -606,7 +613,8 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
-        QTimer::singleShot(1000, this, &MainWindow::switch_on_all_lamps);
+        m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS;
+        emit make_all_lamps_on();
         return;
     }
 
@@ -650,9 +658,25 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
             }
             break;
         case CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS:
-            break;
+            m_bulbs_graphics_item->setBulbOff(lamp_index);
+            m_current_lamp_index = lamp_index;
+            m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
+            update_ps(global::get_power_num_by_index(lamp_index),
+                      global::get_power_out_by_index(lamp_index), true, voltage,
+                      current);
+            setActivePowerOut();
+            m_sceneCalibr->update();
+            return;
         case CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS:
-            break;
+            m_bulbs_graphics_item->setBulbOn(lamp_index);
+            m_current_lamp_index = lamp_index;
+            m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
+            update_ps(global::get_power_num_by_index(lamp_index),
+                      global::get_power_out_by_index(lamp_index), true, voltage,
+                      current);
+            setActivePowerOut();
+            m_sceneCalibr->update();
+            return;
         case CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS:
             break;
     }

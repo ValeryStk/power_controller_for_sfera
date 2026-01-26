@@ -90,5 +90,7 @@ private slots:
 signals:
     void make_one_lamp_on(int);
     void make_one_lamp_off(int);
+    void make_all_lamps_on();
+    void make_all_lamps_off();
 };
 #endif  // MAIN_WINDOW_H
