@@ -15,7 +15,7 @@ constexpr int POWER_SUPPLIES_UPDATE_INTERVAL = 1000;
 
 // WAIT INTERVAL is used to prevent a lot of requests. Power supply can't handle
 // all requests whithout WAIT INTERVAL
-constexpr double WAIT_INTERVAL = 250;
+constexpr double WAIT_INTERVAL = 300;
 constexpr int TRY_AGAIN_COUNTER = 5;
 constexpr int FAIL_COUNTER_LIMIT = 10;
 

@@ -20,7 +20,14 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
         qDebug() << "request: " << data;
         QString response;
         auto str = QString::fromStdString(data.toStdString());
-        if (str == "OP1?\n" || str == "OP2?\n") {
+        if (str == "OP1 1\n" || str == "OP2 1\n") {
+            response = QString("%1\n").arg(state);
+            clientSocket->flush();
+            qDebug() << "response: "
+                     << "ignore";
+            return;
+
+        } else if (str == "OP1?\n" || str == "OP2?\n") {
             response = QString("%1\n").arg(state);
             clientSocket->write(response.toUtf8());
             clientSocket->flush();
@@ -36,8 +43,7 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
             clientSocket->flush();
             return;
         } else if (str == "V1O?\n" || str == "V2O?\n") {
-            QString tmp = str.remove("O?\n");
-            clientSocket->write(QString("%1 %2\n").arg(tmp).arg(V).toUtf8());
+            clientSocket->write(QString("V1 %1\n").arg(V).toUtf8());
             clientSocket->flush();
             return;
         } else if (str.contains("V1") || str.contains("V2")) {
@@ -48,12 +54,12 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
                 tmp.remove("V1").remove("V2").remove(" ").remove("\n").toDouble(
                     &ok);
             qDebug() << "V value: " << value;
-            clientSocket->write("1\n");
-            if (ok) {
+
+            if (ok == false) {
+                qDebug() << "Mock Serevr parsing error...." << str;
             }
         } else {
             qDebug() << "Uknown command:" << str;
-            clientSocket->write("1\n");
         }
         clientSocket->flush();
     });

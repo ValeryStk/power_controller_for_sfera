@@ -118,7 +118,9 @@ PowerUnitParams PowerSupplyManager::get_all_params_for_lamp_out(
     const quint16 index) {
     PowerUnitParams params;
     params.isOn = getPowerStatus(index, true);
+    wait();
     params.V = getVoltage(index, true);
+    wait();
     params.I = getCurrentValue(index, true);
     params.Ilim = getCurrentLimit(index, true);
     return params;
@@ -140,6 +142,7 @@ void PowerSupplyManager::switchOnUnit(const quint16 index, bool is_wait) {
     int out = maybeReconnectHost(index);
     m_socket->write(pwr::makeSwitchOnUnitCommand(out));
     m_socket->waitForBytesWritten();
+    m_socket->readAll();
     if (is_wait) wait();
 }
 
@@ -153,7 +156,8 @@ void PowerSupplyManager::switchOffUnit(const quint16 index, bool is_whait) {
 
 void PowerSupplyManager::switchOnAllUnits() {
     for (int i = 0; i < getPowerOutsSize(); ++i) {
-        switchOnUnit(i);
+        switchOnUnit(i, true);
+        wait();
     }
 }
 
@@ -311,6 +315,7 @@ void PowerSupplyManager::test_all_powers() {
     QVector<PowerUnitParams> test_result(NUMBER_OF_LAMPS);
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         test_result[i] = get_all_params_for_lamp_out(i);
+        wait();
     }
     emit test_finished(test_result);
 }
@@ -327,8 +332,11 @@ void PowerSupplyManager::initSocket() {
     qDebug() << "SOCKET IN NEW CONTEXT**************************************";
     loadJsonConfig();
     checkPowersConection();
+    wait();
     setInitialParams();
+    wait();
     switchOnAllUnits();
+    wait();
     test_all_powers();
 }
 

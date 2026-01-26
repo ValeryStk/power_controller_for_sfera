@@ -275,6 +275,7 @@ void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
     bulb_state bulbs_states[NUMBER_OF_LAMPS];
     bool power_states[NUMBER_OF_POWER_SUPPLIES] = {
         first_power_state, second_power_state, third_power_state};
+
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         auto json_current_limit_value = cfg.lamps_array[i].max_current;
         double current_max_value = powers_outs_states[i].Ilim;
