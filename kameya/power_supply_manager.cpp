@@ -201,6 +201,8 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
             }
             last_voltage_value = getVoltage(index, true);
             last_current_value = getCurrentValue(index, true);
+            emit lamp_state_changed(index, last_voltage_value,
+                                    last_current_value);
             break;
         }
 
@@ -219,8 +221,6 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
             return;
         };
     }
-
-    emit lamp_state_changed(index, last_voltage_value, last_current_value);
 }
 
 void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
@@ -248,6 +248,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
 
         if (voltage <= global::kVoltageZeroAccuracy) {
             setVoltage(index, 0, true);
+            emit lamp_state_changed(index, voltage, getCurrentValue(false));
             break;
         }
         if (fail_counter == 3 &&

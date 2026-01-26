@@ -489,17 +489,12 @@ void MainWindow::on_pushButton_Forward_clicked() {
         }
         if (m_pages.value(ui->stackedWidget->currentIndex()) ==
             "Тестирование") {
-            // m_sounder.playSound("startTest.mp3");
-            ui->pushButton_Forward->setEnabled(false);
-            // QTimer::singleShot(1000, this, SLOT(testSlot()));
             ui->pushButton_Forward->setEnabled(true);
             return;
         }
         if (m_pages.value(ui->stackedWidget->currentIndex()) == "Калибровка") {
             m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
-            // m_timer_to_update_power_states->start();
-
             ui->pushButton_Forward->setVisible(false);
         }
     }
@@ -580,8 +575,8 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
             m_sounder.playSound("lamp_is_already_off.mp3");
         } else {
             m_sounder.playSound("switchOffLamp.mp3");
-            emit make_one_lamp_off(m_current_lamp_index);
             m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS;
+            emit make_one_lamp_off(m_current_lamp_index);
             return;
         };
 
@@ -607,9 +602,9 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
 
         } else {
             m_sounder.playSound("switchOnOneLamp.mp3");
+            m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS;
             emit make_one_lamp_on(m_current_lamp_index);
             qInfo() << tlc::kOperationSwitchOnOneLampName;
-            m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS;
             return;
         };
 
@@ -627,16 +622,16 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
         case CONTROLLER_STATES::WAIT_COMMAND:
             break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS:
-            if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
+            if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
                 if (ui->checkBox_auto_up_down->isChecked()) {
-                    ++m_current_lamp_index;
+                    --m_current_lamp_index;
                 }
             }
             break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS:
-            if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
+            if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
                 if (ui->checkBox_auto_up_down->isChecked()) {
-                    --m_current_lamp_index;
+                    ++m_current_lamp_index;
                 }
             }
             break;
@@ -649,10 +644,10 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
     }
 
     m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
-    m_sceneCalibr->update();
     update_ps(global::get_power_num_by_index(lamp_index),
               global::get_power_out_by_index(lamp_index), true, voltage,
               current);
     setActivePowerOut();
     m_state = CONTROLLER_STATES::WAIT_COMMAND;
+    m_sceneCalibr->update();
 }
