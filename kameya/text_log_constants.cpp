@@ -40,4 +40,12 @@ const char kFailDecreasingProcessSocketUnconnected[] =
 const char kFailDecreasingProcessVoltageUnchaged[] =
     "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
 
+const char kStateMachineWaitCommandState[] = "ОЖИДАНИЕ КОМАНДЫ";
+const char kStateMachineOneLampOnCommandState[] = "ВКЛЮЧЕНИЕ ЛАМПЫ %1";
+const char kStateMachineOneLampOffCommandState[] = "ВЫКЛЮЧЕНИЕ ЛАМПЫ %1";
+const char kStateMachineAllLampsOnCommandState[] = "ВКЛЮЧЕНИЕ ВСЕХ ЛАМП";
+const char kStateMachineAllLampsOffCommandState[] = "ВЫКЛЮЧЕНИЕ ВСЕХ ЛАМП";
+const char kStateMachineUpdateAllLampsCommandState[] =
+    "ОБНОВЛЕНИЕ СОСТОЯНИЯ ВСЕХ БЛОКОВ";
+
 }  // end namespace tlc

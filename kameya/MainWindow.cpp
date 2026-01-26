@@ -275,6 +275,14 @@ void MainWindow::handle_undone_process(int index, double voltage,
     update_ps(pwr_num, pwr_out, voltage, current, is_on);
     m_current_lamp_index = index;
     setActivePowerOut();
+    if (m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
+        m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
+        ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS) &&
+         (m_current_lamp_index == MIN_CURRENT_LAMP_INDEX)) ||
+        ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS) &&
+         (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX))) {
+        ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+    }
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
@@ -371,6 +379,7 @@ void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
     ui->pushButton_update_power_states->setEnabled(true);
     ui->pushButton_update->setEnabled(true);
     m_state = CONTROLLER_STATES::WAIT_COMMAND;
+    ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
 }
 
 void MainWindow::initializeVariables() {
@@ -585,6 +594,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS;
+        ui->label_TitlePage->setText(tlc::kStateMachineAllLampsOffCommandState);
         emit make_all_lamps_off();
         return;
     }
@@ -597,6 +607,9 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         } else {
             m_sounder.playSound("switchOffLamp.mp3");
             m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS;
+            ui->label_TitlePage->setText(
+                QString(tlc::kStateMachineOneLampOffCommandState)
+                    .arg(m_current_lamp_index + 1));
             emit make_one_lamp_off(m_current_lamp_index);
             return;
         };
@@ -614,6 +627,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS;
+        ui->label_TitlePage->setText(tlc::kStateMachineAllLampsOnCommandState);
         emit make_all_lamps_on();
         return;
     }
@@ -626,6 +640,9 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
             m_sounder.playSound("switchOnOneLamp.mp3");
             m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS;
             emit make_one_lamp_on(m_current_lamp_index);
+            ui->label_TitlePage->setText(
+                QString(tlc::kStateMachineOneLampOnCommandState)
+                    .arg(m_current_lamp_index + 1));
             qInfo() << tlc::kOperationSwitchOnOneLampName;
             return;
         };
@@ -649,6 +666,8 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
                     --m_current_lamp_index;
                 }
             }
+            ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+            m_state = CONTROLLER_STATES::WAIT_COMMAND;
             break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS:
             if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
@@ -656,27 +675,27 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
                     ++m_current_lamp_index;
                 }
             }
+            ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+            m_state = CONTROLLER_STATES::WAIT_COMMAND;
             break;
         case CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS:
             m_bulbs_graphics_item->setBulbOff(lamp_index);
             m_current_lamp_index = lamp_index;
-            m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
-            update_ps(global::get_power_num_by_index(lamp_index),
-                      global::get_power_out_by_index(lamp_index), true, voltage,
-                      current);
-            setActivePowerOut();
-            m_sceneCalibr->update();
-            return;
+            if (m_current_lamp_index == MIN_CURRENT_LAMP_INDEX) {
+                ui->label_TitlePage->setText(
+                    tlc::kStateMachineWaitCommandState);
+                m_state = CONTROLLER_STATES::WAIT_COMMAND;
+            }
+            break;
         case CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS:
             m_bulbs_graphics_item->setBulbOn(lamp_index);
             m_current_lamp_index = lamp_index;
-            m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
-            update_ps(global::get_power_num_by_index(lamp_index),
-                      global::get_power_out_by_index(lamp_index), true, voltage,
-                      current);
-            setActivePowerOut();
-            m_sceneCalibr->update();
-            return;
+            if (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX) {
+                ui->label_TitlePage->setText(
+                    tlc::kStateMachineWaitCommandState);
+                m_state = CONTROLLER_STATES::WAIT_COMMAND;
+            }
+            break;
         case CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS:
             break;
     }
@@ -686,6 +705,5 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
               global::get_power_out_by_index(lamp_index), true, voltage,
               current);
     setActivePowerOut();
-    m_state = CONTROLLER_STATES::WAIT_COMMAND;
     m_sceneCalibr->update();
 }
