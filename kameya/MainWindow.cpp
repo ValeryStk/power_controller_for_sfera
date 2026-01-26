@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_timer_to_update_power_states, &QTimer::timeout, this, [this]() {
         for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
             bool isConnected = m_powerManager->isPowerOutConnected(i);
-            PowerUnitParams result{false, 0.000, 0.000, 0.000};
+            PowerUnitParams result;
             int power_num = global::get_power_num_by_index(i);
             int out_num = global::get_power_out_by_index(i);
             if (isConnected) {
@@ -109,12 +109,12 @@ MainWindow::MainWindow(QWidget* parent)
         m_sceneCalibr->update();
     });
 
-    // void lamp_state_changed(int lamp_index, double voltage, double current);
     connect(this, SIGNAL(make_one_lamp_on(int)), m_powerManager,
             SIGNAL(make_one_lamp_on(int)));
+    connect(this, SIGNAL(make_one_lamp_off(int)), m_powerManager,
+            SIGNAL(make_one_lamp_off(int)));
     connect(m_powerManager, SIGNAL(lamp_state_changed(int, double, double)),
             this, SLOT(update_lamp_state(int, double, double)));
-
     connect(m_powerManager, SIGNAL(test_finished(QVector<PowerUnitParams>)),
             this, SLOT(testSlot(QVector<PowerUnitParams>)));
 }
@@ -172,7 +172,6 @@ void MainWindow::retest_all_powers() {
 }
 
 void MainWindow::switch_on_all_lamps() {
-    m_timer_to_update_power_states->stop();
     qInfo() << tlc::kOperatinAllLampsSwitchOnName;
     auto pwrs = m_powerManager->get_power_states();
 
@@ -200,11 +199,9 @@ void MainWindow::switch_on_all_lamps() {
         QApplication::processEvents();
     }
     m_sceneCalibr->update();
-    m_timer_to_update_power_states->start();
 }
 
 void MainWindow::switch_off_all_lamps() {
-    m_timer_to_update_power_states->stop();
     qInfo() << tlc::kOperatinAllLampsSwitchOffName;
     auto pwrs = m_powerManager->get_power_states();
 
@@ -224,12 +221,11 @@ void MainWindow::switch_off_all_lamps() {
         m_sceneCalibr->update();
         QApplication::processEvents();
     }
-    m_timer_to_update_power_states->start();
 }
 
 void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
                            double current) {
-    if (ps > 3 || ps < 0) return;
+    if (ps > NUMBER_OF_POWER_SUPPLIES || ps < 0) return;
     PowerSupplyItem* ps_item = nullptr;
     for (int i = 0; i < psis.size(); ++i) {
         psis[i].first->set_all_outs_unactive();
@@ -263,9 +259,15 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
-    qDebug()
-        << "ALL POWERS TEST RESULT -------------------------------------->";
-    m_timer_to_update_power_states->stop();
+    qDebug() << "---- ALL POWERS TEST RESULT ----";
+    if (powers_outs_states.size() < NUMBER_OF_LAMPS) {
+        qCritical() << "UNEXPECTED RESULT (NUMBER OF POWER PARAMS LESS THAN "
+                       "NUMBER OF LAMPS (6))";
+        showMessageBox(QMessageBox::Icon::Critical, "критическая ошибка",
+                       "Размер параметров для блоков питания не совпадает с "
+                       "количеством ламп.");
+        return;
+    }
     bool first_power_state = powers_outs_states[0].isOn;
     bool second_power_state = powers_outs_states[2].isOn;
     bool third_power_state = powers_outs_states[4].isOn;
@@ -346,9 +348,9 @@ void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
         showMessageBox(QMessageBox::Warning, "Тест не пройден",
                        "Блоки питания не готовы к работе.");
     }
-    // m_timer_to_update_power_states->start();
     ui->pushButton_update_power_states->setEnabled(true);
     ui->pushButton_update->setEnabled(true);
+    m_state = CONTROLLER_STATES::WAIT_COMMAND;
 }
 
 void MainWindow::initializeVariables() {
@@ -570,23 +572,18 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         QTimer::singleShot(1000, this, &MainWindow::switch_off_all_lamps);
         return;
     }
-    m_timer_to_update_power_states->stop();
+
     qInfo() << tlc::kOperationSwitchOffOneLampName;
+
     if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
         if (m_bulbs_graphics_item->setBulbOff(m_current_lamp_index)) {
             m_sounder.playSound("lamp_is_already_off.mp3");
         } else {
             m_sounder.playSound("switchOffLamp.mp3");
-            m_powerManager->decreaseVoltageStepByStepToZero(
-                m_current_lamp_index);
+            emit make_one_lamp_off(m_current_lamp_index);
+            m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS;
+            return;
         };
-        if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
-            if (ui->checkBox_auto_up_down->isChecked()) {
-                --m_current_lamp_index;
-            }
-        }
-        m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
-        m_sceneCalibr->update();
 
     } else {
         operation_failed_voice_notification();
@@ -594,7 +591,6 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         qWarning()
             << QString(tlc::kOperationSwitchOffOneLampFailed).arg(power_num);
     }
-    m_timer_to_update_power_states->stop();
 }
 
 // Обработчик нажатия на кнопку включения лампы ON
@@ -605,17 +601,16 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         return;
     }
 
-    m_timer_to_update_power_states->stop();
-    qInfo() << tlc::kOperationSwitchOnOneLampName;
     if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
         if (m_bulbs_graphics_item->setBulbOn(m_current_lamp_index)) {
             m_sounder.playSound("lamp_is_already_on.mp3");
 
         } else {
             m_sounder.playSound("switchOnOneLamp.mp3");
-            /*m_powerManager->increaseVoltageStepByStepToCurrentLimit(
-                m_current_lamp_index);*/
             emit make_one_lamp_on(m_current_lamp_index);
+            qInfo() << tlc::kOperationSwitchOnOneLampName;
+            m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS;
+            return;
         };
 
     } else {
@@ -628,14 +623,36 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
 
 void MainWindow::update_lamp_state(int lamp_index, double voltage,
                                    double current) {
-    if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
-        if (ui->checkBox_auto_up_down->isChecked()) {
-            ++m_current_lamp_index;
-        }
+    switch (m_state) {
+        case CONTROLLER_STATES::WAIT_COMMAND:
+            break;
+        case CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS:
+            if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
+                if (ui->checkBox_auto_up_down->isChecked()) {
+                    ++m_current_lamp_index;
+                }
+            }
+            break;
+        case CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS:
+            if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
+                if (ui->checkBox_auto_up_down->isChecked()) {
+                    --m_current_lamp_index;
+                }
+            }
+            break;
+        case CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS:
+            break;
+        case CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS:
+            break;
+        case CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS:
+            break;
     }
+
     m_bulbs_graphics_item->set_current_lamp_index(m_current_lamp_index);
     m_sceneCalibr->update();
     update_ps(global::get_power_num_by_index(lamp_index),
               global::get_power_out_by_index(lamp_index), true, voltage,
               current);
+    setActivePowerOut();
+    m_state = CONTROLLER_STATES::WAIT_COMMAND;
 }

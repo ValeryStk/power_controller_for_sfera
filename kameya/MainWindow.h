@@ -20,6 +20,15 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+enum class CONTROLLER_STATES {
+    WAIT_COMMAND,
+    ONE_LAMP_SWITCH_OFF_PROCESS,
+    ONE_LAMP_SWITCH_ON_PROCESS,
+    ALL_LAMPS_SWITCH_OFF_PROCESS,
+    ALL_LAMPS_SWITCH_ON_PROCESS,
+    UPDATE_ALL_STATES_PROCESS
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
     friend class bulbs_states_UnitTests;
@@ -32,6 +41,7 @@ public:
 private:
     Ui::MainWindow *ui;
     PowerSupplyManager *m_powerManager;
+    CONTROLLER_STATES m_state = CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS;
     QThread *m_powers_manager_thread;
     QGraphicsScene *m_sceneCalibr;
     BulbsQGraphicsItem *m_bulbs_graphics_item;
@@ -54,7 +64,6 @@ private:
     QVector<QLabel *> lamps;
     QHash<int, QString> m_pages;
 
-private:
     void operation_failed_voice_notification();
     void retest_all_powers();
 
@@ -77,5 +86,6 @@ private slots:
     void on_pushButton_switch_on_one_lamp_clicked();
 signals:
     void make_one_lamp_on(int);
+    void make_one_lamp_off(int);
 };
 #endif  // MAIN_WINDOW_H

@@ -116,11 +116,12 @@ double PowerSupplyManager::getVoltageProtectionValue(const quint16 index,
 
 PowerUnitParams PowerSupplyManager::get_all_params_for_lamp_out(
     const quint16 index) {
-    bool is_out_switched_on = getPowerStatus(index, true);
-    double voltage = getVoltage(index, true);
-    double current = getCurrentValue(index, true);
-    double current_limit = getCurrentLimit(index, true);
-    return {is_out_switched_on, voltage, current, current_limit, index};
+    PowerUnitParams params;
+    params.isOn = getPowerStatus(index, true);
+    params.V = getVoltage(index, true);
+    params.I = getCurrentValue(index, true);
+    params.Ilim = getCurrentLimit(index, true);
+    return params;
 }
 
 bool PowerSupplyManager::getPowerStatus(const quint16 index, bool is_wait) {
@@ -296,13 +297,13 @@ void PowerSupplyManager::errorInSocket(QAbstractSocket::SocketError error) {
 }
 
 void PowerSupplyManager::switch_on_one_lamp(const int index) {
-    qDebug() << "*************** CHECK SWITCH ON ONE LAMP ROUTE "
-                "***********************";
+    qDebug() << "**** CHECK SWITCH ON ONE LAMP ROUTE ****";
     increaseVoltageStepByStepToCurrentLimit(index);
 }
 
 void PowerSupplyManager::switch_off_one_lamp(const int index) {
-    Q_UNUSED(index)
+    qDebug() << "**** CHECK SWITCH OFF ONE LAMP ROUTE ****";
+    decreaseVoltageStepByStepToZero(index);
 }
 
 void PowerSupplyManager::test_all_powers() {
