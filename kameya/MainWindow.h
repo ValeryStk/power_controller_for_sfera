@@ -71,6 +71,9 @@ private slots:
     void testSlot(QVector<PowerUnitParams> powers_states);
     void update_lamp_state(int lamp_index, double voltage, double current);
     void update_ps(int ps, int out, bool isOn, double voltage, double current);
+    // lamp_state_changed_to_ub(index, voltage, 0, true);
+    void handle_undone_process(int index, double voltage, double current,
+                               bool is_on);
 
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);

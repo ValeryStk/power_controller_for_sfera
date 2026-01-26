@@ -185,10 +185,8 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
         if (m_socket->state() != QTcpSocket::ConnectedState) {
             qWarning() << QString(tlc::kFailIncreasingProcessSocketUnconnected)
                               .arg(index + 1);
-            emit lamp_state_changed_to_ub(index);
-            emit power_state_changed(global::get_power_num_by_index(index),
-                                     global::get_power_out_by_index(index),
-                                     false);
+            emit lamp_state_changed_to_ub(index, last_voltage_value,
+                                          last_current_value, false);
             return;
         }
         last_current_value = getCurrentValue(index, true);
@@ -221,7 +219,8 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
                                   .arg(getVoltage(index, true))
                                   .arg(VOLTAGE_INCREASE_STEP);
             qWarning() << message;
-            emit lamp_state_changed_to_ub(index);
+            emit lamp_state_changed_to_ub(index, last_voltage_value,
+                                          last_current_value, true);
             return;
         };
     }
@@ -238,8 +237,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
         if (m_socket->state() != QTcpSocket::ConnectedState) {
             qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
                               .arg(index + 1);
-            emit lamp_state_changed_to_ub(index);
-            emit power_state_changed(power_num, out_num, false);
+            emit lamp_state_changed_to_ub(index, 0, 0, false);
             break;
         }
 
@@ -260,6 +258,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
             QString message =
                 "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
             qWarning() << message.arg(power_num).arg(out_num);
+            emit lamp_state_changed_to_ub(index, voltage, 0, true);
             break;
         };
     }

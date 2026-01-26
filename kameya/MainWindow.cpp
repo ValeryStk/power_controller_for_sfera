@@ -117,6 +117,9 @@ MainWindow::MainWindow(QWidget* parent)
             this, SLOT(update_lamp_state(int, double, double)));
     connect(m_powerManager, SIGNAL(test_finished(QVector<PowerUnitParams>)),
             this, SLOT(testSlot(QVector<PowerUnitParams>)));
+    connect(m_powerManager,
+            SIGNAL(lamp_state_changed_to_ub(int, double, double, bool)),
+            SLOT(handle_undone_process(int, double, double, bool)));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -256,6 +259,16 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
     if (active_out == 2) {
         ps_item->set_out_2_active();
     }
+}
+
+void MainWindow::handle_undone_process(int index, double voltage,
+                                       double current, bool is_on) {
+    qWarning() << "!!!!!!!!!!!! UNDONE COMMAND FOR LAMP " << index
+               << "!!!!!!!!!!!!";
+    m_bulbs_graphics_item->setBulbUndefined(index);
+    int pwr_num = global::get_power_num_by_index(index);
+    int pwr_out = global::get_power_out_by_index(index);
+    update_ps(pwr_num, pwr_out, voltage, current, is_on);
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {

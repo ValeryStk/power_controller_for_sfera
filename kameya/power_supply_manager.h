@@ -98,7 +98,8 @@ signals:
     // states changed signals
     void states_changed(QVector<PowerUnitParams>);
     void test_finished(QVector<PowerUnitParams>);
-    void lamp_state_changed_to_ub(int lamp_index);
+    void lamp_state_changed_to_ub(int lamp_index, double voltage,
+                                  double current, bool is_on);
     void lamp_state_changed(int lamp_index, double voltage, double current);
     void power_state_changed(int power_index, int power_out, bool is_on);
     void socketInitialized();
