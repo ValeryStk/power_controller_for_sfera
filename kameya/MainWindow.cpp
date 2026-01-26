@@ -178,58 +178,6 @@ void MainWindow::retest_all_powers() {
     qInfo() << tlc::kOperationUpdateAllPowersStates;
 }
 
-void MainWindow::switch_on_all_lamps() {
-    qInfo() << tlc::kOperatinAllLampsSwitchOnName;
-    auto pwrs = m_powerManager->get_power_states();
-
-    for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
-        m_current_lamp_index = i;
-        m_bulbs_graphics_item->set_current_lamp_index(i);
-        if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
-            m_powerManager->increaseVoltageStepByStepToCurrentLimit(i);
-            auto current = m_powerManager->getCurrentValue(i);
-            if (qAbs(cfg.lamps_array[i].max_current - current) <
-                global::kCurrentTargetAccuracy) {
-                m_bulbs_graphics_item->setBulbOn(i);
-            } else {
-                m_bulbs_graphics_item->setBulbUndefined(i);
-            }
-        } else {
-            auto power_num = global::get_power_num_by_index(i);
-            qWarning() << QString(tlc::kOperationAllLampsSwitchOnFailed)
-                              .arg(power_num);
-            operation_failed_voice_notification();
-            m_bulbs_graphics_item->setBulbUndefined(i);
-            break;
-        }
-        m_sceneCalibr->update();
-        QApplication::processEvents();
-    }
-    m_sceneCalibr->update();
-}
-
-void MainWindow::switch_off_all_lamps() {
-    qInfo() << tlc::kOperatinAllLampsSwitchOffName;
-    auto pwrs = m_powerManager->get_power_states();
-
-    for (int i = MAX_CURRENT_LAMP_INDEX; i >= 0; --i) {
-        m_current_lamp_index = i;
-        m_bulbs_graphics_item->set_current_lamp_index(i);
-        if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
-            m_powerManager->decreaseVoltageStepByStepToZero(i);
-            m_bulbs_graphics_item->setBulbOff(i);
-        } else {
-            auto power_num = global::get_power_num_by_index(i);
-            qWarning() << QString(tlc::kOperationAllLampsSwitchOffFailed)
-                              .arg(power_num);
-            operation_failed_voice_notification();
-            break;
-        }
-        m_sceneCalibr->update();
-        QApplication::processEvents();
-    }
-}
-
 void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
                            double current) {
     if (ps > NUMBER_OF_POWER_SUPPLIES || ps < 0) return;

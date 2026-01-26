@@ -60,7 +60,6 @@ private:
     void setActivePowerOut();
 
     int m_current_lamp_index;
-    QVector<double> bandProfileChannels;
     QVector<QLabel *> lamps;
     QHash<int, QString> m_pages;
 
@@ -71,10 +70,8 @@ private slots:
     void testSlot(QVector<PowerUnitParams> powers_states);
     void update_lamp_state(int lamp_index, double voltage, double current);
     void update_ps(int ps, int out, bool isOn, double voltage, double current);
-    // lamp_state_changed_to_ub(index, voltage, 0, true);
     void handle_undone_process(int index, double voltage, double current,
                                bool is_on);
-
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
     void on_comboBox_mode_currentIndexChanged(int index);
@@ -82,11 +79,9 @@ private slots:
     void on_pushButton_update_power_states_clicked();
     void on_pushButton_update_clicked();
     void on_pushButton_open_log_clicked();
-
-    void switch_on_all_lamps();
-    void switch_off_all_lamps();
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
+
 signals:
     void make_one_lamp_on(int);
     void make_one_lamp_off(int);
