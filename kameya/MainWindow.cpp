@@ -239,6 +239,7 @@ void MainWindow::handle_undone_process(int index, double voltage,
     qWarning() << "!!!!!!!!!!!! UNDONE COMMAND FOR LAMP " << index + 1
                << "!!!!!!!!!!!!";
     m_bulbs_graphics_item->setBulbUndefined(index);
+    m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
     int pwr_num = global::get_power_num_by_index(index);
     int pwr_out = global::get_power_out_by_index(index);
     update_ps(pwr_num, pwr_out, voltage, current, is_on);
@@ -656,6 +657,7 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
                                    double current) {
     switch (m_state) {
         case CONTROLLER_STATES::WAIT_COMMAND:
+            return;
             break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS:
             if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
@@ -703,6 +705,9 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
               current);
     setActivePowerOut();
     m_sceneCalibr->update();
+    if (m_state == CONTROLLER_STATES::WAIT_COMMAND) {
+        m_sounder.playSound("wait_for_new_command.mp3");
+    }
 }
 
 void MainWindow::on_pushButton_stop_all_processes_clicked() {

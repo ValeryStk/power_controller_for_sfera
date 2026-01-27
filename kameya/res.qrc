@@ -43,5 +43,6 @@
         <file>svg/bug.svg</file>
         <file>sounds/process_was_cancelled.mp3</file>
         <file>svg/red_bug.svg</file>
+        <file>sounds/wait_for_new_command.mp3</file>
     </qresource>
 </RCC>
