@@ -72,8 +72,6 @@ public:
         bool isOk = false;
         double result = temp.toDouble(&isOk);
         return result;
-
-        return 0.0;
     };
 
 private:
