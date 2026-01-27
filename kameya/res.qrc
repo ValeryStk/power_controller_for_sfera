@@ -41,5 +41,6 @@
         <file>sounds/operation_failed.mp3</file>
         <file>svg/log.svg</file>
         <file>svg/bug.svg</file>
+        <file>sounds/process_was_cancelled.mp3</file>
     </qresource>
 </RCC>

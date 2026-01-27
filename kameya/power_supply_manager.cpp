@@ -316,6 +316,10 @@ void PowerSupplyManager::switch_on_all_lamps() {
     qDebug() << "ALL LAMPS ON PROCESS STARTED..........";
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         increaseVoltageStepByStepToCurrentLimit(i);
+        if (stopFlag.load()) {
+            emit process_interrupted_by_user();
+            break;
+        }
     };
 }
 
@@ -323,6 +327,10 @@ void PowerSupplyManager::switch_off_all_lamps() {
     qDebug() << "ALL LAMPS OFF PROCESS STARTED..........";
     for (int i = MAX_CURRENT_LAMP_INDEX; i >= 0; --i) {
         decreaseVoltageStepByStepToZero(i);
+        if (stopFlag.load()) {
+            emit process_interrupted_by_user();
+            break;
+        }
     };
 }
 
@@ -330,6 +338,10 @@ void PowerSupplyManager::test_all_powers() {
     QVector<PowerUnitParams> test_result(NUMBER_OF_LAMPS);
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         test_result[i] = get_all_params_for_lamp_out(i);
+        if (stopFlag.load()) {
+            emit process_interrupted_by_user();
+            break;
+        };
         wait();
     }
     emit test_finished(test_result);

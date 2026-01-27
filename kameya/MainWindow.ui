@@ -427,6 +427,19 @@ color: rgb(0, 0, 0);</string>
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="pushButton_stop_all_processes">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>ОТМЕНА</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="pushButton_switchOffOneLamp">
             <property name="minimumSize">
              <size>

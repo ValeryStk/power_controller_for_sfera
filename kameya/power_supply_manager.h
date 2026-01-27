@@ -26,6 +26,7 @@ class PowerSupplyManager : public QObject {
 public:
     PowerSupplyManager();
     ~PowerSupplyManager();
+    std::atomic<bool> stopFlag{false};
     QJsonObject get_power_states();
     QString getID();
 
@@ -103,6 +104,7 @@ signals:
     void lamp_state_changed(int lamp_index, double voltage, double current);
     void power_state_changed(int power_index, int power_out, bool is_on);
     void socketInitialized();
+    void process_interrupted_by_user();
 
 private slots:
     void errorInSocket(QAbstractSocket::SocketError error);

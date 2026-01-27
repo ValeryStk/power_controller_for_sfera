@@ -65,6 +65,7 @@ private:
 
     void operation_failed_voice_notification();
     void retest_all_powers();
+    bool mayBeShowStopProcessDialog();
 
 private slots:
     void testSlot(QVector<PowerUnitParams> powers_states);
@@ -73,6 +74,7 @@ private slots:
     void update_ps_out(int index, double voltage, double current);
     void handle_undone_process(int index, double voltage, double current,
                                bool is_on);
+    void handle_interrupted_process();
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
     void on_comboBox_mode_currentIndexChanged(int index);
@@ -82,6 +84,8 @@ private slots:
     void on_pushButton_open_log_clicked();
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
+
+    void on_pushButton_stop_all_processes_clicked();
 
 signals:
     void make_one_lamp_on(int);

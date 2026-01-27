@@ -55,6 +55,7 @@ void bulbs_states_UnitTests::bulbs_items_test() {
     QPixmap pixmap = QPixmap::fromImage(QImage(":/svg/bug.svg"));
     QCursor customCursor(pixmap);
     QApplication::setOverrideCursor(customCursor);
+    QApplication::setWindowIcon((QIcon(":/svg/bug.svg")));
     qInstallMessageHandler(myMessageOutput);
     MainWindow *main_window = new MainWindow;
     main_window->setWindowTitle("BULB STATES TEST");

@@ -125,12 +125,10 @@ MainWindow::MainWindow(QWidget* parent)
     connect(this, SIGNAL(make_all_lamps_on()), m_powerManager,
             SIGNAL(make_all_lamps_on()));
     connect(this, SIGNAL(test_all()), m_powerManager, SIGNAL(test_all()));
-    /*void update_ps_out(
-        int index, double voltage,
-        double current);  // emit update_power_out(index, voltage, current);*/
-
     connect(m_powerManager, SIGNAL(update_power_out(int, double, double)), this,
             SLOT(update_ps_out(int, double, double)));
+    connect(m_powerManager, SIGNAL(process_interrupted_by_user()), this,
+            SLOT(handle_interrupted_process()));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -184,7 +182,36 @@ void MainWindow::operation_failed_voice_notification() {
 void MainWindow::retest_all_powers() {
     qInfo() << tlc::kOperationUpdateAllPowersStates;
     ui->label_TitlePage->setText(tlc::kStateMachineUpdateAllLampsCommandState);
+    m_state = CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS;
     emit test_all();
+}
+
+bool MainWindow::mayBeShowStopProcessDialog() {
+    bool dialogShown = false;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) {
+        dialogShown = true;
+        QDialog dialog;
+        dialog.setWindowIcon(QApplication::windowIcon());
+        dialog.setWindowTitle("Остановить процесс");
+        QLabel* warningLabel = new QLabel(
+            "Вы действительно хотите остановить процесс?\n"
+            "Это действие нельзя отменить.");
+        QPushButton* okButton = new QPushButton("ОК");
+        QPushButton* cancelButton = new QPushButton("Отмена");
+        QVBoxLayout* layout = new QVBoxLayout(&dialog);
+        layout->addWidget(warningLabel);
+        layout->addWidget(okButton);
+        layout->addWidget(cancelButton);
+        QObject::connect(okButton, &QPushButton::clicked, [&dialog, this]() {
+            m_powerManager->stopFlag.store(true);
+            dialog.accept();
+        });
+        QObject::connect(cancelButton, &QPushButton::clicked,
+                         [&dialog]() { dialog.reject(); });
+        dialog.exec();
+    }
+
+    return dialogShown;
 }
 
 void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
@@ -245,7 +272,17 @@ void MainWindow::handle_undone_process(int index, double voltage,
         ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS) &&
          (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX))) {
         ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+        m_state = CONTROLLER_STATES::WAIT_COMMAND;
     }
+}
+
+void MainWindow::handle_interrupted_process() {
+    qWarning() << "PROCESS WAS INTERRUPTED BY USER";
+    m_powerManager->stopFlag.store(false);
+    m_state = CONTROLLER_STATES::WAIT_COMMAND;
+    ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+    m_sounder.playSound("process_was_cancelled.mp3");
+    showMessageBox(QMessageBox::Information, "Стоп", "Операция прервана.");
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
@@ -543,17 +580,21 @@ void MainWindow::on_pushButton_sound_toggled(bool checked) {
 }
 
 void MainWindow::on_pushButton_update_power_states_clicked() {
+    if (mayBeShowStopProcessDialog()) return;
     ui->pushButton_update_power_states->setEnabled(false);
     retest_all_powers();
 }
 
 void MainWindow::on_pushButton_update_clicked() {
+    if (mayBeShowStopProcessDialog()) return;
     ui->pushButton_update->setEnabled(false);
     retest_all_powers();
 }
 
 // Обработчик нажатия на кнопку выключения лампы OFF
 void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
+    if (mayBeShowStopProcessDialog()) return;
+
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS;
@@ -587,6 +628,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
 
 // Обработчик нажатия на кнопку включения лампы ON
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
+    if (mayBeShowStopProcessDialog()) return;
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS;
@@ -669,4 +711,9 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
               current);
     setActivePowerOut();
     m_sceneCalibr->update();
+}
+
+void MainWindow::on_pushButton_stop_all_processes_clicked() {
+    if (m_state == CONTROLLER_STATES::WAIT_COMMAND) return;
+    m_powerManager->stopFlag.store(true);
 }
