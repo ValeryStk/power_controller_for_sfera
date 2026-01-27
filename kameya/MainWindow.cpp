@@ -188,34 +188,6 @@ void MainWindow::retest_all_powers() {
     emit test_all();
 }
 
-bool MainWindow::mayBeShowStopProcessDialog() {
-    bool dialogShown = false;
-    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) {
-        dialogShown = true;
-        QDialog dialog;
-        dialog.setWindowIcon(QApplication::windowIcon());
-        dialog.setWindowTitle("Остановить процесс");
-        QLabel* warningLabel = new QLabel(
-            "Вы действительно хотите остановить процесс?\n"
-            "Это действие нельзя отменить.");
-        QPushButton* okButton = new QPushButton("ОК");
-        QPushButton* cancelButton = new QPushButton("Отмена");
-        QVBoxLayout* layout = new QVBoxLayout(&dialog);
-        layout->addWidget(warningLabel);
-        layout->addWidget(okButton);
-        layout->addWidget(cancelButton);
-        QObject::connect(okButton, &QPushButton::clicked, [&dialog, this]() {
-            m_powerManager->stopFlag.store(true);
-            dialog.accept();
-        });
-        QObject::connect(cancelButton, &QPushButton::clicked,
-                         [&dialog]() { dialog.reject(); });
-        dialog.exec();
-    }
-
-    return dialogShown;
-}
-
 void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
                            double current) {
     if (ps > NUMBER_OF_POWER_SUPPLIES || ps < 0) return;
@@ -582,20 +554,20 @@ void MainWindow::on_pushButton_sound_toggled(bool checked) {
 }
 
 void MainWindow::on_pushButton_update_power_states_clicked() {
-    if (mayBeShowStopProcessDialog()) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
     ui->pushButton_update_power_states->setEnabled(false);
     retest_all_powers();
 }
 
 void MainWindow::on_pushButton_update_clicked() {
-    if (mayBeShowStopProcessDialog()) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
     ui->pushButton_update->setEnabled(false);
     retest_all_powers();
 }
 
 // Обработчик нажатия на кнопку выключения лампы OFF
 void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
-    if (mayBeShowStopProcessDialog()) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
 
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
@@ -630,7 +602,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
 
 // Обработчик нажатия на кнопку включения лампы ON
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
-    if (mayBeShowStopProcessDialog()) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS;

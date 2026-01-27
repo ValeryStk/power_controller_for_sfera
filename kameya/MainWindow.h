@@ -65,7 +65,6 @@ private:
 
     void operation_failed_voice_notification();
     void retest_all_powers();
-    bool mayBeShowStopProcessDialog();
 
 private slots:
     void testSlot(QVector<PowerUnitParams> powers_states);
@@ -84,7 +83,6 @@ private slots:
     void on_pushButton_open_log_clicked();
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
-
     void on_pushButton_stop_all_processes_clicked();
 
 signals:
