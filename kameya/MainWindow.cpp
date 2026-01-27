@@ -215,7 +215,7 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
 
 void MainWindow::handle_undone_process(int index, double voltage,
                                        double current, bool is_on) {
-    qWarning() << "!!!!!!!!!!!! UNDONE COMMAND FOR LAMP " << index
+    qWarning() << "!!!!!!!!!!!! UNDONE COMMAND FOR LAMP " << index + 1
                << "!!!!!!!!!!!!";
     m_bulbs_graphics_item->setBulbUndefined(index);
     int pwr_num = global::get_power_num_by_index(index);
@@ -456,8 +456,6 @@ void MainWindow::on_pushButton_Forward_clicked() {
 
         ui->stackedWidget->setCurrentIndex(ui->stackedWidget->currentIndex() +
                                            1);
-        ui->label_TitlePage->setText(
-            m_pages.value(ui->stackedWidget->currentIndex()));
 
         if (m_pages.value(ui->stackedWidget->currentIndex()) ==
             "Техника безопасности") {
@@ -467,6 +465,8 @@ void MainWindow::on_pushButton_Forward_clicked() {
         if (m_pages.value(ui->stackedWidget->currentIndex()) ==
             "Тестирование") {
             ui->pushButton_Forward->setEnabled(true);
+            ui->label_TitlePage->setText(
+                tlc::kStateMachineUpdateAllLampsCommandState);
             return;
         }
         if (m_pages.value(ui->stackedWidget->currentIndex()) == "Калибровка") {
