@@ -26,7 +26,8 @@ class PowerSupplyManager : public QObject {
 public:
     PowerSupplyManager();
     ~PowerSupplyManager();
-    std::atomic<bool> stopFlag{false};
+    std::atomic<bool> stopFlagForAll_Lamps{false};
+    std::atomic<bool> stopFlagForOne_Lamp{false};
     QJsonObject get_power_states();
     QString getID();
 

@@ -135,7 +135,7 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
     event->ignore();
-    m_powerManager->stopFlag.store(true);
+    m_powerManager->stopFlagForAll_Lamps.store(true);
     m_powers_manager_thread->quit();
     m_timer_to_update_power_states->stop();
     for (int i = 0; i < psis.size(); ++i) {
@@ -257,7 +257,8 @@ void MainWindow::handle_undone_process(int index, double voltage,
 
 void MainWindow::handle_interrupted_process() {
     qWarning() << "PROCESS WAS INTERRUPTED BY USER";
-    m_powerManager->stopFlag.store(false);
+    m_powerManager->stopFlagForAll_Lamps.store(false);
+    m_powerManager->stopFlagForOne_Lamp.store(false);
     m_state = CONTROLLER_STATES::WAIT_COMMAND;
     ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
     m_sounder.playSound("process_was_cancelled.mp3");
@@ -706,5 +707,15 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
 
 void MainWindow::on_pushButton_stop_all_processes_clicked() {
     if (m_state == CONTROLLER_STATES::WAIT_COMMAND) return;
-    m_powerManager->stopFlag.store(true);
+
+    if (m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS ||
+        m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS ||
+        m_state == CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS) {
+        m_powerManager->stopFlagForAll_Lamps.store(true);
+        return;
+    }
+    if (m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
+        m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS) {
+        m_powerManager->stopFlagForOne_Lamp.store(true);
+    }
 }

@@ -181,10 +181,14 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
 
     while (last_current_value < target_current) {
         ++fail_counter;
-
+        if (stopFlagForOne_Lamp.load()) {
+            emit process_interrupted_by_user();
+            break;
+        }
         if (m_socket->state() != QTcpSocket::ConnectedState) {
             qWarning() << QString(tlc::kFailIncreasingProcessSocketUnconnected)
                               .arg(index + 1);
+            stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed_to_ub(index, last_voltage_value,
                                           last_current_value, false);
             return;
@@ -204,6 +208,7 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
             }
             last_voltage_value = getVoltage(index, true);
             last_current_value = getCurrentValue(index, true);
+            stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed(index, last_voltage_value,
                                     last_current_value);
             break;
@@ -220,6 +225,7 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
                                   .arg(getVoltage(index, true))
                                   .arg(VOLTAGE_INCREASE_STEP);
             qWarning() << message;
+            stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed_to_ub(index, last_voltage_value,
                                           last_current_value, true);
             return;
@@ -234,10 +240,15 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
     int fail_counter = 0;
     double start_voltage = getVoltage(index, true);
     while (getVoltage(index, true) > global::kVoltageZeroAccuracy) {
+        if (stopFlagForOne_Lamp.load()) {
+            emit process_interrupted_by_user();
+            break;
+        }
         ++fail_counter;
         if (m_socket->state() != QTcpSocket::ConnectedState) {
             qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
                               .arg(index + 1);
+            stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed_to_ub(index, 0, 0, false);
             break;
         }
@@ -252,6 +263,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
         emit update_power_out(index, voltage, current);
         if (voltage <= global::kVoltageZeroAccuracy) {
             setVoltage(index, 0, true);
+            stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed(index, voltage, getCurrentValue(false));
             break;
         }
@@ -260,6 +272,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
             QString message =
                 "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
             qWarning() << message.arg(power_num).arg(out_num);
+            stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed_to_ub(index, voltage, 0, true);
             break;
         };
@@ -316,7 +329,7 @@ void PowerSupplyManager::switch_on_all_lamps() {
     qDebug() << "ALL LAMPS ON PROCESS STARTED..........";
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         increaseVoltageStepByStepToCurrentLimit(i);
-        if (stopFlag.load()) {
+        if (stopFlagForAll_Lamps.load()) {
             emit process_interrupted_by_user();
             break;
         }
@@ -327,7 +340,7 @@ void PowerSupplyManager::switch_off_all_lamps() {
     qDebug() << "ALL LAMPS OFF PROCESS STARTED..........";
     for (int i = MAX_CURRENT_LAMP_INDEX; i >= 0; --i) {
         decreaseVoltageStepByStepToZero(i);
-        if (stopFlag.load()) {
+        if (stopFlagForAll_Lamps.load()) {
             emit process_interrupted_by_user();
             break;
         }
@@ -338,7 +351,7 @@ void PowerSupplyManager::test_all_powers() {
     QVector<PowerUnitParams> test_result(NUMBER_OF_LAMPS);
     for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
         test_result[i] = get_all_params_for_lamp_out(i);
-        if (stopFlag.load()) {
+        if (stopFlagForAll_Lamps.load()) {
             emit process_interrupted_by_user();
             break;
         };
