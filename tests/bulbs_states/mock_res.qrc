@@ -2,4 +2,5 @@
     <qresource prefix="/mock">
         <file>mock_config.json</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

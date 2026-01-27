@@ -52,10 +52,10 @@ void bulbs_states_UnitTests::bulbs_items_test() {
     QObject::connect(&serverThread, &QThread::finished, server,
                      &QObject::deleteLater);
     serverThread.start();
-    QPixmap pixmap = QPixmap::fromImage(QImage(":/svg/bug.svg"));
+    QPixmap pixmap = QPixmap::fromImage(QImage(":/svg/red_bug.svg"));
     QCursor customCursor(pixmap);
     QApplication::setOverrideCursor(customCursor);
-    QApplication::setWindowIcon((QIcon(":/svg/bug.svg")));
+    QApplication::setWindowIcon((QIcon(":/svg/red_bug.svg")));
     qInstallMessageHandler(myMessageOutput);
     MainWindow *main_window = new MainWindow;
     main_window->setWindowTitle("BULB STATES TEST");
