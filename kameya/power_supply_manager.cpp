@@ -191,6 +191,7 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
         }
         last_current_value = getCurrentValue(index, true);
         last_voltage_value = getVoltage(index, true);
+        emit update_power_out(index, last_voltage_value, last_current_value);
         if (last_voltage_value < 0) last_voltage_value = 0;
 
         if ((target_current - last_current_value) <=
@@ -247,7 +248,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
 
         setVoltage(index, voltage, true);
         voltage = getVoltage(index, true);
-        double current = getCurrentValue(true);
+        double current = getCurrentValue(index, true);
         emit update_power_out(index, voltage, current);
         if (voltage <= global::kVoltageZeroAccuracy) {
             setVoltage(index, 0, true);

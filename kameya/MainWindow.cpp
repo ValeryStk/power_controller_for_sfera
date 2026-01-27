@@ -129,7 +129,7 @@ MainWindow::MainWindow(QWidget* parent)
         int index, double voltage,
         double current);  // emit update_power_out(index, voltage, current);*/
 
-    connect(m_powerManager, SIGNAL(update_ps_out(int, double, double)), this,
+    connect(m_powerManager, SIGNAL(update_power_out(int, double, double)), this,
             SLOT(update_ps_out(int, double, double)));
 }
 
@@ -222,7 +222,11 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
     }
 }
 
-void MainWindow::update_ps_out(int index, double voltage, double current) {}
+void MainWindow::update_ps_out(int index, double voltage, double current) {
+    int pn = global::get_power_num_by_index(index);
+    int po = global::get_power_out_by_index(index);
+    update_ps(pn, po, true, voltage, current);
+}
 
 void MainWindow::handle_undone_process(int index, double voltage,
                                        double current, bool is_on) {
