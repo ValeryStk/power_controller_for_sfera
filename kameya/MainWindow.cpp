@@ -135,6 +135,8 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
     event->ignore();
+    m_powerManager->stopFlag.store(true);
+    m_powers_manager_thread->quit();
     m_timer_to_update_power_states->stop();
     for (int i = 0; i < psis.size(); ++i) {
         m_sceneCalibr->removeItem(psis[i].first);
