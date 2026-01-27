@@ -188,6 +188,11 @@ void MainWindow::retest_all_powers() {
     emit test_all();
 }
 
+void MainWindow::showWaitFinishWarning() {
+    showMessageBox(QMessageBox::Information, "Контроллер занят",
+                   "Дождитесь выполнения операции или отмените текущую.");
+}
+
 void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
                            double current) {
     if (ps > NUMBER_OF_POWER_SUPPLIES || ps < 0) return;
@@ -554,20 +559,29 @@ void MainWindow::on_pushButton_sound_toggled(bool checked) {
 }
 
 void MainWindow::on_pushButton_update_power_states_clicked() {
-    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) {
+        showWaitFinishWarning();
+        return;
+    }
     ui->pushButton_update_power_states->setEnabled(false);
     retest_all_powers();
 }
 
 void MainWindow::on_pushButton_update_clicked() {
-    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) {
+        showWaitFinishWarning();
+        return;
+    }
     ui->pushButton_update->setEnabled(false);
     retest_all_powers();
 }
 
 // Обработчик нажатия на кнопку выключения лампы OFF
 void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
-    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) {
+        showWaitFinishWarning();
+        return;
+    }
 
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
@@ -602,7 +616,10 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
 
 // Обработчик нажатия на кнопку включения лампы ON
 void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
-    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) return;
+    if (m_state != CONTROLLER_STATES::WAIT_COMMAND) {
+        showWaitFinishWarning();
+        return;
+    }
     if (ui->comboBox_mode->currentIndex() == 0) {
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS;

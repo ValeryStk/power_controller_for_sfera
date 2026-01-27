@@ -65,6 +65,7 @@ private:
 
     void operation_failed_voice_notification();
     void retest_all_powers();
+    void showWaitFinishWarning();
 
 private slots:
     void testSlot(QVector<PowerUnitParams> powers_states);
