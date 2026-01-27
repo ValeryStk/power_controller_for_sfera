@@ -61,18 +61,17 @@ public:
     bool isPowerOutConnected(const int index);
 
     static double getValueFromMessage(const QString& msg) {
+        qDebug() << "MESSAGE: " << msg;
         static const QStringList prefixes = {"V1", "V2", "A", "V", "I1", "I2"};
 
         QString temp = msg;
-
+        temp.remove('\r').remove('\n').remove(' ');
         for (const auto& prefix : prefixes) {
-            if (temp.startsWith(prefix)) {
-                temp.remove('\r').remove('\n').remove(' ').remove(prefix);
-                bool isOk = false;
-                double result = temp.toDouble(&isOk);
-                return result;
-            }
+            temp.remove(prefix);
         }
+        bool isOk = false;
+        double result = temp.toDouble(&isOk);
+        return result;
 
         return 0.0;
     };
@@ -96,6 +95,7 @@ signals:
     void make_one_lamp_off(int);
     void make_all_lamps_on();
     void make_all_lamps_off();
+    void update_power_out(int, double, double);
 
     // states changed signals
     void states_changed(QVector<PowerUnitParams>);

@@ -247,7 +247,8 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
 
         setVoltage(index, voltage, true);
         voltage = getVoltage(index, true);
-
+        double current = getCurrentValue(true);
+        emit update_power_out(index, voltage, current);
         if (voltage <= global::kVoltageZeroAccuracy) {
             setVoltage(index, 0, true);
             emit lamp_state_changed(index, voltage, getCurrentValue(false));
@@ -346,6 +347,9 @@ void PowerSupplyManager::initSocket() {
             SLOT(switch_off_all_lamps()), Qt::DirectConnection);
     connect(this, SIGNAL(make_all_lamps_on()), this,
             SLOT(switch_on_all_lamps()), Qt::DirectConnection);
+    // test_all
+    connect(this, SIGNAL(test_all()), this, SLOT(test_all_powers()),
+            Qt::DirectConnection);
     qDebug() << "SOCKET IN NEW CONTEXT**************************************";
     loadJsonConfig();
     checkPowersConection();

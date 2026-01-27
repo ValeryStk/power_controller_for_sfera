@@ -124,6 +124,13 @@ MainWindow::MainWindow(QWidget* parent)
             SIGNAL(make_all_lamps_off()));
     connect(this, SIGNAL(make_all_lamps_on()), m_powerManager,
             SIGNAL(make_all_lamps_on()));
+    connect(this, SIGNAL(test_all()), m_powerManager, SIGNAL(test_all()));
+    /*void update_ps_out(
+        int index, double voltage,
+        double current);  // emit update_power_out(index, voltage, current);*/
+
+    connect(m_powerManager, SIGNAL(update_ps_out(int, double, double)), this,
+            SLOT(update_ps_out(int, double, double)));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -176,6 +183,8 @@ void MainWindow::operation_failed_voice_notification() {
 
 void MainWindow::retest_all_powers() {
     qInfo() << tlc::kOperationUpdateAllPowersStates;
+    ui->label_TitlePage->setText(tlc::kStateMachineUpdateAllLampsCommandState);
+    emit test_all();
 }
 
 void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
@@ -212,6 +221,8 @@ void MainWindow::update_ps(int ps, int out, bool isOn, double voltage,
         ps_item->set_out_2_active();
     }
 }
+
+void MainWindow::update_ps_out(int index, double voltage, double current) {}
 
 void MainWindow::handle_undone_process(int index, double voltage,
                                        double current, bool is_on) {

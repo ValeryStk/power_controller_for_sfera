@@ -70,6 +70,7 @@ private slots:
     void testSlot(QVector<PowerUnitParams> powers_states);
     void update_lamp_state(int lamp_index, double voltage, double current);
     void update_ps(int ps, int out, bool isOn, double voltage, double current);
+    void update_ps_out(int index, double voltage, double current);
     void handle_undone_process(int index, double voltage, double current,
                                bool is_on);
     void on_pushButton_Forward_clicked();
@@ -87,5 +88,6 @@ signals:
     void make_one_lamp_off(int);
     void make_all_lamps_on();
     void make_all_lamps_off();
+    void test_all();
 };
 #endif  // MAIN_WINDOW_H
