@@ -176,7 +176,7 @@ void MainWindow::setActivePowerOut() {
 
 void MainWindow::operation_failed_voice_notification() {
     QTimer::singleShot(
-        4000, this, [this]() { m_sounder.playSound("operation_failed.mp3"); });
+        1000, this, [this]() { m_sounder.playSound("operation_failed.mp3"); });
     showMessageBox(QMessageBox::Warning, "Ошибка",
                    "Операция провалилась, смотрите logic.log");
 }
@@ -239,7 +239,6 @@ void MainWindow::handle_undone_process(int index, double voltage,
     qWarning() << "!!!!!!!!!!!! UNDONE COMMAND FOR LAMP " << index + 1
                << "!!!!!!!!!!!!";
     m_bulbs_graphics_item->setBulbUndefined(index);
-    m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
     int pwr_num = global::get_power_num_by_index(index);
     int pwr_out = global::get_power_out_by_index(index);
     update_ps(pwr_num, pwr_out, voltage, current, is_on);
@@ -253,6 +252,7 @@ void MainWindow::handle_undone_process(int index, double voltage,
          (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX))) {
         ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
         m_state = CONTROLLER_STATES::WAIT_COMMAND;
+        m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
     }
 }
 
@@ -503,7 +503,7 @@ void MainWindow::on_pushButton_Forward_clicked() {
             return;
         }
         if (m_pages.value(ui->stackedWidget->currentIndex()) == "Калибровка") {
-            m_sounder.playSound("startCalibration.mp3");
+            // m_sounder.playSound("startCalibration.mp3");
             isEnd = true;
             ui->pushButton_Forward->setVisible(false);
         }

@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QTcpSocket>
+#include <atomic>
 
 struct PowerUnitParams {
     bool isOn = false;
@@ -63,9 +64,7 @@ public:
     bool isPowerOutConnected(const int index);
 
     static double getValueFromMessage(const QString& msg) {
-        qDebug() << "MESSAGE: " << msg;
         static const QStringList prefixes = {"V1", "V2", "A", "V", "I1", "I2"};
-
         QString temp = msg;
         temp.remove('\r').remove('\n').remove(' ');
         for (const auto& prefix : prefixes) {
@@ -73,6 +72,10 @@ public:
         }
         bool isOk = false;
         double result = temp.toDouble(&isOk);
+        if (isOk == false) {
+            qCritical() << "PARSER MESSAGE ERROR msg: " << msg
+                        << " temp: " << temp;
+        }
         return result;
     };
 

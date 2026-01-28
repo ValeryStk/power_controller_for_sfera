@@ -163,7 +163,7 @@ void PowerSupplyManager::switchOnAllUnits() {
 
 void PowerSupplyManager::switchOffAllUnits() {
     for (int i = 0; i < getPowerOutsSize(); ++i) {
-        switchOffUnit(i);
+        switchOffUnit(i, true);
     };
 }
 
@@ -239,10 +239,17 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
     auto out_num = global::get_power_out_by_index(index);
     int fail_counter = 0;
     double start_voltage = getVoltage(index, true);
+    if (m_socket->state() != QTcpSocket::ConnectedState) {
+        qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
+                          .arg(index + 1);
+        stopFlagForOne_Lamp.store(false);
+        emit lamp_state_changed_to_ub(index, 0, 0, false);
+        return;
+    }
     while (getVoltage(index, true) > global::kVoltageZeroAccuracy) {
         if (stopFlagForOne_Lamp.load()) {
             emit process_interrupted_by_user();
-            break;
+            return;
         }
         ++fail_counter;
         if (m_socket->state() != QTcpSocket::ConnectedState) {
@@ -250,7 +257,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
                               .arg(index + 1);
             stopFlagForOne_Lamp.store(false);
             emit lamp_state_changed_to_ub(index, 0, 0, false);
-            break;
+            return;
         }
 
         double voltage = getVoltage(index, true);
@@ -342,7 +349,7 @@ void PowerSupplyManager::switch_off_all_lamps() {
         decreaseVoltageStepByStepToZero(i);
         if (stopFlagForAll_Lamps.load()) {
             emit process_interrupted_by_user();
-            break;
+            return;
         }
     };
 }
