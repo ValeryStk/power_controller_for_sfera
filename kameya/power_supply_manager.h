@@ -90,6 +90,7 @@ private:
     int getPowerOutsSize() const;
     int maybeReconnectHost(const int index);
     void setInitialParams();
+    bool isSocketConnectedInDecreasingContext(int index);
 
 signals:
     // commands signals

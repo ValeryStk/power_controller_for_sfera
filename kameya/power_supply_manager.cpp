@@ -239,11 +239,7 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
     auto out_num = global::get_power_out_by_index(index);
     int fail_counter = 0;
     double start_voltage = getVoltage(index, true);
-    if (m_socket->state() != QTcpSocket::ConnectedState) {
-        qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
-                          .arg(index + 1);
-        stopFlagForOne_Lamp.store(false);
-        emit lamp_state_changed_to_ub(index, 0, 0, false);
+    if (!isSocketConnectedInDecreasingContext(index)) {
         return;
     }
     while (getVoltage(index, true) > global::kVoltageZeroAccuracy) {
@@ -252,14 +248,9 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
             return;
         }
         ++fail_counter;
-        if (m_socket->state() != QTcpSocket::ConnectedState) {
-            qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
-                              .arg(index + 1);
-            stopFlagForOne_Lamp.store(false);
-            emit lamp_state_changed_to_ub(index, 0, 0, false);
+        if (!isSocketConnectedInDecreasingContext(index)) {
             return;
         }
-
         double voltage = getVoltage(index, true);
         voltage = voltage - VOLTAGE_DECREASE_STEP;
         if (voltage < 0) voltage = 0;
@@ -450,4 +441,15 @@ void PowerSupplyManager::setInitialParams() {
             wait();
         }
     }
+}
+
+bool PowerSupplyManager::isSocketConnectedInDecreasingContext(int index) {
+    bool result = (m_socket->state() == QTcpSocket::ConnectedState);
+    if (!result) {
+        qWarning() << QString(tlc::kFailDecreasingProcessSocketUnconnected)
+                          .arg(index + 1);
+        stopFlagForOne_Lamp.store(false);
+        emit lamp_state_changed_to_ub(index, 0, 0, false);
+    }
+    return result;
 }
