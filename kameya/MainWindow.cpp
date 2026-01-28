@@ -239,11 +239,14 @@ void MainWindow::handle_undone_process(int index, double voltage,
     qWarning() << "!!!!!!!!!!!! UNDONE COMMAND FOR LAMP " << index + 1
                << "!!!!!!!!!!!!";
     m_bulbs_graphics_item->setBulbUndefined(index);
+    m_bulbs_graphics_item->set_current_lamp_index(index);
+
     int pwr_num = global::get_power_num_by_index(index);
     int pwr_out = global::get_power_out_by_index(index);
     update_ps(pwr_num, pwr_out, voltage, current, is_on);
     m_current_lamp_index = index;
     setActivePowerOut();
+    m_sceneCalibr->update();
     if (m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
         m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
         ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS) &&
