@@ -271,7 +271,8 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
                 "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
             qWarning() << message.arg(power_num).arg(out_num);
             stopFlagForOne_Lamp.store(false);
-            emit lamp_state_changed_to_ub(index, voltage, 0, true);
+            emit lamp_state_changed_to_ub(index, getVoltage(index, true),
+                                          getCurrentValue(index, true), true);
             break;
         };
     }

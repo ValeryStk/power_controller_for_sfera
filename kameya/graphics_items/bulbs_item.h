@@ -2,6 +2,7 @@
 #define BULBS_QGRAPHICS_ITEM_H
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QGraphicsItem>
 
 #include "config.h"
@@ -30,7 +31,7 @@ private:
     int m_current_lamp_index = 0;
     bulb_state bulb_states[NUMBER_OF_LAMPS];
     QColor bulb_colors[NUMBER_OF_LAMPS];
-    QDateTime m_bulb_on_time[NUMBER_OF_LAMPS];
+    QElapsedTimer m_bulb_on_time[NUMBER_OF_LAMPS];
 };
 
 #endif  // BULBS_QGRAPHICS_ITEM_H

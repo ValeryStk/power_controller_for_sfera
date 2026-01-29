@@ -129,22 +129,32 @@ MainWindow::MainWindow(QWidget* parent)
             SLOT(update_ps_out(int, double, double)));
     connect(m_powerManager, SIGNAL(process_interrupted_by_user()), this,
             SLOT(handle_interrupted_process()));
+    connect(&update_states_timer, &QTimer::timeout, this,
+            &MainWindow::init_to_update_all_params);
+    update_states_timer.setInterval(1000);
+    update_states_timer.start();
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
     event->ignore();
-    m_powerManager->stopFlagForAll_Lamps.store(true);
-    m_powers_manager_thread->quit();
+
     m_timer_to_update_power_states->stop();
+    update_states_timer.stop();
+    m_powerManager->stopFlagForAll_Lamps.store(true);
+    m_powerManager->stopFlagForOne_Lamp.store(true);
+    m_powers_manager_thread->quit();
+    m_powers_manager_thread->wait();
+    m_powerManager->deleteLater();
+
     for (int i = 0; i < psis.size(); ++i) {
         m_sceneCalibr->removeItem(psis[i].first);
         delete psis[i].first;
     }
     m_sceneCalibr->removeItem(m_bulbs_graphics_item);
     delete m_bulbs_graphics_item;
-    m_powerManager->deleteLater();
+
     QApplication::processEvents();
     event->accept();
 }
@@ -271,6 +281,7 @@ void MainWindow::handle_interrupted_process() {
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
     qDebug() << "---- ALL POWERS TEST RESULT ----";
+    m_powers_outs_states = powers_outs_states;
     if (powers_outs_states.size() < NUMBER_OF_LAMPS) {
         qCritical() << "UNEXPECTED RESULT (NUMBER OF POWER PARAMS LESS THAN "
                        "NUMBER OF LAMPS (6))";
@@ -598,7 +609,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
 
     qInfo() << tlc::kOperationSwitchOffOneLampName;
 
-    if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
+    if (m_powers_outs_states[m_current_lamp_index].isOn) {
         if (m_bulbs_graphics_item->setBulbOff(m_current_lamp_index)) {
             m_sounder.playSound("lamp_is_already_off.mp3");
         } else {
@@ -633,7 +644,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         return;
     }
 
-    if (m_powerManager->isPowerOutConnected(m_current_lamp_index)) {
+    if (m_powers_outs_states[m_current_lamp_index].isOn) {
         if (m_bulbs_graphics_item->setBulbOn(m_current_lamp_index)) {
             m_sounder.playSound("lamp_is_already_on.mp3");
 
@@ -726,4 +737,8 @@ void MainWindow::on_pushButton_stop_all_processes_clicked() {
         m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS) {
         m_powerManager->stopFlagForOne_Lamp.store(true);
     }
+}
+
+void MainWindow::init_to_update_all_params() {
+    m_bulbs_graphics_item->update();
 }

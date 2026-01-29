@@ -49,7 +49,7 @@ QRectF BulbsQGraphicsItem::boundingRect() const {
     static QImage imgOn(":/svg/bulb_on.png");
     int spacing = imgOn.height() + 10;
     int totalHeight = NUMBER_OF_LAMPS * spacing;
-    int totalWidth = imgOn.width() + 100;  // запас справа под время работы
+    int totalWidth = imgOn.width() + 120;  // запас справа под время работы
     return QRectF(-10, -10, totalWidth + 10, totalHeight + 10);
 }
 
@@ -139,22 +139,17 @@ void BulbsQGraphicsItem::drawLamps(QPainter *painter) {
         // --- вывод времени работы лампы справа ---
         if (bulb_states[i] == bulb_state::ON) {
             // вычисляем прошедшее время
-            qint64 secs =
-                m_bulb_on_time[i].secsTo(QDateTime::currentDateTime());
-            int minutes = secs / 60;
-            int seconds = secs % 60;
-
-            QString timeText = QString("%1:%2")
-                                   .arg(minutes, 2, 10, QChar('0'))
-                                   .arg(seconds, 2, 10, QChar('0'));
-
+            qint64 secs = m_bulb_on_time[i].elapsed() / 1000;
+            QTime time(0, 0);
+            time = time.addSecs(secs);
+            QString timeText = time.toString("hh:mm:ss");
             painter->setPen(Qt::lightGray);
-            QFont font = painter->font();
-            font.setPointSize(11);
-            painter->setFont(font);
+            QFont font2 = painter->font();
+            font2.setPointSize(16);
+            painter->setFont(font2);
 
             // прямоугольник справа от круга
-            QRect timeRect(centerX + radius + 10, centerY - 10, 50, 20);
+            QRect timeRect(centerX + radius + 10, centerY - 10, 150, 20);
             painter->drawText(timeRect, Qt::AlignLeft | Qt::AlignVCenter,
                               timeText);
         }
@@ -178,8 +173,8 @@ bool BulbsQGraphicsItem::setBulbOn(int bi) {
     if (bulb_states[bi] == bulb_state::ON) {
         return true;
     }
+    m_bulb_on_time[bi].start();
     bulb_states[bi] = bulb_state::ON;
-    m_bulb_on_time[bi] = QDateTime::currentDateTime();
     update();
     return false;
 }
@@ -202,6 +197,17 @@ void BulbsQGraphicsItem::set_current_lamp_index(const int index) {
 }
 
 void BulbsQGraphicsItem::set_bulb_states(enum class bulb_state states[]) {
-    std::copy(states, states + NUMBER_OF_LAMPS, bulb_states);
+    for (int i = 0; i < NUMBER_OF_LAMPS; ++i) {
+        bulb_states[i] = states[i];
+        switch (states[i]) {
+            case bulb_state::ON:
+                m_bulb_on_time[i].start();
+                break;
+            case bulb_state::OFF:
+                break;
+            case bulb_state::UNDEFINED:
+                break;
+        }
+    }
     update();
 }

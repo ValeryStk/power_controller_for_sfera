@@ -46,6 +46,8 @@ private:
     QGraphicsScene *m_sceneCalibr;
     BulbsQGraphicsItem *m_bulbs_graphics_item;
     QTimer *m_timer_to_update_power_states;
+    QTimer update_states_timer;
+    QVector<PowerUnitParams> m_powers_outs_states;
 
     QShortcut *repeatLastNotification;
     QShortcut *show_log;
@@ -85,6 +87,7 @@ private slots:
     void on_pushButton_switchOffOneLamp_clicked();
     void on_pushButton_switch_on_one_lamp_clicked();
     void on_pushButton_stop_all_processes_clicked();
+    void init_to_update_all_params();
 
 signals:
     void make_one_lamp_on(int);
