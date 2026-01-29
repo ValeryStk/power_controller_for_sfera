@@ -630,6 +630,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         } else {
             m_sounder.playSound("switchOffLamp.mp3");
             m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS;
+            m_bulbs_graphics_item->setBulbUndefined(m_current_lamp_index);
             ui->label_TitlePage->setText(
                 QString(tlc::kStateMachineOneLampOffCommandState)
                     .arg(m_current_lamp_index + 1));
@@ -669,6 +670,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         } else {
             m_sounder.playSound("switchOnOneLamp.mp3");
             m_state = CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS;
+            m_bulbs_graphics_item->setBulbUndefined(m_current_lamp_index);
             emit make_one_lamp_on(m_current_lamp_index);
             ui->label_TitlePage->setText(
                 QString(tlc::kStateMachineOneLampOnCommandState)
@@ -692,6 +694,8 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
             return;
             break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS:
+            m_current_lamp_index = lamp_index;
+            m_bulbs_graphics_item->setBulbOff(m_current_lamp_index);
             if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
                 if (ui->checkBox_auto_up_down->isChecked()) {
                     --m_current_lamp_index;
@@ -701,6 +705,8 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
             m_state = CONTROLLER_STATES::WAIT_COMMAND;
             break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS:
+            m_current_lamp_index = lamp_index;
+            m_bulbs_graphics_item->setBulbOn(m_current_lamp_index);
             if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
                 if (ui->checkBox_auto_up_down->isChecked()) {
                     ++m_current_lamp_index;
@@ -750,6 +756,7 @@ void MainWindow::on_pushButton_stop_all_processes_clicked() {
         m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS ||
         m_state == CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS) {
         m_powerManager->stopFlagForAll_Lamps.store(true);
+        m_powerManager->stopFlagForOne_Lamp.store(true);
         return;
     }
     if (m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||

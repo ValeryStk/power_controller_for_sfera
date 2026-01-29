@@ -182,7 +182,9 @@ void PowerSupplyManager::increaseVoltageStepByStepToCurrentLimit(
     while (last_current_value < target_current) {
         ++fail_counter;
         if (stopFlagForOne_Lamp.load()) {
-            emit process_interrupted_by_user();
+            if (stopFlagForAll_Lamps == false) {
+                emit process_interrupted_by_user();
+            }
             break;
         }
         if (m_socket->state() != QTcpSocket::ConnectedState) {
@@ -244,7 +246,9 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
     }
     while (getVoltage(index, true) > global::kVoltageZeroAccuracy) {
         if (stopFlagForOne_Lamp.load()) {
-            emit process_interrupted_by_user();
+            if (stopFlagForAll_Lamps == false) {
+                emit process_interrupted_by_user();
+            }
             return;
         }
         ++fail_counter;
@@ -273,9 +277,11 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
                     "DECREASE";
                 qWarning() << message.arg(power_num).arg(out_num);
                 stopFlagForOne_Lamp.store(false);
-                emit lamp_state_changed_to_ub(index, getVoltage(index, true),
-                                              getCurrentValue(index, true),
-                                              true);
+                if (stopFlagForAll_Lamps == false) {
+                    emit lamp_state_changed_to_ub(
+                        index, getVoltage(index, true),
+                        getCurrentValue(index, true), true);
+                }
                 break;
             } else {
                 start_voltage = voltage;
