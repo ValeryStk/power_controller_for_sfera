@@ -4,6 +4,17 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+enum class MOCK_POWER_COMMADS {
+    SET_OUT_STATE,
+    GET_OUT_STATE,
+    SET_V,
+    GET_V,
+    GET_I_lim,
+    SET_I_lim,
+    GET_I,
+    SET_I
+};
+
 class MockPowerServer : public QTcpServer {
     Q_OBJECT
 public:
@@ -11,6 +22,19 @@ public:
 
 protected:
     void incomingConnection(qintptr socketDescriptor) override;
+
+private:
+    bool is_on_out_1 = true;
+    bool is_on_out_2 = true;
+
+    double I_limit_out_1 = 10.0;
+    double I_limit_out_2 = 10.0;
+
+    double Voltage_out_1 = 0.0;
+    double Voltage_out_2 = 0.0;
+
+    double I_current_out_1 = 0.0;
+    double I_current_out_2 = 0.0;
 };
 
 #endif  // MOCK_POWER_SERVER_H

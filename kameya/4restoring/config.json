@@ -37,7 +37,7 @@
         {
             "color": "green",
             "ip": "192.168.1.22",
-            "max_current": 10.0004,
+            "max_current": 10.004,
             "name": "лампа 5",
             "out": 1,
 			"total_work_hours":0
