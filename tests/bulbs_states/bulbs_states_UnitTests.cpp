@@ -15,7 +15,9 @@ bulbs_states_UnitTests::bulbs_states_UnitTests() {}
 void bulbs_states_UnitTests::initTestCase() {
     // Инициализация перед запуском всех тестов
     QFileInfo fi(global::config_json_file_name);
-    QFile::copy(":/mock/mock_config.json", global::config_json_file_name);
+    if (!fi.exists()) {
+        QFile::copy(":/mock/mock_config.json", global::config_json_file_name);
+    }
 }
 
 void bulbs_states_UnitTests::cleanupTestCase() {
