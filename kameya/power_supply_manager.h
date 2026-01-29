@@ -100,6 +100,7 @@ signals:
     void make_all_lamps_on();
     void make_all_lamps_off();
     void update_power_out(int, double, double);
+    void net_socket_error(int);
 
     // states changed signals
     void states_changed(QVector<PowerUnitParams>);

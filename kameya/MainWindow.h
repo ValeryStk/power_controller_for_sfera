@@ -77,6 +77,7 @@ private slots:
     void handle_undone_process(int index, double voltage, double current,
                                bool is_on);
     void handle_interrupted_process();
+    void handle_net_error_cases(int error);
     void on_pushButton_Forward_clicked();
     void on_checkBox_cooling_for_big_sphere_stateChanged(int arg1);
     void on_comboBox_mode_currentIndexChanged(int index);

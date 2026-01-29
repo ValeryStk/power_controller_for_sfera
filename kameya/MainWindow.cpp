@@ -133,6 +133,8 @@ MainWindow::MainWindow(QWidget* parent)
             &MainWindow::init_to_update_all_params);
     update_states_timer.setInterval(1000);
     update_states_timer.start();
+    connect(m_powerManager, SIGNAL(net_socket_error(int)), this,
+            SLOT(handle_net_error_cases(int)));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -277,6 +279,12 @@ void MainWindow::handle_interrupted_process() {
     ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
     m_sounder.playSound("process_was_cancelled.mp3");
     showMessageBox(QMessageBox::Information, "Стоп", "Операция прервана.");
+}
+
+void MainWindow::handle_net_error_cases(int error) {
+    m_state = CONTROLLER_STATES::WAIT_COMMAND;
+    qCritical() << "NET ERROR CODE: " << error;
+    ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
@@ -603,6 +611,9 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         m_sounder.playSound("run_all_lamps_to_off_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS;
         ui->label_TitlePage->setText(tlc::kStateMachineAllLampsOffCommandState);
+        m_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
+        m_bulbs_graphics_item->set_current_lamp_index(MAX_CURRENT_LAMP_INDEX);
+        setActivePowerOut();
         emit make_all_lamps_off();
         return;
     }
@@ -640,6 +651,9 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         m_sounder.playSound("run_all_lamps_to_on_state.mp3");
         m_state = CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS;
         ui->label_TitlePage->setText(tlc::kStateMachineAllLampsOnCommandState);
+        m_current_lamp_index = MIN_CURRENT_LAMP_INDEX;
+        m_bulbs_graphics_item->set_current_lamp_index(MIN_CURRENT_LAMP_INDEX);
+        setActivePowerOut();
         emit make_all_lamps_on();
         return;
     }
@@ -692,22 +706,23 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
             m_state = CONTROLLER_STATES::WAIT_COMMAND;
             break;
         case CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS:
-            m_bulbs_graphics_item->setBulbOff(lamp_index);
             m_current_lamp_index = lamp_index;
             if (m_current_lamp_index == MIN_CURRENT_LAMP_INDEX) {
                 ui->label_TitlePage->setText(
                     tlc::kStateMachineWaitCommandState);
                 m_state = CONTROLLER_STATES::WAIT_COMMAND;
             }
+            m_bulbs_graphics_item->setBulbOff(m_current_lamp_index);
             break;
         case CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS:
-            m_bulbs_graphics_item->setBulbOn(lamp_index);
             m_current_lamp_index = lamp_index;
             if (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX) {
                 ui->label_TitlePage->setText(
                     tlc::kStateMachineWaitCommandState);
                 m_state = CONTROLLER_STATES::WAIT_COMMAND;
             }
+            m_bulbs_graphics_item->setBulbOn(m_current_lamp_index);
+
             break;
         case CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS:
             break;

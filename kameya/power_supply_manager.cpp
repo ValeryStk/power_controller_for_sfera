@@ -262,7 +262,8 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
         if (voltage <= global::kVoltageZeroAccuracy) {
             setVoltage(index, 0, true);
             stopFlagForOne_Lamp.store(false);
-            emit lamp_state_changed(index, voltage, getCurrentValue(false));
+            emit lamp_state_changed(index, voltage,
+                                    getCurrentValue(index, true));
             break;
         }
         if (fail_counter == 3 &&
@@ -309,7 +310,10 @@ void PowerSupplyManager::errorInSocket(QAbstractSocket::SocketError error) {
         case QAbstractSocket::SslInvalidUserDataError:
         case QAbstractSocket::TemporaryError:
         case QAbstractSocket::UnknownSocketError:
-            qDebug() << "net error code: " << error;
+            qDebug() << "QAbstractSocket::SocketError " << error;
+            stopFlagForAll_Lamps.store(true);
+            stopFlagForOne_Lamp.store(true);
+            emit net_socket_error((int)error);
             break;
     }
 }
