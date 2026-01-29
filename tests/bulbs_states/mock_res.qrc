@@ -2,5 +2,7 @@
     <qresource prefix="/mock">
         <file>mock_config.json</file>
     </qresource>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>bulbs_test.ico</file>
+    </qresource>
 </RCC>
