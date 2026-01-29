@@ -244,6 +244,10 @@ void MainWindow::update_ps_out(int index, double voltage, double current) {
     int pn = global::get_power_num_by_index(index);
     int po = global::get_power_out_by_index(index);
     update_ps(pn, po, true, voltage, current);
+    m_bulbs_graphics_item->set_current_lamp_index(index);
+    m_current_lamp_index = index;
+    setActivePowerOut();
+    m_bulbs_graphics_item->update();
 }
 
 void MainWindow::handle_undone_process(int index, double voltage,

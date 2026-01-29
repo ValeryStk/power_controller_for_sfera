@@ -266,16 +266,22 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
                                     getCurrentValue(index, true));
             break;
         }
-        if (fail_counter == 3 &&
-            ((start_voltage - voltage) <= VOLTAGE_DECREASE_STEP)) {
-            QString message =
-                "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO DECREASE";
-            qWarning() << message.arg(power_num).arg(out_num);
-            stopFlagForOne_Lamp.store(false);
-            emit lamp_state_changed_to_ub(index, getVoltage(index, true),
-                                          getCurrentValue(index, true), true);
-            break;
-        };
+        if (fail_counter == 3) {
+            if ((start_voltage - voltage) <= VOLTAGE_DECREASE_STEP) {
+                QString message =
+                    "POWER %1 OUT %2 IS ON BUT VOLTAGE IS NOT POSSIBLE TO "
+                    "DECREASE";
+                qWarning() << message.arg(power_num).arg(out_num);
+                stopFlagForOne_Lamp.store(false);
+                emit lamp_state_changed_to_ub(index, getVoltage(index, true),
+                                              getCurrentValue(index, true),
+                                              true);
+                break;
+            } else {
+                start_voltage = voltage;
+                fail_counter = 0;
+            }
+        }
     }
 }
 
