@@ -2,13 +2,15 @@
 
 #include <QDebug>
 
+#include "config.h"
+
 MockPowerServer::MockPowerServer(QObject *parent) : QTcpServer(parent) {}
 
 void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
     QTcpSocket *clientSocket = new QTcpSocket(this);
     clientSocket->setSocketDescriptor(socketDescriptor);
 
-    qDebug() << "Клиент подключился:" << socketDescriptor;
+    qDebug() << "Client is connected: " << socketDescriptor;
 
     connect(clientSocket, &QTcpSocket::readyRead, this, [clientSocket, this]() {
         QByteArray data = clientSocket->readAll();
@@ -65,12 +67,23 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
                 QStringList values = tmp.split(" ");
                 out = values[0].toInt();
                 double value = values[1].toDouble();
+                if (value <= global::kVoltageZeroAccuracy) {
+                    value = 0.0;
+                }
                 if (out == 1) {
                     Voltage_out_1 = value;
-                    I_current_out_1 = Voltage_out_1 / 2.4;
+                    if (value != MAX_VOLTAGE) {
+                        I_current_out_1 = Voltage_out_1 / 2.4;
+                    } else {
+                        I_current_out_1 = I_limit_out_1;
+                    }
                 } else if (out == 2) {
                     Voltage_out_2 = value;
-                    I_current_out_2 = Voltage_out_2 / 2.4;
+                    if (value != MAX_VOLTAGE) {
+                        I_current_out_2 = Voltage_out_2 / 2.4;
+                    } else {
+                        I_current_out_2 = I_limit_out_2;
+                    }
                 }
                 return;
             }
