@@ -8,7 +8,7 @@
             "max_current": 10,
             "name": "лампа 1",
             "out": 1,
-			"total_work_hours":0
+            "total_work_hours":0
         },
         {
             "color": "blue",
@@ -16,7 +16,7 @@
             "max_current": 10.003,
             "name": "лампа 2",
             "out": 2,
-			"total_work_hours":0
+            "total_work_hours":0
         },
         {
             "color": "red",
@@ -24,7 +24,7 @@
             "max_current": 10.005,
             "name": "лампа 3",
             "out": 1,
-			"total_work_hours":0
+            "total_work_hours":0
         },
         {
             "color": "yellow",
@@ -32,7 +32,7 @@
             "max_current": 10.004,
             "name": "лампа 4",
             "out": 2,
-			"total_work_hours":0
+            "total_work_hours":0
         },
         {
             "color": "green",
@@ -40,7 +40,7 @@
             "max_current": 10.004,
             "name": "лампа 5",
             "out": 1,
-			"total_work_hours":0
+            "total_work_hours":0
         },
         {
             "color": "brown",
@@ -48,7 +48,7 @@
             "max_current": 10,
             "name": "лампа 6",
             "out": 2,
-			"total_work_hours":0
+            "total_work_hours":0
         }
     ],
     "lamps_item_coords": {
