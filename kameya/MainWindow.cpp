@@ -697,6 +697,11 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
             m_bulbs_graphics_item->setBulbOff(m_current_lamp_index);
             if (m_current_lamp_index > MIN_CURRENT_LAMP_INDEX) {
                 if (ui->checkBox_auto_up_down->isChecked()) {
+                    {
+                        QSignalBlocker blocker(ui->comboBox_mode);
+                        ui->comboBox_mode->setCurrentIndex(
+                            m_current_lamp_index);
+                    }
                     --m_current_lamp_index;
                 }
             }
@@ -709,6 +714,11 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
             if (m_current_lamp_index < MAX_CURRENT_LAMP_INDEX) {
                 if (ui->checkBox_auto_up_down->isChecked()) {
                     ++m_current_lamp_index;
+                    {
+                        QSignalBlocker blocker(ui->comboBox_mode);
+                        ui->comboBox_mode->setCurrentIndex(
+                            m_current_lamp_index + 1);
+                    }
                 }
             }
             ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);

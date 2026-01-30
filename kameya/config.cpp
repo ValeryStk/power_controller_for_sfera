@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include "QApplication"
+#include "QCoreApplication"
 #include "QDir"
 #include "json_utils.h"
 #include "qjsonarray.h"
@@ -54,7 +54,7 @@ int get_power_out_by_index(int index) {
 
 void mayBe_create_log_dir() {
     QString rootDir =
-        QApplication::applicationDirPath() + global::path_to_logs_dir;
+        QCoreApplication::applicationDirPath() + global::path_to_logs_dir;
     QDir().mkpath(rootDir);
 }
 
