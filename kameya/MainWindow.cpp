@@ -692,7 +692,6 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
     switch (m_state) {
         case CONTROLLER_STATES::WAIT_COMMAND:
             return;
-            break;
         case CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS:
             m_current_lamp_index = lamp_index;
             m_bulbs_graphics_item->setBulbOff(m_current_lamp_index);
