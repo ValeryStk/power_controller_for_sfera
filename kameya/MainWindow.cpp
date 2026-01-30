@@ -27,6 +27,7 @@
 #include "config.h"
 #include "graphics_items/power_supply_item.h"
 #include "icon_generator.h"
+#include "json_utils.h"
 #include "text_log_constants.h"
 
 PowerUnitParams initial_struct;
@@ -635,6 +636,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
                 QString(tlc::kStateMachineOneLampOffCommandState)
                     .arg(m_current_lamp_index + 1));
             emit make_one_lamp_off(m_current_lamp_index);
+            save_bulb_working_time(m_current_lamp_index);
             return;
         };
 
@@ -776,4 +778,23 @@ void MainWindow::on_pushButton_stop_all_processes_clicked() {
 
 void MainWindow::init_to_update_all_params() {
     m_bulbs_graphics_item->update();
+}
+
+void MainWindow::save_bulb_working_time(const int lamp_index) {
+    double hours = m_bulbs_graphics_item->get_elapsed_time(lamp_index);
+    QJsonObject jo;
+    jsn::getJsonObjectFromFile(
+        QDir::currentPath() + "/" + global::config_json_file_name, jo);
+    auto lamp_array = jo[global::kJsonKeyLampsArray].toArray();
+    auto lamp_obj = lamp_array[lamp_index].toObject();
+    double previous_value = lamp_obj[global::kJsonKeyTotalWorkHours].toDouble();
+    hours += previous_value;
+    lamp_obj[global::kJsonKeyTotalWorkHours] = hours;
+    qDebug() << QString("save working hours for lamp %1 new hours value %2")
+                    .arg(m_current_lamp_index)
+                    .arg(hours);
+    lamp_array[lamp_index] = lamp_obj;
+    jo[global::kJsonKeyLampsArray] = lamp_array;
+    jsn::saveJsonObjectToFile(global::config_json_file_name, jo,
+                              QJsonDocument::Indented);
 }

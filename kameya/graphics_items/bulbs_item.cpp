@@ -211,3 +211,10 @@ void BulbsQGraphicsItem::set_bulb_states(enum class bulb_state states[]) {
     }
     update();
 }
+
+double BulbsQGraphicsItem::get_elapsed_time(int bi) {
+    if (!m_bulb_on_time[bi].isValid()) return 0.0;
+    qint64 ms = m_bulb_on_time[bi].elapsed();
+    double hours = ms / (1000.0 * 60.0 * 60.0);
+    return hours;
+}

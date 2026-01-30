@@ -25,6 +25,7 @@ public:
     bool setBulbUndefined(int bi);
     void set_current_lamp_index(const int index);
     void set_bulb_states(bulb_state states[]);
+    double get_elapsed_time(int bi);
 
 private:
     void drawLamps(QPainter *painter);

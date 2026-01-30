@@ -89,6 +89,7 @@ private slots:
     void on_pushButton_switch_on_one_lamp_clicked();
     void on_pushButton_stop_all_processes_clicked();
     void init_to_update_all_params();
+    void save_bulb_working_time(const int lamp_index);
 
 signals:
     void make_one_lamp_on(int);
