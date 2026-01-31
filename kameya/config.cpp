@@ -54,7 +54,7 @@ int get_power_out_by_index(int index) {
 
 void mayBe_create_log_dir() {
     QString rootDir =
-        QCoreApplication::applicationDirPath() + global::path_to_logs_dir;
+        QCoreApplication::applicationDirPath() + "/" + global::path_to_logs_dir;
     QDir().mkpath(rootDir);
 }
 
@@ -102,7 +102,9 @@ void get_config_struct(const QString path_to_json_config,
 }
 
 void get_config_struct(lamps_powers_config& cfg) {
-    get_config_struct(config_json_file_name, cfg);
+    get_config_struct(
+        QCoreApplication::applicationDirPath() + "/" + config_json_file_name,
+        cfg);
 }
 
 }  // end namespace global

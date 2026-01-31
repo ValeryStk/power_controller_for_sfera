@@ -1,6 +1,7 @@
 // PowerSupplyItem.cpp
 #include "power_supply_item.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFontMetricsF>
 #include <QJsonObject>
@@ -11,7 +12,6 @@
 
 #include "config.h"
 #include "json_utils.h"
-#include "qjsonarray.h"
 
 PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
                                  const QString& obj_name)
@@ -23,7 +23,9 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
         loadSvg(svgPath);
     }
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::config_json_file_name, jo);
+    jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() + "/" +
+                                   global::config_json_file_name,
+                               jo);
     auto x = jo[m_object_name].toObject().value("x").toInt();
     auto y = jo[m_object_name].toObject().value("y").toInt();
     setPos(x, y);
@@ -34,14 +36,17 @@ PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
 
 PowerSupplyItem::~PowerSupplyItem() {
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(global::config_json_file_name, jo);
+    jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() + "/" +
+                                   global::config_json_file_name,
+                               jo);
     auto pos = scenePos().toPoint();
     QJsonObject coords = jo[m_object_name].toObject();
     coords["x"] = pos.x();
     coords["y"] = pos.y();
     jo[m_object_name] = coords;
-    jsn::saveJsonObjectToFile(global::config_json_file_name, jo,
-                              QJsonDocument::Indented);
+    jsn::saveJsonObjectToFile(QCoreApplication::applicationDirPath() + "/" +
+                                  global::config_json_file_name,
+                              jo, QJsonDocument::Indented);
 }
 
 bool PowerSupplyItem::loadSvg(const QString& svgPath) {

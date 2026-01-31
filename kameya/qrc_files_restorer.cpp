@@ -18,7 +18,10 @@ void restoreFilesFromQrc(const QString &path2Qrc) {
         QString filenameNew = application_path + files.at(i);
         QFile file(filenameNew);
         if (!file.exists()) {
-            QFile::copy(path2Qrc + "/" + files.at(i), filenameNew);
+            QString restored_file = path2Qrc + "/" + files.at(i);
+            qDebug() << "restored file: " << restored_file;
+            qDebug() << "restore result: "
+                     << QFile::copy(restored_file, filenameNew);
             file.setPermissions(QFileDevice::WriteUser | QFileDevice::ReadUser);
         }
     }
