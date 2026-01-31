@@ -2,4 +2,4 @@ TEMPLATE = subdirs
 SUBDIRS = \
       kameya\
       tests\
-	  mock_power_servers\
+      mock_power_servers\
