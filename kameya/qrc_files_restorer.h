@@ -9,6 +9,8 @@ extern const char defaultRestoreQrcPath[];
 
 void restoreFilesFromQrc(const QString &path2Qrc);
 
+void restoreFilesFromDefaultQrc();
+
 }  // end namespace utils
 
 #endif  // QRC_FILES_RESTORER_H

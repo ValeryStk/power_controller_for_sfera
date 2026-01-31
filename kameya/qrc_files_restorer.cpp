@@ -27,4 +27,8 @@ void restoreFilesFromQrc(const QString &path2Qrc) {
     }
 }
 
+void restoreFilesFromDefaultQrc() {
+    restoreFilesFromQrc(defaultRestoreQrcPath);
+}
+
 }  // namespace utils
