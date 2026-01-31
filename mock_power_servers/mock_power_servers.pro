@@ -6,17 +6,15 @@ TARGET = mock_power_servers
 include(../pathes.pri)
 KAMEYA_DIR =  $$ROOT_DIR/kameya
 
-SOURCES += $$MOCK_SERVER_PATH/mock_power_server.cpp\
+SOURCES += $$PWD/mock_power_server.cpp\
 $$KAMEYA_DIR/config.cpp\
 $$KAMEYA_DIR/json_utils.cpp\
 
-HEADERS += $$MOCK_SERVER_PATH/mock_power_server.h\
+HEADERS += $$PWD/mock_power_server.h\
 $$KAMEYA_DIR/config.h\
 $$KAMEYA_DIR/json_utils.h\
 
-INCLUDEPATH += $$MOCK_SERVER_PATH\
-               $$KAMEYA_DIR\
+INCLUDEPATH += $$KAMEYA_DIR\
 
 SOURCES += \
     $$PWD/main.cpp\
-

@@ -9,7 +9,6 @@
 #include "QCoreApplication"
 #include "commands_builder.h"
 #include "config.h"
-#include "json_utils.h"
 #include "text_log_constants.h"
 
 constexpr int host_port = 9221;
@@ -20,10 +19,12 @@ void wait() { Sleep(WAIT_INTERVAL); }
 
 PowerSupplyManager::PowerSupplyManager() {
     qInfo() << tlc::kPowerManagerConstructor;
+    m_socket = nullptr;
 }
 
 PowerSupplyManager::~PowerSupplyManager() {
     qInfo() << tlc::kPowerManagerDestructor;
+    if (!m_socket) return;
     if (m_socket->state() == QAbstractSocket::ConnectedState)
         m_socket->disconnectFromHost();
     qInfo() << tlc::kEndOfTheLog;

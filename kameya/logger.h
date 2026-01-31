@@ -2,6 +2,9 @@
 #define LOGGER_H
 
 #include "qtextcodec.h"
+#include "QFile"
+#include "QCoreApplication"
+#include "config.h"
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext& context,
                      const QString& msg) {
