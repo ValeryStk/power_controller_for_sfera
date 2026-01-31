@@ -11,7 +11,6 @@
 #include <QToolTip>
 
 #include "config.h"
-#include "json_utils.h"
 
 PowerSupplyItem::PowerSupplyItem(const QString& svgPath, const QString& name,
                                  const QString& obj_name)

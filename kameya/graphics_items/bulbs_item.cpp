@@ -1,14 +1,12 @@
 #include "bulbs_item.h"
 
-#include <QCoreApplication>>
+#include <QColor>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLinearGradient>
 #include <QPainter>
-
-#include "QColor"
-#include "json_utils.h"
 
 namespace {
 bool is_index_invalid(const int index) {
