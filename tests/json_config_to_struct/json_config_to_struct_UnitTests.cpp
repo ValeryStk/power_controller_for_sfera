@@ -11,8 +11,8 @@ json_config_to_struct_UnitTests::json_config_to_struct_UnitTests() {}
 
 void json_config_to_struct_UnitTests::initTestCase() {
     // Инициализация перед запуском всех тестов
-    QrcFilesRestorer::restoreFilesFromQrc(":/");
-    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring/");
+    utils::restoreFilesFromQrc(":/");
+    utils::restoreFilesFromQrc(utils::defaultRestoreQrcPath);
 }
 
 void json_config_to_struct_UnitTests::cleanupTestCase() {

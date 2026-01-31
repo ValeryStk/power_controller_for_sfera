@@ -3,16 +3,12 @@
 
 class QString;
 
-/*!
-    \brief Класс является объектом, необходимым для восстановления файлов в
-   директории с СПО из ресурсов в случае их отсутствия.
+namespace utils {
 
-    Данный класс предназначен для восстановления файлов в директорию с СПО из
-   ресурсов в случае их отсутствия.
-*/
-class QrcFilesRestorer {
-public:
-    static void restoreFilesFromQrc(QString path2Qrc);
-};
+extern const char defaultRestoreQrcPath[];
 
-#endif  // #include "qtextcodec.h"
+void restoreFilesFromQrc(const QString &path2Qrc);
+
+}  // end namespace utils
+
+#endif  // QRC_FILES_RESTORER_H

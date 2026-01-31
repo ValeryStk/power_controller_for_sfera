@@ -15,8 +15,8 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     check_single_application_is_running();
     global::mayBe_create_log_dir();
-    QrcFilesRestorer::restoreFilesFromQrc(":/4restoring");
     qInstallMessageHandler(myMessageOutput);
+    utils::restoreFilesFromQrc(utils::defaultRestoreQrcPath);
     qInfo() << tlc::kStartTheLog;
     MainWindow w;
     w.show();
