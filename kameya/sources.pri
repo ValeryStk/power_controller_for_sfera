@@ -16,7 +16,6 @@ HEADERS += \
     $$PWD/sounder.h \
     $$PWD/json_utils.h\
     $$PWD/qrc_files_restorer.h \
-    $$PWD/single_application.h \
     $$PWD/text_log_constants.h
 
 SOURCES += \
