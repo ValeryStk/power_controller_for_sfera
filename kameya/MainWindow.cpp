@@ -796,6 +796,7 @@ void MainWindow::save_bulb_working_time(const int lamp_index) {
                     .arg(hours);
     lamp_array[lamp_index] = lamp_obj;
     jo[global::kJsonKeyLampsArray] = lamp_array;
-    jsn::saveJsonObjectToFile(global::config_json_file_name, jo,
-                              QJsonDocument::Indented);
+    jsn::saveJsonObjectToFile(QCoreApplication::applicationDirPath() + "/" +
+                                  global::config_json_file_name,
+                              jo, QJsonDocument::Indented);
 }
