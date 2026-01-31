@@ -783,9 +783,7 @@ void MainWindow::init_to_update_all_params() {
 void MainWindow::save_bulb_working_time(const int lamp_index) {
     double hours = m_bulbs_graphics_item->get_elapsed_time(lamp_index);
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() + "/" +
-                                   global::config_json_file_name,
-                               jo);
+    global::getJsonObjectFromConfig(jo);
     auto lamp_array = jo[global::kJsonKeyLampsArray].toArray();
     auto lamp_obj = lamp_array[lamp_index].toObject();
     double previous_value = lamp_obj[global::kJsonKeyTotalWorkHours].toDouble();
@@ -796,7 +794,5 @@ void MainWindow::save_bulb_working_time(const int lamp_index) {
                     .arg(hours);
     lamp_array[lamp_index] = lamp_obj;
     jo[global::kJsonKeyLampsArray] = lamp_array;
-    jsn::saveJsonObjectToFile(QCoreApplication::applicationDirPath() + "/" +
-                                  global::config_json_file_name,
-                              jo, QJsonDocument::Indented);
+    global::saveJsonToConfigFile(jo);
 }

@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#include "qjsonobject.h"
+
 constexpr int NUMBER_OF_LAMPS = 6;
 constexpr int NUMBER_OF_POWER_SUPPLIES = 3;
 constexpr int MAX_CURRENT_LAMP_INDEX = 5;
@@ -101,6 +103,10 @@ void get_config_struct(const QString path_to_json_config,
                        lamps_powers_config &cfg);
 
 void get_config_struct(lamps_powers_config &cfg);
+
+void saveJsonToConfigFile(QJsonObject &jo);
+
+bool getJsonObjectFromConfig(QJsonObject &jo);
 
 }  // end namespace global
 

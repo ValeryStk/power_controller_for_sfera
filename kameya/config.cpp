@@ -107,4 +107,16 @@ void get_config_struct(lamps_powers_config& cfg) {
         cfg);
 }
 
+void saveJsonToConfigFile(QJsonObject& jo) {
+    jsn::saveJsonObjectToFile(QCoreApplication::applicationDirPath() + "/" +
+                                  global::config_json_file_name,
+                              jo, QJsonDocument::Indented);
+}
+
+bool getJsonObjectFromConfig(QJsonObject& jo) {
+    return jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() +
+                                          "/" + global::config_json_file_name,
+                                      jo);
+}
+
 }  // end namespace global

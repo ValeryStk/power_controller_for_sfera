@@ -39,10 +39,7 @@ QString PowerSupplyManager::getID() {
 
 void PowerSupplyManager::loadJsonConfig() {
     qInfo() << "Load lamps.json config";
-    bool is_json_valid =
-        jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() +
-                                       "/" + global::config_json_file_name,
-                                   m_powers);
+    bool is_json_valid = global::getJsonObjectFromConfig(m_powers);
     if (!is_json_valid) {
         qCritical() << "json config is not loaded";
         return;

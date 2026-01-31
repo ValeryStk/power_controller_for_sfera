@@ -21,9 +21,7 @@ BulbsQGraphicsItem::BulbsQGraphicsItem() {
     setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
     m_current_lamp_index = MAX_CURRENT_LAMP_INDEX;
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() + "/" +
-                                   global::config_json_file_name,
-                               jo);
+    global::getJsonObjectFromConfig(jo);
     auto coords = jo[global::kJsonKeyLampsCoordsObject].toObject();
     auto x = coords.value(global::kJsonKeyX).toInt();
     auto y = coords.value(global::kJsonKeyY).toInt();
@@ -38,17 +36,13 @@ BulbsQGraphicsItem::BulbsQGraphicsItem() {
 
 BulbsQGraphicsItem::~BulbsQGraphicsItem() {
     QJsonObject jo;
-    jsn::getJsonObjectFromFile(QCoreApplication::applicationDirPath() + "/" +
-                                   global::config_json_file_name,
-                               jo);
+    global::getJsonObjectFromConfig(jo);
     auto pos = scenePos().toPoint();
     QJsonObject coords;
     coords[global::kJsonKeyX] = pos.x();
     coords[global::kJsonKeyY] = pos.y();
     jo[global::kJsonKeyLampsCoordsObject] = coords;
-    jsn::saveJsonObjectToFile(QCoreApplication::applicationDirPath() + "/" +
-                                  global::config_json_file_name,
-                              jo, QJsonDocument::Indented);
+    global::saveJsonToConfigFile(jo);
 }
 
 QRectF BulbsQGraphicsItem::boundingRect() const {
