@@ -276,6 +276,7 @@ void MainWindow::handle_undone_process(int index, double voltage,
         m_state = CONTROLLER_STATES::WAIT_COMMAND;
         m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
     }
+    ui->pushButton_update->setEnabled(true);
 }
 
 void MainWindow::handle_interrupted_process() {
@@ -286,12 +287,14 @@ void MainWindow::handle_interrupted_process() {
     ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
     m_sounder.playSound("process_was_cancelled.mp3");
     showMessageBox(QMessageBox::Information, "Стоп", "Операция прервана.");
+    ui->pushButton_update->setEnabled(true);
 }
 
 void MainWindow::handle_net_error_cases(int error) {
     m_state = CONTROLLER_STATES::WAIT_COMMAND;
     qCritical() << "NET ERROR CODE: " << error;
     ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+    ui->pushButton_update->setEnabled(true);
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
