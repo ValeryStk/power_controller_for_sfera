@@ -270,6 +270,8 @@ void MainWindow::handle_undone_process(int index, double voltage,
          (m_current_lamp_index == MIN_CURRENT_LAMP_INDEX)) ||
         ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS) &&
          (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX))) {
+        m_powerManager->stopFlagForAll_Lamps.store(false);
+        m_powerManager->stopFlagForOne_Lamp.store(false);
         ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
         m_state = CONTROLLER_STATES::WAIT_COMMAND;
         m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
@@ -761,19 +763,15 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
 }
 
 void MainWindow::on_pushButton_stop_all_processes_clicked() {
-    if (m_state == CONTROLLER_STATES::WAIT_COMMAND) return;
-
-    if (m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS ||
-        m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS ||
-        m_state == CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS) {
-        m_powerManager->stopFlagForAll_Lamps.store(true);
-        m_powerManager->stopFlagForOne_Lamp.store(true);
-        return;
-    }
     if (m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
         m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_ON_PROCESS) {
         m_powerManager->stopFlagForOne_Lamp.store(true);
+        return;
+    } else {
+        m_powerManager->stopFlagForAll_Lamps.store(true);
+        m_powerManager->stopFlagForOne_Lamp.store(true);
     }
+    m_state = CONTROLLER_STATES::WAIT_COMMAND;
 }
 
 void MainWindow::init_to_update_all_params() {
