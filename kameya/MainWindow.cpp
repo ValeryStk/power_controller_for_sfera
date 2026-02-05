@@ -149,16 +149,6 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     m_powerManager->stopFlagForOne_Lamp.store(true);
     m_powers_manager_thread->quit();
     m_powers_manager_thread->wait();
-    m_powerManager->deleteLater();
-
-    for (int i = 0; i < psis.size(); ++i) {
-        m_sceneCalibr->removeItem(psis[i].first);
-        delete psis[i].first;
-    }
-    m_sceneCalibr->removeItem(m_bulbs_graphics_item);
-    delete m_bulbs_graphics_item;
-
-    QApplication::processEvents();
     event->accept();
 }
 
