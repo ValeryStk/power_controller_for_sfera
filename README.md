@@ -7,6 +7,5 @@ This repository contains software designed to control **CPX400DP power supplies*
 - Support for calibration workflows
 - Simple interface for integration into test setups
 - Modular design for future extensions
-<img width="1531" height="856" alt="image" src="https://github.com/user-attachments/assets/9a563cb8-5149-49a6-80d8-8bbdc8f50b00" />
-
+<img width="1924" height="1079" alt="screen_wait_state" src="https://github.com/user-attachments/assets/e7c7a8d9-f473-41f4-8923-083cbe6abcb2" />
 
