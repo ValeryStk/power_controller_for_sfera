@@ -1,3 +1,11 @@
+/**
+ * @file   mock_power_server.cpp
+ * @author Valery Stanchyk
+ * @date   2026-02-05
+ * @brief  mock server for emulation power supply CPX400DP TCP/IP responses. It
+ * is used for tests.
+ */
+
 #include "mock_power_server.h"
 
 #include <QDebug>
@@ -31,8 +39,8 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
                 out = tmp.toInt(&ok);
                 qDebug() << "GET V for out " << out << tmp << ok;
                 double value;
-                if (out == 1) value = Voltage_out_1;
-                if (out == 2) value = Voltage_out_2;
+                if (out == 1) value = m_params.Voltage_out_1;
+                if (out == 2) value = m_params.Voltage_out_2;
                 clientSocket->write(
                     QString("V%1 %2\n").arg(out).arg(value).toUtf8());
                 clientSocket->flush();
@@ -44,14 +52,14 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
                 if (ok) {
                     tmp.remove("O");
                     out = tmp.toInt(&ok);
-                    if (out == 1) value = I_current_out_1;
-                    if (out == 2) value = I_current_out_2;
+                    if (out == 1) value = m_params.I_current_out_1;
+                    if (out == 2) value = m_params.I_current_out_2;
 
                 } else {
                     out = tmp.toInt(&ok);
                     qDebug() << "Ok I lim parser" << ok;
-                    if (out == 1) value = I_limit_out_1;
-                    if (out == 2) value = I_limit_out_2;
+                    if (out == 1) value = m_params.I_limit_out_1;
+                    if (out == 2) value = m_params.I_limit_out_2;
                 }
                 qDebug() << "GET I for out " << out << tmp << ok;
                 clientSocket->write(QString("%1\n").arg(value).toUtf8());
@@ -71,18 +79,18 @@ void MockPowerServer::incomingConnection(qintptr socketDescriptor) {
                     value = 0.0;
                 }
                 if (out == 1) {
-                    Voltage_out_1 = value;
+                    m_params.Voltage_out_1 = value;
                     if (value != MAX_VOLTAGE) {
-                        I_current_out_1 = Voltage_out_1 / 2.4;
+                        m_params.I_current_out_1 = m_params.Voltage_out_1 / 2.4;
                     } else {
-                        I_current_out_1 = I_limit_out_1;
+                        m_params.I_current_out_1 = m_params.I_limit_out_1;
                     }
                 } else if (out == 2) {
-                    Voltage_out_2 = value;
+                    m_params.Voltage_out_2 = value;
                     if (value != MAX_VOLTAGE) {
-                        I_current_out_2 = Voltage_out_2 / 2.4;
+                        m_params.I_current_out_2 = m_params.Voltage_out_2 / 2.4;
                     } else {
-                        I_current_out_2 = I_limit_out_2;
+                        m_params.I_current_out_2 = m_params.I_limit_out_2;
                     }
                 }
                 return;

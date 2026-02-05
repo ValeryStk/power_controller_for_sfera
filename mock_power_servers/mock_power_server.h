@@ -1,3 +1,10 @@
+/**
+ * @file   mock_power_server.h
+ * @author Valery Stanchyk
+ * @date   2026-02-05
+ * @brief  mock server for emulation power supply CPX400DP TCP/IP responses
+ */
+
 #ifndef MOCK_POWER_SERVER_H
 #define MOCK_POWER_SERVER_H
 
@@ -24,17 +31,19 @@ protected:
     void incomingConnection(qintptr socketDescriptor) override;
 
 private:
-    bool is_on_out_1 = true;
-    bool is_on_out_2 = true;
+    struct powerParams {
+        bool is_on_out_1 = true;
+        bool is_on_out_2 = true;
 
-    double I_limit_out_1 = 10.0;
-    double I_limit_out_2 = 10.0;
+        double I_limit_out_1 = 10.0;
+        double I_limit_out_2 = 10.0;
 
-    double Voltage_out_1 = 0.0;
-    double Voltage_out_2 = 0.0;
+        double Voltage_out_1 = 0.0;
+        double Voltage_out_2 = 0.0;
 
-    double I_current_out_1 = 0.0;
-    double I_current_out_2 = 0.0;
+        double I_current_out_1 = 0.0;
+        double I_current_out_2 = 0.0;
+    } m_params;
 };
 
 #endif  // MOCK_POWER_SERVER_H
