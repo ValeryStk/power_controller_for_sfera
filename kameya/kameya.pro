@@ -1,5 +1,5 @@
 CONFIG += c++17
-TARGET = power_controller
+TARGET = PowerController
 RC_FILE = recource.rc
 
 include(sources.pri)
