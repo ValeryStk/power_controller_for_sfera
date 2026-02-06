@@ -16,7 +16,8 @@ HEADERS += \
     $$PWD/sounder.h \
     $$PWD/json_utils.h\
     $$PWD/qrc_files_restorer.h \
-    $$PWD/text_log_constants.h
+    $$PWD/text_log_constants.h\
+    $$PWD/graphics_items/progress_spinner_item.h\
 
 SOURCES += \
     $$PWD/config.cpp \
@@ -29,7 +30,8 @@ SOURCES += \
     $$PWD/sounder.cpp \
     $$PWD/json_utils.cpp\
     $$PWD/qrc_files_restorer.cpp \
-    $$PWD/text_log_constants.cpp
+    $$PWD/text_log_constants.cpp\
+    $$PWD/graphics_items/progress_spinner_item.cpp\
 
 RESOURCES += \
     $$PWD/res.qrc

@@ -11,6 +11,7 @@
 #include <QTimer>
 
 #include "graphics_items/bulbs_item.h"
+#include "graphics_items/progress_spinner_item.h"
 #include "power_supply_manager.h"
 #include "sounder.h"
 
@@ -45,6 +46,7 @@ private:
     QThread *m_powers_manager_thread;
     QGraphicsScene *m_sceneCalibr;
     BulbsQGraphicsItem *m_bulbs_graphics_item;
+    SpinnerItem *spinner;
     QTimer *m_timer_to_update_power_states;
     QTimer update_states_timer;
     QVector<PowerUnitParams> m_powers_outs_states;

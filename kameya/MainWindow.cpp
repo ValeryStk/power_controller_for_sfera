@@ -27,7 +27,6 @@
 #include "config.h"
 #include "graphics_items/power_supply_item.h"
 #include "icon_generator.h"
-#include "json_utils.h"
 #include "text_log_constants.h"
 
 PowerUnitParams initial_struct;
@@ -188,6 +187,7 @@ void MainWindow::retest_all_powers() {
     qInfo() << tlc::kOperationUpdateAllPowersStates;
     ui->label_TitlePage->setText(tlc::kStateMachineUpdateAllLampsCommandState);
     m_state = CONTROLLER_STATES::UPDATE_ALL_STATES_PROCESS;
+    spinner->setVisible(true);
     emit test_all();
 }
 
@@ -254,19 +254,15 @@ void MainWindow::handle_undone_process(int index, double voltage,
     m_current_lamp_index = index;
     setActivePowerOut();
     m_sceneCalibr->update();
-    if (m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
-        m_state == CONTROLLER_STATES::ONE_LAMP_SWITCH_OFF_PROCESS ||
-        ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_OFF_PROCESS) &&
-         (m_current_lamp_index == MIN_CURRENT_LAMP_INDEX)) ||
-        ((m_state == CONTROLLER_STATES::ALL_LAMPS_SWITCH_ON_PROCESS) &&
-         (m_current_lamp_index == MAX_CURRENT_LAMP_INDEX))) {
-        m_powerManager->stopFlagForAll_Lamps.store(false);
-        m_powerManager->stopFlagForOne_Lamp.store(false);
-        ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
-        m_state = CONTROLLER_STATES::WAIT_COMMAND;
-        m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
-    }
+
+    m_powerManager->stopFlagForAll_Lamps.store(false);
+    m_powerManager->stopFlagForOne_Lamp.store(false);
+    ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
+    m_state = CONTROLLER_STATES::WAIT_COMMAND;
+
+    m_sounder.playSound("lamp_in_undefined_state_is_founded.mp3");
     ui->pushButton_update->setEnabled(true);
+    spinner->setVisible(false);
 }
 
 void MainWindow::handle_interrupted_process() {
@@ -278,6 +274,7 @@ void MainWindow::handle_interrupted_process() {
     m_sounder.playSound("process_was_cancelled.mp3");
     showMessageBox(QMessageBox::Information, "Стоп", "Операция прервана.");
     ui->pushButton_update->setEnabled(true);
+    spinner->setVisible(false);
 }
 
 void MainWindow::handle_net_error_cases(int error) {
@@ -285,6 +282,7 @@ void MainWindow::handle_net_error_cases(int error) {
     qCritical() << "NET ERROR CODE: " << error;
     ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
     ui->pushButton_update->setEnabled(true);
+    spinner->setVisible(false);
 }
 
 void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
@@ -382,6 +380,7 @@ void MainWindow::testSlot(QVector<PowerUnitParams> powers_outs_states) {
     ui->pushButton_update_power_states->setEnabled(true);
     ui->pushButton_update->setEnabled(true);
     m_state = CONTROLLER_STATES::WAIT_COMMAND;
+    spinner->setVisible(false);
     ui->label_TitlePage->setText(tlc::kStateMachineWaitCommandState);
 }
 
@@ -403,6 +402,12 @@ void MainWindow::createObjects() {
     m_powers_manager_thread->start();
 
     m_sceneCalibr = new QGraphicsScene;
+
+    spinner = new SpinnerItem();
+    m_sceneCalibr->addItem(spinner);
+    spinner->setZValue(MAX_Z_INDEX + 1);
+    spinner->setPos(100, 100);
+    spinner->setVisible(false);
 
     repeatLastNotification = new QShortcut(this);
     show_log = new QShortcut(this);
@@ -615,6 +620,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
         m_bulbs_graphics_item->set_current_lamp_index(MAX_CURRENT_LAMP_INDEX);
         setActivePowerOut();
         emit make_all_lamps_off();
+        spinner->setVisible(true);
         return;
     }
 
@@ -630,6 +636,7 @@ void MainWindow::on_pushButton_switchOffOneLamp_clicked() {
             ui->label_TitlePage->setText(
                 QString(tlc::kStateMachineOneLampOffCommandState)
                     .arg(m_current_lamp_index + 1));
+            spinner->setVisible(true);
             emit make_one_lamp_off(m_current_lamp_index);
             save_bulb_working_time(m_current_lamp_index);
             return;
@@ -657,6 +664,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
         m_bulbs_graphics_item->set_current_lamp_index(MIN_CURRENT_LAMP_INDEX);
         setActivePowerOut();
         emit make_all_lamps_on();
+        spinner->setVisible(true);
         return;
     }
 
@@ -673,6 +681,7 @@ void MainWindow::on_pushButton_switch_on_one_lamp_clicked() {
                 QString(tlc::kStateMachineOneLampOnCommandState)
                     .arg(m_current_lamp_index + 1));
             qInfo() << tlc::kOperationSwitchOnOneLampName;
+            spinner->setVisible(true);
             return;
         };
 
@@ -752,6 +761,7 @@ void MainWindow::update_lamp_state(int lamp_index, double voltage,
     m_sceneCalibr->update();
     if (m_state == CONTROLLER_STATES::WAIT_COMMAND) {
         m_sounder.playSound("wait_for_new_command.mp3");
+        spinner->setVisible(false);
     }
 }
 
@@ -765,10 +775,14 @@ void MainWindow::on_pushButton_stop_all_processes_clicked() {
         m_powerManager->stopFlagForOne_Lamp.store(true);
     }
     m_state = CONTROLLER_STATES::WAIT_COMMAND;
+    spinner->setVisible(false);
 }
 
 void MainWindow::init_to_update_all_params() {
     m_bulbs_graphics_item->update();
+    if (spinner) {
+        spinner->rotate();
+    };
 }
 
 void MainWindow::save_bulb_working_time(const int lamp_index) {

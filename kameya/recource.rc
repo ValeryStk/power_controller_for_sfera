@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "version.h"
-IDI_ICON1	ICON	DISCARDABLE	"kameya.ico"
+IDI_ICON1	ICON	DISCARDABLE	"power.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     VER_FILEVERSION

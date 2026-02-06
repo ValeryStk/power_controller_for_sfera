@@ -2,9 +2,12 @@
 echo Close Explorer...
 taskkill /f /im explorer.exe
 
-echo Clear icons cache...
-del /a /q "%localappdata%\IconCache.db"
-del /a /f /q "%localappdata%\Microsoft\Windows\Explorer\iconcache*"
+ie4uinit.exe -show  (очищает кэш дополнительно) [web:1]
+attrib -h -s "%localappdata%\IconCache.db"
+del /f /q "%localappdata%\IconCache.db"
+del /f /q "%localappdata%\Microsoft\Windows\Explorer\iconcache*"
+del /f /q "%localappdata%\Microsoft\Windows\Explorer\thumbcache*"
+start explorer.exe
 
 echo Run explorer again...
 start explorer.exe
