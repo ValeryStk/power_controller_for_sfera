@@ -278,7 +278,8 @@ void PowerSupplyManager::decreaseVoltageStepByStepToZero(const quint16 index) {
                     "DECREASE";
                 qWarning() << message.arg(power_num).arg(out_num);
                 stopFlagForOne_Lamp.store(false);
-                if (stopFlagForAll_Lamps == false) {
+                if (stopFlagForAll_Lamps == false ||
+                    index == MIN_CURRENT_LAMP_INDEX) {
                     emit lamp_state_changed_to_ub(
                         index, getVoltage(index, true),
                         getCurrentValue(index, true), true);
