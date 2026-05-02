@@ -1,33 +1,28 @@
 #include "MainWindow.h"
 
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDir>
 #include <QGraphicsScene>
+#include <QMetaType>
 #include <QPair>
 #include <QProcess>
 #include <QStyle>
 #include <QTimer>
+#include <QUrl>
+#include <QtConcurrent/QtConcurrent>
 #include <chrono>
 #include <memory>
 
 #include "QStyleFactory"
 #include "Version.h"
-#include "math.h"
-#include "qmutex.h"
-#include "ui_MainWindow.h"
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <synchapi.h>
-
-#include <QDesktopServices>
-#include <QMetaType>
-#include <QUrl>
-#include <QtConcurrent/QtConcurrent>
-
 #include "config.h"
 #include "graphics_items/power_supply_item.h"
 #include "icon_generator.h"
+#include "math.h"
+#include "qmutex.h"
 #include "text_log_constants.h"
+#include "ui_MainWindow.h"
 
 PowerUnitParams initial_struct;
 Q_DECLARE_METATYPE(QVector<PowerUnitParams>)

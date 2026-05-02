@@ -1,10 +1,7 @@
 #include "power_supply_manager.h"
 
+#include <QThread>
 #include <QtGlobal>
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <synchapi.h>
 
 #include "QCoreApplication"
 #include "commands_builder.h"
@@ -14,7 +11,7 @@
 constexpr int host_port = 9221;
 
 namespace {
-void wait() { Sleep(WAIT_INTERVAL); }
+void wait() { QThread::sleep(WAIT_INTERVAL); }
 }  // end namespace
 
 PowerSupplyManager::PowerSupplyManager() {
