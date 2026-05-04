@@ -11,7 +11,7 @@
 constexpr int host_port = 9221;
 
 namespace {
-void wait() { QThread::sleep(WAIT_INTERVAL); }
+void wait() { QThread::sleep(WAIT_INTERVAL / 1000.0); }
 }  // end namespace
 
 PowerSupplyManager::PowerSupplyManager() {
